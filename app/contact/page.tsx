@@ -1,166 +1,105 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+
+import { BudgetSlider } from "@/components/BudgetSlider";
+import contactImg from "@/assets/images/team.jpg";
 
 export const metadata: Metadata = {
-    title: "Applied Archive Atelier — Contact",
+  title: "Applied Archive Atelier — Contact",
 };
 
 export default function ContactPage() {
-    return (
-        <main className="flex flex-col justify-start px-2 w-full text-xs leading-[115%]">
-            <div className="grid grid-cols-18 gap-2 pt-[calc(var(--nav-height)*1.2)] pb-[calc(var(--nav-height)*1.2)]">
-                <aside className="col-span-18 md:col-span-4 self-start flex flex-col gap-2 md:sticky md:top-[calc(var(--nav-height)*1.2)] pb-12 md:pb-0">
-                    <h1 className="uppercase">Start a conversation</h1>
-                    <p className="opacity-70 pt-2">Get in touch</p>
-                    <p>
-                        Tell us what you&apos;re building. The work we take is
-                        work worth doing together — if it matters to you and to
-                        the people you serve, there&apos;s a place for it here.
-                    </p>
+  return (
+    <main className="flex flex-col px-2 text-xs leading-[120%] min-h-screen">
+      <div className="flex md:flex-1 items-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6">
+        <div className="grid grid-cols-18 gap-2 w-full"></div>
+      </div>
 
-                    <div className="flex flex-col gap-2 pt-4">
-                        <p className="opacity-70">Direct</p>
-                        <a
-                            href="mailto:hello@appliedarchive.atelier"
-                            data-nav-link
-                            className="relative flex items-center w-fit"
-                        >
-                            <span
-                                data-nav-hl
-                                className="absolute inset-0 bg-green scale-y-0 origin-top"
-                            />
-                            <span className="relative z-10">
-                                hello@appliedarchive.atelier
-                            </span>
-                        </a>
-                    </div>
+      <div className="mt-auto md:mt-0 border-t border-b border-black/20 pt-2 pb-4">
+        <form
+          method="POST"
+          action="#"
+          data-contact-form
+          className="flex flex-col gap-4 md:grid md:grid-cols-18 md:gap-2 md:h-[calc(var(--contact-row)*2)]"
+        >
+          <div className="flex flex-col gap-4 md:col-span-12 md:grid md:grid-cols-12 md:grid-rows-2 md:gap-x-2 md:gap-y-0 md:h-full">
+            {/* Row 1 */}
+            <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
+              <span className="opacity-70">Name</span>
+              <input
+                type="text"
+                name="name"
+                required
+                autoComplete="name"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%]"
+              />
+            </label>
+            <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
+              <span className="opacity-70">Email</span>
+              <input
+                type="email"
+                name="email"
+                required
+                autoComplete="email"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%]"
+              />
+            </label>
+            <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
+              <span className="opacity-70">Organization (optional)</span>
+              <input
+                type="text"
+                name="organization"
+                autoComplete="organization"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%]"
+              />
+            </label>
 
-                    <div className="flex flex-col gap-2 pt-4">
-                        <p className="opacity-70">Studio</p>
-                        <p>Montréal, QC</p>
-                    </div>
+            {/* Row 2 */}
+            <label className="col-span-4 flex flex-col justify-between gap-1 h-full pt-2">
+              <span className="opacity-70">Timeline (optional)</span>
+              <input
+                type="text"
+                name="timeline"
+                placeholder="When are you hoping to start?"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%] placeholder:opacity-40"
+              />
+            </label>
+            <BudgetSlider className="col-span-4 pt-2" />
+            <label className="col-span-4 flex flex-col gap-1 h-full pt-2">
+              <span className="opacity-70">What are you building?</span>
+              <textarea
+                name="message"
+                required
+                className="flex-1 min-h-24 md:min-h-0 bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%] resize-none"
+              />
+            </label>
+          </div>
 
-                    <div className="flex flex-col gap-2 pt-4">
-                        <p className="opacity-70">Elsewhere</p>
-                        <div className="grid grid-cols-2 gap-2">
-                            <a
-                                href="#"
-                                data-nav-link
-                                className="relative flex items-center w-fit"
-                            >
-                                <span
-                                    data-nav-hl
-                                    className="absolute inset-0 bg-green scale-y-0 origin-top"
-                                />
-                                <span className="relative z-10">
-                                    Instagram{" "}
-                                    <span className="text-[10px]">↗</span>
-                                </span>
-                            </a>
-                            <a
-                                href="#"
-                                data-nav-link
-                                className="relative flex items-center w-fit"
-                            >
-                                <span
-                                    data-nav-hl
-                                    className="absolute inset-0 bg-green scale-y-0 origin-top"
-                                />
-                                <span className="relative z-10">
-                                    LinkedIn{" "}
-                                    <span className="text-[10px]">↗</span>
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </aside>
-
-                <form
-                    method="POST"
-                    action="#"
-                    data-contact-form
-                    className="col-span-18 md:col-span-14 flex flex-col gap-[calc(var(--space-l))]"
-                >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-[calc(var(--space-l))]">
-                        <label className="flex flex-col gap-1">
-                            <span className="opacity-70">Name</span>
-                            <input
-                                type="text"
-                                name="name"
-                                required
-                                autoComplete="name"
-                                className="bg-transparent border-b border-black focus:outline-none focus:border-green pb-1 leading-[115%]"
-                            />
-                        </label>
-                        <label className="flex flex-col gap-1">
-                            <span className="opacity-70">Email</span>
-                            <input
-                                type="email"
-                                name="email"
-                                required
-                                autoComplete="email"
-                                className="bg-transparent border-b border-black focus:outline-none focus:border-green pb-1 leading-[115%]"
-                            />
-                        </label>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-[calc(var(--space-l))]">
-                        <label className="flex flex-col gap-1">
-                            <span className="opacity-70">
-                                Organization (optional)
-                            </span>
-                            <input
-                                type="text"
-                                name="organization"
-                                autoComplete="organization"
-                                className="bg-transparent border-b border-black focus:outline-none focus:border-green pb-1 leading-[115%]"
-                            />
-                        </label>
-                        <label className="flex flex-col gap-1">
-                            <span className="opacity-70">
-                                Timeline (optional)
-                            </span>
-                            <input
-                                type="text"
-                                name="timeline"
-                                placeholder="When are you hoping to start?"
-                                className="bg-transparent border-b border-black focus:outline-none focus:border-green pb-1 leading-[115%] placeholder:opacity-40"
-                            />
-                        </label>
-                    </div>
-
-                    <label className="flex flex-col gap-1">
-                        <span className="opacity-70">
-                            What are you building?
-                        </span>
-                        <textarea
-                            name="message"
-                            required
-                            rows={10}
-                            className="bg-transparent border-b border-black focus:outline-none focus:border-green pb-1 leading-[115%] resize-none"
-                        />
-                    </label>
-
-                    <div className="flex flex-row justify-between items-end pt-2">
-                        <p className="opacity-70 max-w-[28ch]">
-                            We read every note ourselves and reply within a few
-                            days.
-                        </p>
-                        <button
-                            type="submit"
-                            data-nav-link
-                            className="relative flex items-center w-fit cursor-pointer"
-                        >
-                            <span
-                                data-nav-hl
-                                className="absolute inset-0 bg-green scale-y-0 origin-top"
-                            />
-                            <span className="relative z-10">
-                                Send <span className="text-[10px]">↗</span>
-                            </span>
-                        </button>
-                    </div>
-                </form>
+          <div className="flex flex-col gap-4 md:col-span-6 md:grid md:grid-cols-6 md:content-between md:gap-x-0 md:gap-y-2 md:h-full">
+            <p className="col-start-3 col-span-4 opacity-70">
+              The living projects start with a conversation. A coffee or a call,
+              whatever&apos;s easiest for you. Every budget is welcome. We read
+              it as energy. Tell us yours, and we&apos;ll be honest about what we
+              can make with it, together.
+            </p>
+            <div className="col-span-6 flex justify-end items-end">
+              <button
+                type="submit"
+                data-nav-link
+                className="relative flex items-center w-fit cursor-pointer"
+              >
+                <span
+                  data-nav-hl
+                  className="absolute inset-0 bg-green scale-y-0 origin-top"
+                />
+                <span className="relative z-10">
+                  Send <span className="text-[10px]">↗</span>
+                </span>
+              </button>
             </div>
-        </main>
-    );
+          </div>
+        </form>
+      </div>
+    </main>
+  );
 }

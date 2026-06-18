@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { LenisInit } from "@/components/LenisInit";
 import { NavInteractions } from "@/components/NavInteractions";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
             <body className="font-sans antialiased">
                 <Navbar />
                 {children}
+                <Footer />
                 <LenisInit />
                 <NavInteractions />
             </body>

@@ -8,7 +8,7 @@ export default function TeamPage() {
     const projectsForMember = (name: string) =>
         projects
             .filter((p) => p.team.includes(name))
-            .map((p) => p.client);
+            .map((p) => ({ id: p.id, client: p.client }));
 
     const sections = [
         {
