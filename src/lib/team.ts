@@ -1,0 +1,103 @@
+import jj from "@/assets/images/jj.jpg";
+import luckensy from "@/assets/images/luckensy.jpg";
+import jordane from "@/assets/images/jordane.jpg";
+import johnelle from "@/assets/images/johnelle.jpg";
+import reatchy from "@/assets/images/reatchy.jpg";
+
+export interface TeamMember {
+  key: string;
+  slug: string;
+  name: string;
+  role: string;
+  services: string[];
+  location: string;
+  image: string;
+  bio: string;
+  instagram: string;
+  linkedin: string;
+  projectIds: string[];
+}
+
+export const core: TeamMember[] = [
+  {
+    key: "jj",
+    slug: "jean-julien",
+    name: "Jean-Julien Hazoumé",
+    role: "Creative Direction, Design & Development",
+    services: [
+      "Creative Direction",
+      "Art Direction",
+      "Graphic Design",
+      "Identity",
+      "UI/UX Design",
+      "Web Development",
+    ],
+    location: "Montréal, QC",
+    image: jj,
+    bio: "Jean-Julien Hazoumé is a creative director, designer, and founder of Applied Archive Atelier. Building the studio around the idea that who you work with matters as much as what you make, Jean-Julien propels each mission toward the form that amplifies it best – from websites to objects.",
+    instagram: "https://instagram.com",
+    linkedin: "https://linkedin.com",
+    projectIds: ["chimie", "ecozoic"],
+  },
+  {
+    key: "luckensy",
+    slug: "luckensy",
+    name: "Luckensy Odigé",
+    role: "Graphic Design, Illustration, Photography",
+    services: [
+      "Creative Direction",
+      "Art Direction",
+      "Graphic Design",
+      "Identity",
+      "Illustration",
+      "Photography",
+    ],
+    location: "Montréal, QC",
+    image: luckensy,
+    bio: "Luckensy Odigé watches over the identity of a mission – poster, report, campaign, image – so it stays legible from one culture to the next.",
+    instagram: "https://instagram.com",
+    linkedin: "https://linkedin.com",
+    projectIds: ["ellipse"],
+  },
+  {
+    key: "jordane",
+    slug: "jordane",
+    name: "Jordane Kaluma",
+    role: "Semiotics, Creative Strategy, Funding",
+    services: ["Semiotics", "Creative Strategy", "Funding"],
+    location: "Montréal, QC",
+    image: jordane,
+    bio: "Jordane Kaluma reads the cultural signals beneath a project and turns them into positioning, language, and the funding that keeps a mission alive.",
+    instagram: "https://instagram.com",
+    linkedin: "https://linkedin.com",
+    projectIds: [],
+  },
+  {
+    key: "johnelle",
+    slug: "johnelle",
+    name: "Johnelle Smith",
+    role: "Graphic and Experiential Design",
+    services: ["Graphic Design", "Experiential Design"],
+    location: "Montréal, QC",
+    image: johnelle,
+    bio: "Johnelle Smith treats design as cultural infrastructure – identities and spaces that make room for the artists, organizers, and institutions shaping cultural life.",
+    instagram: "https://instagram.com",
+    linkedin: "https://linkedin.com",
+    projectIds: ["bxb", "ctrl"],
+  },
+  {
+    key: "reatchy",
+    slug: "reatchy",
+    name: "Reatchy Legros",
+    role: "Direction & Video",
+    services: ["Direction", "Video Production"],
+    location: "Montréal, QC",
+    image: reatchy,
+    bio: "Reatchy Legros, direction and video. Directs and edits films that carry a point of view, from shoot to final cut – to mirror, question, and enchant the real.",
+    instagram: "https://instagram.com",
+    linkedin: "https://linkedin.com",
+    projectIds: [],
+  },
+];
+
+export const collaborators: TeamMember[] = core;

@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+html {
+    scrollbar-width: none;
+    --nav-shrink: 0;
+    --nav-height: 0px;
+    --nav-gap: calc(
+        var(--space-l) * (1 - var(--nav-shrink)) + var(--space-xl-small) *
+            var(--nav-shrink)
+    );
+    --nav-bg: white;
+    --page-bg: white;
+    /* One team section (5 member rows of text-xs + pt-2/pb-2). A contact
+       form row matches one section; the two-row form matches the full list. */
+    --contact-row: calc(var(--text-xs) * 1.2 * 5 + 1rem);
+}
+
+body {
+    background: var(--page-bg);
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+
+@font-face {
+    font-family: "ABC Favorit";
+    src: url("/fonts/ABCFavorit-Book.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "ABC Favorit";
+    src: url("/fonts/ABCFavorit-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "ABC Favorit";
+    src: url("/fonts/ABCFavorit-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Team <-> member shared-element transitions */
+::view-transition-group(team-list) {
+    animation-duration: 450ms;
+}
+/* The hovered member image already matches the destination, so the hero
+   should cut instantly rather than crossfade. */
+::view-transition-group(team-hero),
+::view-transition-old(team-hero),
+::view-transition-new(team-hero) {
+    animation-duration: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(*),
+    ::view-transition-new(*),
+    ::view-transition-group(*) {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+    }
+}
+
+/* Homepage project-preview cells. Each project hand-writes its own layout in
+   Home.tsx; spans are driven by inline CSS variables so any column count works
+   without a Tailwind safelist. --cell-sm: mobile span of 6 (default full
+   width); --cell-md: desktop span; --cell-start-md: optional desktop start. */
+.home-cell {
+    grid-column: auto / span var(--cell-sm, 6);
+}
+@media (min-width: 768px) {
+    .home-cell {
+        grid-column: var(--cell-start-md, auto) / span
+            var(--cell-md, var(--cell-sm, 6));
+    }
+}
+
+/* Footer navigation. The footer sits on green, so flip the shared menu's hover
+   treatment: a black highlight bar with the label turning green on hover. The
+   navbar keeps the default green bar on white. */
+footer [data-nav-hl] {
+    background: black;
+}
+footer [data-nav-link] {
+    transition: color 0.2s ease;
+}
+footer [data-nav-link]:hover {
+    color: var(--color-green);
+}
+
+/* Minimal budget range slider: 1px line track, black circular thumb. */
+.budget-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 12px;
+    background: transparent;
+    cursor: pointer;
+}
+.budget-slider::-webkit-slider-runnable-track {
+    height: 1px;
+    background: black;
+}
+.budget-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 9px;
+    width: 9px;
+    border-radius: 50%;
+    background: black;
+    margin-top: -5px;
+}
+.budget-slider::-moz-range-track {
+    height: 1px;
+    background: black;
+    opacity: 0.2;
+}
+.budget-slider::-moz-range-thumb {
+    height: 9px;
+    width: 9px;
+    border: none;
+    border-radius: 50%;
+    background: black;
+}
+.budget-slider:focus {
+    outline: none;
+}
+
+mux-player {
+    width: 100%;
+    display: block;
+    --controls: none;
+    --dialog: none;
+    --media-object-size: cover;
+    --loading-indicator: none;
+    --media-play-button: none;
+    --play-button: none;
+    --live-button: none;
+    --seek-backward-button: none;
+    --seek-forward-button: none;
+    --mute-button: none;
+    --captions-button: none;
+    --airplay-button: none;
+    --pip-button: none;
+    --fullscreen-button: none;
+    --cast-button: none;
+    --playback-rate-button: none;
+    --volume-range: none;
+    --time-range: none;
+    --time-display: none;
+    --duration-display: none;
+    --rendition-menu-button: none;
+    --center-controls: none;
+    --bottom-play-button: none;
+}
+
+@theme {
+    --font-sans: "ABC Favorit", ui-sans-serif, system-ui, sans-serif;
+    --grid-template-columns-16: repeat(16, minmax(0, 1fr));
+    --grid-template-columns-18: repeat(18, minmax(0, 1fr));
+    --grid-template-columns-11: repeat(11, minmax(0, 1fr));
+    --grid-template-columns-14: repeat(14, minmax(0, 1fr));
+    --text-xs: clamp(0.6rem, 0.5817rem + 0.1923vw, 0.75rem);
+    --text-md: clamp(0.8rem, 0.8147rem + 0.379vw, 1.2695rem);
+
+    --text-header: clamp(1.625rem, 0.2917rem + 5.9259vw, 5.625rem);
+    --text-header-small: clamp(1.125rem, 1.0385rem + 0.3846vw, 1.5rem);
+    --color-green: #20fe06;
+
+    --space-3xs: clamp(0.1875rem, 0.1154rem + 0.3205vw, 0.5rem);
+    --space-2xs: clamp(0.3125rem, 0.1683rem + 0.641vw, 0.9375rem);
+    --space-xs: clamp(0.5rem, 0.2837rem + 0.9615vw, 1.4375rem);
+    --space-s: clamp(0.625rem, 0.3365rem + 1.2821vw, 1.875rem);
+    --space-m: clamp(0.9375rem, 0.5048rem + 1.9231vw, 2.8125rem);
+    --space-l: clamp(1.25rem, 0.6731rem + 2.5641vw, 3.75rem);
+    --space-xl: clamp(1.875rem, 1.0096rem + 3.8462vw, 5.625rem);
+    --space-xl-small: clamp(0.75rem, 0.6rem + 0.75vw, 1.5rem);
+    --space-2xl: clamp(2.5rem, 1.3462rem + 5.1282vw, 7.5rem);
+    --space-3xl: clamp(3.75rem, 2.0192rem + 7.6923vw, 11.25rem);
+}
