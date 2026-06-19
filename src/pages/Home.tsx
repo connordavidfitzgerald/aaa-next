@@ -157,22 +157,19 @@ export function HomePage() {
                 className="grid grid-cols-6 gap-2 text-xs"
               >
                 <div className="grid grid-cols-18 gap-2 col-span-6 sticky top-[calc(var(--nav-height)-0.5em)] h-fit pb-2 z-40 bg-white leading-[105%]">
-                  <div className="col-span-10 grid-cols-10 gap-2 grid mt-4">
+                  <div className="col-span-8 grid-cols-8 gap-2 grid mt-2">
                     <div className="col-span-4 text-xs leading-[110%]">
                       <div>{project.client}</div>
                     </div>
-                    <div className="col-span-6 text-xs leading-[110%]">
+                    <div className="col-span-4 text-xs leading-[110%]">
                       <div>{project.description}</div>
                     </div>
                   </div>
-                  <div className="col-span-2"></div>
-                  <div className="col-span-4 mt-4 flex flex-col gap-2 leading-[100%] text-[10px]">
-                    <p>Services</p>
-                    {project.services}
-                  </div>
-                  <div className="col-span-2 mt-4 flex flex-col gap-2 leading-[100%] text-[10px]">
-                    <p>Team</p>
+                  <div className="col-span-4 mt-2 flex flex-col gap-2 leading-[100%] text-xs">
                     {project.team}
+                  </div>
+                  <div className="col-span-4 mt-2 flex flex-col gap-2 leading-[100%] text-xs">
+                    {project.services}
                   </div>
                 </div>
                 {layout(flattenMedia(project.media))}
