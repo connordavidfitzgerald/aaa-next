@@ -249,7 +249,7 @@ export function TeamView({
           </div>
 
           <ViewTransition name="team-list">
-            <div className="relative z-10 flex flex-col tracking-[-0.01em]">
+            <div className="relative z-10 flex flex-col tracking-[-0.01em] py-2 border-t border-black/20">
               <MemberDetail member={selected} />
             </div>
           </ViewTransition>
