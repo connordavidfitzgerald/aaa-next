@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import { TeamView } from "@/components/TeamView";
-import { getTeam } from "@/lib/team";
+import { core } from "@/lib/team";
 import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
@@ -9,9 +9,8 @@ import { NotFound } from "@/pages/NotFound";
 
 export function MemberPage() {
     const { member: slug } = useParams<{ member: string }>();
-    const { data, loading } = useQuery(getTeam, []);
-    const { data: allProjects } = useQuery(getProjects, []);
-    const member = data?.core.find((m) => m.slug === slug);
+    const member = core.find((m) => m.slug === slug);
+    const { data: projects } = useQuery(getProjects, []);
 
     useTitle(
         member
@@ -19,14 +18,23 @@ export function MemberPage() {
             : "Applied Archive Atelier",
     );
 
-    if (loading || !data) return null;
     if (!member) return <NotFound />;
 
-    // Full project records for this member's work, in the member's own order,
-    // so the "Selected work" section can render them in the homepage format.
-    const work: Project[] = member.projects
-        .map((mp) => allProjects?.find((p) => p.id === mp.id))
+    // Full project records for this member's work, in the member's own order.
+    const allProjects = projects ?? [];
+    const work: Project[] = member.projectIds
+        .map((id) => allProjects.find((p) => p.id === id))
         .filter((p): p is Project => p !== undefined);
 
-    return <TeamView selected={member} work={work} />;
+    const selected = {
+        ...member,
+        projects: work.map((p) => ({
+            id: p.id,
+            client: p.client,
+            image: p.image,
+            thumbnail: p.thumbnail,
+        })),
+    };
+
+    return <TeamView selected={selected} work={work} />;
 }
