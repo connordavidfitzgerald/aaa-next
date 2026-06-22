@@ -39,7 +39,8 @@ export function ProjectPage() {
               {project.credits.map((credit) => (
                 <div key={credit.name}>
                   <p>{credit.name}</p>
-                  {credit.role && <p className="opacity-50">{credit.role}</p>}
+
+                  <p className="opacity-50">{project.services}</p>
                 </div>
               ))}
             </div>

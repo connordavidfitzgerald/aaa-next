@@ -215,42 +215,45 @@ export function TeamView({
         ref={containerRef}
         className={`flex flex-col px-2 text-xs leading-[120%] ${className}`}
       >
-        {/* Portrait centred in the viewport. The member info follows in the next
-            viewport — the same place the team list sits — so the shared
-            team-hero / team-list transition lines up between the two pages. */}
-        <section className="h-screen flex items-center justify-center">
-          <div className="grid grid-cols-18 gap-2 w-full">
-            <div className="col-span-18 col-start-4 md:col-start-7 md:col-span-6 aspect-square relative">
-              <ViewTransition name="team-hero">
-                <div className="absolute inset-0 w-full h-full">
-                  <img
-                    src={selected.image}
-                    alt={selected.name}
-                    data-detail-image="member"
-                    className="absolute inset-0 w-full h-full object-cover block"
-                  />
-                  {selected.projects.map((p) =>
-                    p.image || p.thumbnail ? (
-                      <img
-                        key={p.id}
-                        src={p.image ?? p.thumbnail}
-                        alt={p.client}
-                        data-detail-image={p.id}
-                        className="absolute inset-0 w-full h-full object-contain opacity-0"
-                      />
-                    ) : null,
-                  )}
-                </div>
-              </ViewTransition>
+        {/* Image and member info share the first viewport: the image grows to
+            fill the space and the info is bottom-anchored, like the team list.
+            Selected work sits outside this block so it doesn't consume the flex
+            space doing the anchoring. */}
+        <div className="flex flex-col md:min-h-screen">
+          <div className="flex md:flex-1 items-center">
+            <div className="grid grid-cols-18 gap-2 w-full">
+              <div className="col-span-18 col-start-4 md:col-start-7 md:col-span-6 aspect-square relative">
+                <ViewTransition name="team-hero">
+                  <div className="absolute inset-0 w-full h-full">
+                    <img
+                      src={selected.image}
+                      alt={selected.name}
+                      data-detail-image="member"
+                      className="absolute inset-0 w-full h-full object-cover block"
+                    />
+                    {selected.projects.map((p) =>
+                      p.image || p.thumbnail ? (
+                        <img
+                          key={p.id}
+                          src={p.image ?? p.thumbnail}
+                          alt={p.client}
+                          data-detail-image={p.id}
+                          className="absolute inset-0 w-full h-full object-contain opacity-0"
+                        />
+                      ) : null,
+                    )}
+                  </div>
+                </ViewTransition>
+              </div>
             </div>
           </div>
-        </section>
 
-        <ViewTransition name="team-list">
-          <div className="flex flex-col tracking-[-0.01em]">
-            <MemberDetail member={selected} />
-          </div>
-        </ViewTransition>
+          <ViewTransition name="team-list">
+            <div className="flex flex-col tracking-[-0.01em]">
+              <MemberDetail member={selected} />
+            </div>
+          </ViewTransition>
+        </div>
 
         {/* Selected work, rendered in the homepage project format. */}
         {work && work.length > 0 && (
@@ -271,7 +274,7 @@ export function TeamView({
       ref={containerRef}
       className={`flex flex-col px-2 text-xs leading-[120%] md:min-h-screen ${className}`}
     >
-      <section className="h-screen flex items-center justify-center">
+      <div className="flex md:flex-1 items-center">
         <div className="grid grid-cols-18 gap-2 w-full">
           <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
@@ -295,7 +298,7 @@ export function TeamView({
             </ViewTransition>
           </div>
         </div>
-      </section>
+      </div>
       <ViewTransition name="team-list">
         <div className="flex flex-col gap-0 md:pt-0  tracking-[-0.01em] border-b border-black/20">
           {sections?.map((section) => (
