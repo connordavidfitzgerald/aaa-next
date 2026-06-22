@@ -215,14 +215,14 @@ export function TeamView({
         ref={containerRef}
         className={`flex flex-col px-2 text-xs leading-[120%] ${className}`}
       >
-        {/* Image and member info share the first viewport: the image grows to
-            fill the space and the info is bottom-anchored, like the team list.
-            Selected work sits outside this block so it doesn't consume the flex
-            space doing the anchoring. */}
-        <div className="flex flex-col md:min-h-screen">
-          <div className="flex md:flex-1 items-center">
+        {/* Image and member info share the first viewport. The image is an
+            absolutely-centred layer so it sits in the middle of the viewport
+            regardless of the info's height; the info is bottom-anchored via
+            justify-end. Selected work sits outside this block. */}
+        <div className="relative flex flex-col md:min-h-screen md:justify-end">
+          <div className="flex items-center justify-center md:absolute md:inset-0">
             <div className="grid grid-cols-18 gap-2 w-full">
-              <div className="col-span-18 col-start-4 md:col-start-7 md:col-span-6 aspect-square relative">
+              <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
                 <ViewTransition name="team-hero">
                   <div className="absolute inset-0 w-full h-full">
                     <img
@@ -249,7 +249,7 @@ export function TeamView({
           </div>
 
           <ViewTransition name="team-list">
-            <div className="flex flex-col tracking-[-0.01em]">
+            <div className="relative z-10 flex flex-col tracking-[-0.01em]">
               <MemberDetail member={selected} />
             </div>
           </ViewTransition>
@@ -272,9 +272,9 @@ export function TeamView({
   return (
     <main
       ref={containerRef}
-      className={`flex flex-col px-2 text-xs leading-[120%] md:min-h-screen ${className}`}
+      className={`relative flex flex-col px-2 text-xs leading-[120%] md:min-h-screen md:justify-end ${className}`}
     >
-      <div className="flex md:flex-1 items-center">
+      <div className="flex items-center justify-center md:absolute md:inset-0">
         <div className="grid grid-cols-18 gap-2 w-full">
           <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
@@ -300,7 +300,7 @@ export function TeamView({
         </div>
       </div>
       <ViewTransition name="team-list">
-        <div className="flex flex-col gap-0 md:pt-0  tracking-[-0.01em] border-b border-black/20">
+        <div className="relative z-10 flex flex-col gap-0 md:pt-0  tracking-[-0.01em] border-b border-black/20">
           {sections?.map((section) => (
             <div
               key={section.label}
