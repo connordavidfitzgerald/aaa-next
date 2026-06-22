@@ -1,8 +1,9 @@
-import type { CSSProperties, ReactNode } from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { type MediaItem, type Project } from "@/lib/projects";
 import { MuxAutoPlayer } from "@/components/MuxAutoPlayer";
+import { MemberLink } from "@/components/MemberLink";
 
 function flattenMedia(rows: Project["media"]): MediaItem[] {
   return rows.flatMap((row) => (Array.isArray(row) ? row : [row]));
@@ -54,7 +55,7 @@ function Cell({
             className="w-full h-auto group-hover:mix-blend-multiply ease-in transition duration-500"
           />
         )}
-        <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+        <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <span className="text-xs bg-green px-1 pt-0.5">View Project</span>
         </div>
       </div>
@@ -144,7 +145,18 @@ export function ProjectPreview({ project }: { project: Project }) {
           </div>
         </div>
         <div className="col-span-4 flex flex-col gap-2 leading-[110%] text-xs">
-          {project.team}
+          <span>
+            {project.team
+              .split(",")
+              .map((name) => name.trim())
+              .filter(Boolean)
+              .map((name, i) => (
+                <Fragment key={i}>
+                  {i > 0 && ", "}
+                  <MemberLink name={name} />
+                </Fragment>
+              ))}
+          </span>
         </div>
         <div className="col-span-4 flex flex-col gap-2 leading-[110%] text-xs">
           {project.services}

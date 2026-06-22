@@ -91,11 +91,13 @@ export function Footer() {
         : Math.min(1, Math.max(0, (window.innerHeight - r.top) / r.height));
       word.style.fontSize = `${fillSize * (MIN_SCALE + (1 - MIN_SCALE) * p)}px`;
 
-      // Fade the footer background from white to green (#20fe06) across the
-      // same scroll progress, so it greens up as the wordmark grows in.
+      // Footer background runs as a vertical gradient: the bottom stays green
+      // (#20fe06) while the top fades from white to green across the scroll
+      // progress, so it starts as a white→green gradient and ends fully green.
       const ch = (from: number, to: number) =>
         Math.round(from + (to - from) * p);
-      footer.style.backgroundColor = `rgb(${ch(255, 32)}, ${ch(255, 254)}, ${ch(255, 6)})`;
+      const top = `rgb(${ch(255, 32)}, ${ch(255, 254)}, ${ch(255, 6)})`;
+      footer.style.background = `linear-gradient(to bottom, ${top}, var(--color-green))`;
     };
 
     const onScroll = () => {

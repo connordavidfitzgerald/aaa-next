@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { getProject } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { MediaItem } from "@/components/MediaItem";
+import { MemberLink } from "@/components/MemberLink";
 import { useTitle } from "@/lib/useTitle";
 import { NotFound } from "@/pages/NotFound";
 
@@ -27,28 +28,23 @@ export function ProjectPage() {
     <main className="flex flex-col justify-start px-2 pb-2 w-full h-fit text-xs leading-[115%]">
       <div className="grid grid-cols-18 gap-2 pt-[calc(var(--nav-height)*1.2)]">
         <aside className="col-span-10 md:col-span-4 self-start flex flex-col gap-2 justify-start md:sticky md:top-[calc(var(--nav-height)*1.2)] pb-8 md:pb-0">
-          <h1 className="">{project.client}</h1>
-          <p className="opacity-70 pt-2">Project Info</p>
+          <h1 className="pt-2">{project.client}</h1>
           <div className="flex flex-col gap-2">
             <p>{project.description}</p>
           </div>
 
-          {project.credits && project.credits.length > 0 && (
-            <div className="flex flex-col gap-2 pt-4">
-              <p className="opacity-70">Credits</p>
-              {project.credits.map((credit) => (
-                <div key={credit.name}>
-                  <p>{credit.name}</p>
+          <div className="flex flex-col gap-2 pt-4">
+            <p className="">Credits</p>
 
-                  <p className="opacity-50">{project.services}</p>
-                </div>
-              ))}
+            <div key={project.team}>
+              <MemberLink name={project.team} />
+              <p className="opacity-50">{project.services}</p>
             </div>
-          )}
+          </div>
 
           {project.links && project.links.length > 0 && (
             <div className="flex flex-col gap-2 pt-4">
-              <p className="opacity-70">Links</p>
+              <p className="">Links</p>
               <div className="grid grid-cols-2 gap-2">
                 {project.links.map((link) => (
                   <a

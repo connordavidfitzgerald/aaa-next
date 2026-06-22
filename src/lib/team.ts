@@ -203,3 +203,12 @@ export const collaborators: TeamMember[] = [
     projectIds: [],
   },
 ];
+
+// Resolve a display name (e.g. a project's team/credit entry) to a member slug,
+// or undefined when the name isn't one of our members (external collaborators).
+const allMembers = [...core, ...collaborators];
+
+export function memberSlugByName(name: string): string | undefined {
+  const trimmed = name.trim();
+  return allMembers.find((m) => m.name === trimmed)?.slug;
+}

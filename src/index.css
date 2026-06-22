@@ -99,6 +99,18 @@ footer [data-nav-link]:hover {
     color: var(--color-green);
 }
 
+/* Manifesto page sits on green, so invert the navbar hover the same way the
+   footer does: a black highlight bar with the label turning green on hover. */
+html[data-manifesto] [data-nav-hl] {
+    background: black;
+}
+html[data-manifesto] [data-nav-link] {
+    transition: color 0.2s ease;
+}
+html[data-manifesto] [data-nav-link]:hover {
+    color: var(--color-green);
+}
+
 /* Minimal budget range slider: 1px line track, black circular thumb. */
 .budget-slider {
     -webkit-appearance: none;

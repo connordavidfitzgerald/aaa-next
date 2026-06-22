@@ -46,10 +46,14 @@ export function ManifestoPage() {
     const prevPageBg = html.style.getPropertyValue("--page-bg");
     html.style.setProperty("--nav-bg", "var(--color-green)");
     html.style.setProperty("--page-bg", "var(--color-green)");
+    // Flag the page so the navbar's hover effect can invert (black bar, green
+    // text) against the green background — see index.css.
+    html.dataset.manifesto = "true";
 
     return () => {
       html.style.setProperty("--nav-bg", prevNavBg || "white");
       html.style.setProperty("--page-bg", prevPageBg || "white");
+      delete html.dataset.manifesto;
     };
   }, []);
 
