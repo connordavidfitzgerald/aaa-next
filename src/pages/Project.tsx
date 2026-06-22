@@ -1,13 +1,18 @@
+import { useCallback } from "react";
 import { useParams } from "react-router-dom";
 
-import { projects } from "@/lib/projects";
+import { getProject } from "@/lib/projects";
+import { useQuery } from "@/lib/useQuery";
 import { MediaItem } from "@/components/MediaItem";
 import { useTitle } from "@/lib/useTitle";
 import { NotFound } from "@/pages/NotFound";
 
 export function ProjectPage() {
   const { project: id } = useParams<{ project: string }>();
-  const project = projects.find((p) => p.id === id);
+  const { data: project, loading } = useQuery(
+    useCallback(() => getProject(id ?? ""), [id]),
+    [id],
+  );
 
   useTitle(
     project
@@ -15,6 +20,7 @@ export function ProjectPage() {
       : "Applied Archive Atelier",
   );
 
+  if (loading) return null;
   if (!project) return <NotFound />;
 
   return (
@@ -31,7 +37,10 @@ export function ProjectPage() {
             <div className="flex flex-col gap-2 pt-4">
               <p className="opacity-70">Credits</p>
               {project.credits.map((credit) => (
-                <p key={credit}>{credit}</p>
+                <div key={credit.name}>
+                  <p>{credit.name}</p>
+                  {credit.role && <p className="opacity-50">{credit.role}</p>}
+                </div>
               ))}
             </div>
           )}

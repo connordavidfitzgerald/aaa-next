@@ -23,9 +23,6 @@ export function NavInteractions() {
                 gsap.set(hl, { scaleY: 0, transformOrigin: "center top" });
 
                 const handleEnter = () => {
-                    if (link.hasAttribute("data-nav-header")) {
-                        link.classList.remove("opacity-70");
-                    }
                     gsap.to(hl, {
                         scaleY: 1,
                         transformOrigin: "center top",
@@ -36,9 +33,6 @@ export function NavInteractions() {
                 };
 
                 const handleLeave = () => {
-                    if (link.hasAttribute("data-nav-header")) {
-                        link.classList.add("opacity-70");
-                    }
                     gsap.to(hl, {
                         scaleY: 0,
                         transformOrigin: "center bottom",

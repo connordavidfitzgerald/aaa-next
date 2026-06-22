@@ -1,22 +1,65 @@
 import { useEffect, useRef } from "react";
 
 import { NavMenu } from "@/components/NavMenu";
+import aSvg from "@/assets/svgs/A.svg";
+import periodSvg from "@/assets/svgs/period.svg";
+
+// The wordmark, one glyph <img> per character. justify-between spreads them
+// while small and pins the outer A's to the footer edges; the middle A stays
+// centred and the dots ride the gaps between the A's. Widths/heights are set in
+// `em` from each SVG's intrinsic size (A 499×496, period 103×103) using the A's
+// height as the unit, so a single font-size scales the whole row and items-end
+// keeps every glyph sitting on the shared baseline.
+const A_UNIT = 496;
+const GLYPHS = [
+  { src: aSvg, w: 499 / A_UNIT, h: 496 / A_UNIT },
+  { src: periodSvg, w: 103 / A_UNIT, h: 103 / A_UNIT },
+  { src: aSvg, w: 499 / A_UNIT, h: 496 / A_UNIT },
+  { src: periodSvg, w: 103 / A_UNIT, h: 103 / A_UNIT },
+  { src: aSvg, w: 499 / A_UNIT, h: 496 / A_UNIT },
+];
 
 export function Footer() {
   const footerRef = useRef<HTMLElement>(null);
-  const svgWrapRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
+  const wordRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const footer = footerRef.current;
-    if (!footer) return;
+    const word = wordRef.current;
+    if (!footer || !word) return;
     const nav = document.querySelector<HTMLElement>("[data-navbar]");
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    const MIN_SCALE = 0.6;
+    const MIN_SCALE = 0.3;
+
+    // Gap (px) left between each pair of glyphs once fully enlarged.
+    const FULL_GAP = 20;
+
+    // The font-size (px) at which the five glyph widths fill the row minus the
+    // FULL_GAP slack between each pair, so justify-between distributes exactly
+    // FULL_GAP between every character. Reserve that full height up front so the
+    // row never reflows (a changing height would feed back into the scroll
+    // progress below).
+    let fillSize = 0;
     let ticking = false;
+
+    const measure = () => {
+      const W = word.clientWidth;
+      const chars = Array.from(word.children) as HTMLElement[];
+      const REF = 100; // linear reference size: widths scale with font-size
+      word.style.height = "auto";
+      word.style.lineHeight = "100%";
+      word.style.fontSize = `${REF}px`;
+      const sum = chars.reduce((t, c) => t + c.offsetWidth, 0);
+      const hRef = word.offsetHeight;
+      if (sum > 0) {
+        const gaps = FULL_GAP * (chars.length - 1);
+        fillSize = (REF * Math.max(0, W - gaps)) / sum;
+        word.style.height = `${(hRef * fillSize) / REF}px`;
+      }
+    };
 
     const update = () => {
       ticking = false;
@@ -28,25 +71,31 @@ export function Footer() {
         const reached =
           footer.getBoundingClientRect().top < window.innerHeight * 0.5;
         const atTop = window.scrollY < 50;
-        nav.style.transform =
-          reached && !atTop ? "translateY(-100%)" : "translateY(0)";
+        const hide = reached && !atTop;
+        // Slide the navbar up when hiding, but snap it back instantly when
+        // reappearing: a slide-down would briefly open a gap between the navbar
+        // and the sticky project info as its bottom edge animates into place.
+        nav.style.transition = hide
+          ? "gap 0.05s linear, transform 0.4s ease"
+          : "gap 0.05s linear";
+        nav.style.transform = hide ? "translateY(-100%)" : "translateY(0)";
       }
 
-      // Scale the wordmark into place as it enters from the bottom, mirroring
-      // the navbar header. Progress runs 0→1 as the SVG block scrolls fully
-      // into view; the wrapper (never transformed) gives a stable box to
-      // measure, and the transform-origin is bottom centre so it grows up from
-      // the baseline.
-      const svg = svgRef.current;
-      const wrap = svgWrapRef.current;
-      if (svg && wrap && !reduce) {
-        const r = wrap.getBoundingClientRect();
-        const p = Math.min(
-          1,
-          Math.max(0, (window.innerHeight - r.top) / r.height),
-        );
-        svg.style.transform = `scale(${MIN_SCALE + (1 - MIN_SCALE) * p})`;
-      }
+      // Grow the wordmark into place as it enters from the bottom. Progress
+      // runs 0→1 as the (fixed-height) row scrolls fully into view; font-size
+      // animates from MIN_SCALE up to fillSize, where the characters meet edge
+      // to edge with no gaps.
+      const r = word.getBoundingClientRect();
+      const p = reduce
+        ? 1
+        : Math.min(1, Math.max(0, (window.innerHeight - r.top) / r.height));
+      word.style.fontSize = `${fillSize * (MIN_SCALE + (1 - MIN_SCALE) * p)}px`;
+
+      // Fade the footer background from white to green (#20fe06) across the
+      // same scroll progress, so it greens up as the wordmark grows in.
+      const ch = (from: number, to: number) =>
+        Math.round(from + (to - from) * p);
+      footer.style.backgroundColor = `rgb(${ch(255, 32)}, ${ch(255, 254)}, ${ch(255, 6)})`;
     };
 
     const onScroll = () => {
@@ -55,13 +104,19 @@ export function Footer() {
       requestAnimationFrame(update);
     };
 
+    const onResize = () => {
+      measure();
+      update();
+    };
+
+    measure();
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
       if (nav) nav.style.transform = "translateY(0)";
     };
   }, []);
@@ -69,42 +124,29 @@ export function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="flex flex-col justify-between min-h-[max(100vh,600px)] pb-2 px-2 bg-green"
+      className="flex flex-col justify-between min-h-[max(100vh,600px)] pb-2 px-2 bg-white mt-[50vh]"
     >
-      <div className=" pt-2">
+      <div className=" pt-2 tracking-[-0.01em]">
         <NavMenu />
       </div>
 
-      <div ref={svgWrapRef} className="w-full">
-        <svg
-          ref={svgRef}
-          viewBox="0 0 1888 496"
-          className="w-full h-auto block"
-          style={{ transformOrigin: "bottom center", willChange: "transform" }}
-          role="img"
-          aria-label="Applied Archive Atelier"
-        >
-          <path
-            d="M1887.6 495.138H1786.71L1742.13 378.696H1533.78L1489.21 495.138H1389.01L1584.92 0H1696.53L1887.6 495.138ZM1637.79 106.076L1566.61 293.696H1709.31L1637.79 106.076Z"
-            fill="black"
+      <div
+        ref={wordRef}
+        className="flex justify-between items-end w-full"
+        style={{ willChange: "font-size" }}
+        role="img"
+        aria-label="Applied Archive Atelier"
+      >
+        {GLYPHS.map((g, i) => (
+          <img
+            key={i}
+            src={g.src}
+            alt=""
+            aria-hidden="true"
+            className="block"
+            style={{ width: `${g.w}em`, height: `${g.h}em` }}
           />
-          <path
-            d="M1343.75 495.135H1241.12V392.859H1343.75V495.135Z"
-            fill="black"
-          />
-          <path
-            d="M1193.1 495.138H1092.2L1047.63 378.696H839.279L794.706 495.138H694.504L890.417 0H1002.02L1193.1 495.138ZM943.282 106.076L872.104 293.696H1014.81L943.282 106.076Z"
-            fill="black"
-          />
-          <path
-            d="M649.242 495.135H546.621V392.859H649.242V495.135Z"
-            fill="black"
-          />
-          <path
-            d="M498.593 495.138H397.699L353.127 378.696H144.775L100.202 495.138H0L195.913 0H307.517L498.593 495.138ZM248.778 106.076L177.6 293.696H320.302L248.778 106.076Z"
-            fill="black"
-          />
-        </svg>
+        ))}
       </div>
     </footer>
   );

@@ -22,6 +22,11 @@ html::-webkit-scrollbar {
     display: none;
 }
 
+::selection {
+    background-color: var(--color-green); /* Highlight background color */
+    color: var(--color-black); /* Text color inside highlight */
+}
+
 @font-face {
     font-family: "ABC Favorit";
     src: url("/fonts/ABCFavorit-Book.ttf") format("truetype");
@@ -166,8 +171,8 @@ mux-player {
     --grid-template-columns-18: repeat(18, minmax(0, 1fr));
     --grid-template-columns-11: repeat(11, minmax(0, 1fr));
     --grid-template-columns-14: repeat(14, minmax(0, 1fr));
-    --text-xs: clamp(0.6rem, 0.5817rem + 0.1923vw, 0.75rem);
-    --text-md: clamp(0.8rem, 0.8147rem + 0.379vw, 1.2695rem);
+    --text-xs: 11.5px;
+    --text-md: 24px;
 
     --text-header: clamp(1.625rem, 0.2917rem + 5.9259vw, 5.625rem);
     --text-header-small: clamp(1.125rem, 1.0385rem + 0.3846vw, 1.5rem);

@@ -55,7 +55,7 @@ const columns: MenuColumn[] = [
 ];
 
 function MenuItemLink({ item }: { item: MenuItem }) {
-  const className = "relative flex items-center w-fit";
+  const className = "relative flex items-center w-full";
   const inner = (
     <>
       {navHl}
@@ -98,7 +98,7 @@ export function NavMenu({ expanded = true }: { expanded?: boolean }) {
             to={col.to}
             data-nav-link
             data-nav-header
-            className="relative flex items-start w-fit h-fit col-span-2 md:col-span-1"
+            className="relative  flex items-start w-full h-fit col-span-2 md:col-span-1"
           >
             {navHl}
             <span className="relative z-10">{col.label}</span>
@@ -122,10 +122,10 @@ export function NavMenu({ expanded = true }: { expanded?: boolean }) {
         <Link
           to="/contact"
           data-nav-link
-          className="relative flex items-center justify-end w-fit"
+          className="relative flex items-center justify-end w-full"
         >
           {navHl}
-          <span className="relative z-10">
+          <span className="relative z-10 font-normal">
             <span className="md:hidden text-nowrap">
               Let&apos;s talk <span className="text-[10px]">↗</span>
             </span>

@@ -91,16 +91,16 @@ export function Navbar() {
           leaveTimer.current = null;
         }, 350);
       }}
-      className="fixed top-0 left-0 w-full p-2 flex flex-col justify-start font-sans z-50"
+      className="fixed top-0 left-0 w-full px-2 pt-2 pb-1.5 tracking-[-0.01em] flex flex-col justify-start font-sans z-50"
       style={{
         background: "var(--nav-bg)",
-        gap: "6px",
+        gap: "5px",
         transition: "gap 0.05s linear, transform 0.4s ease",
       }}
     >
       <Link
         to="/"
-        className="col-span-12 flex flex-row w-full justify-between items-start h-fit leading-[82%] tracking-[-0.05em]"
+        className="col-span-12 flex flex-row w-full justify-between items-start h-fit leading-[82%] tracking-[-0.04em]"
         style={{
           fontSize:
             "calc(var(--text-header) * (1 - var(--nav-shrink)) + var(--text-sm) * var(--nav-shrink))",

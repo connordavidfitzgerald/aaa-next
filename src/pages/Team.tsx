@@ -1,32 +1,18 @@
 import { TeamView } from "@/components/TeamView";
-import { core, collaborators } from "@/lib/team";
-import { projects } from "@/lib/projects";
+import { getTeam } from "@/lib/team";
+import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
 
 export function TeamPage() {
-    useTitle("Applied Archive Atelier — Team");
+  useTitle("Applied Archive Atelier — Team");
 
-    const projectsForMember = (name: string) =>
-        projects
-            .filter((p) => p.team.includes(name))
-            .map((p) => ({ id: p.id, client: p.client }));
+  const { data } = useQuery(getTeam, []);
+  if (!data) return null;
 
-    const sections = [
-        {
-            label: "Core",
-            members: core.map((m) => ({
-                ...m,
-                projects: projectsForMember(m.name),
-            })),
-        },
-        {
-            label: "Collaborators",
-            members: collaborators.map((m) => ({
-                ...m,
-                projects: projectsForMember(m.name),
-            })),
-        },
-    ];
+  const sections = [
+    { label: "Core", members: data.core },
+    { label: "Collaborators", members: data.collaborators },
+  ];
 
-    return <TeamView sections={sections} />;
+  return <TeamView sections={sections} className="" />;
 }

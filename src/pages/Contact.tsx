@@ -60,22 +60,14 @@ export function ContactPage() {
               />
             </label>
             <BudgetSlider className="col-span-4 pt-2" />
-            <label className="col-span-4 flex flex-col gap-1 h-full pt-2">
-              <span className="opacity-70">What are you building?</span>
-              <textarea
-                name="message"
-                required
-                className="flex-1 min-h-24 md:min-h-0 bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%] resize-none"
-              />
-            </label>
           </div>
 
           <div className="flex flex-col gap-4 md:col-span-6 md:grid md:grid-cols-6 md:content-between md:gap-x-0 md:gap-y-2 md:h-full">
             <p className="col-start-3 col-span-4 opacity-70">
               The living projects start with a conversation. A coffee or a call,
               whatever&apos;s easiest for you. Every budget is welcome. We read
-              it as energy. Tell us yours, and we&apos;ll be honest about what we
-              can make with it, together.
+              it as energy. Tell us yours, and we&apos;ll be honest about what
+              we can make with it, together.
             </p>
             <div className="col-span-6 flex justify-end items-end">
               <button

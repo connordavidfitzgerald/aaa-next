@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import { ViewTransition } from "@/components/ViewTransition";
+import { ProjectPreview } from "@/components/ProjectPreview";
+import type { Project } from "@/lib/projects";
 import teamImg from "@/assets/images/team.jpg";
 
 interface MemberProject {
@@ -31,9 +33,13 @@ interface Section {
 export function TeamView({
   sections,
   selected,
+  work,
+  className = "",
 }: {
   sections?: Section[];
   selected?: MemberView;
+  work?: Project[];
+  className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -203,114 +209,135 @@ export function TeamView({
 
   const heroMembers = sections?.[0].members ?? [];
 
+  if (selected) {
+    return (
+      <main
+        ref={containerRef}
+        className={`flex flex-col px-2 text-xs leading-[120%] ${className}`}
+      >
+        {/* Portrait centred in the viewport. The member info follows in the next
+            viewport — the same place the team list sits — so the shared
+            team-hero / team-list transition lines up between the two pages. */}
+        <section className="h-screen flex items-center justify-center">
+          <div className="grid grid-cols-18 gap-2 w-full">
+            <div className="col-span-18 col-start-4 md:col-start-7 md:col-span-6 aspect-square relative">
+              <ViewTransition name="team-hero">
+                <div className="absolute inset-0 w-full h-full">
+                  <img
+                    src={selected.image}
+                    alt={selected.name}
+                    data-detail-image="member"
+                    className="absolute inset-0 w-full h-full object-cover block"
+                  />
+                  {selected.projects.map((p) =>
+                    p.image || p.thumbnail ? (
+                      <img
+                        key={p.id}
+                        src={p.image ?? p.thumbnail}
+                        alt={p.client}
+                        data-detail-image={p.id}
+                        className="absolute inset-0 w-full h-full object-contain opacity-0"
+                      />
+                    ) : null,
+                  )}
+                </div>
+              </ViewTransition>
+            </div>
+          </div>
+        </section>
+
+        <ViewTransition name="team-list">
+          <div className="flex flex-col tracking-[-0.01em]">
+            <MemberDetail member={selected} />
+          </div>
+        </ViewTransition>
+
+        {/* Selected work, rendered in the homepage project format. */}
+        {work && work.length > 0 && (
+          <section className="flex flex-col w-full">
+            <div className="flex flex-col gap-25 font-normal tracking-[-0.01em] mt-25">
+              {work.map((project) => (
+                <ProjectPreview key={project.id} project={project} />
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
+    );
+  }
+
   return (
     <main
       ref={containerRef}
-      className="flex flex-col px-2 text-xs leading-[120%] md:min-h-screen"
+      className={`flex flex-col px-2 text-xs leading-[120%] md:min-h-screen ${className}`}
     >
-      <div className="flex md:flex-1 items-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6">
+      <section className="h-screen flex items-center justify-center">
         <div className="grid grid-cols-18 gap-2 w-full">
-          <div className="col-span-12 col-start-4 md:col-start-7 md:col-span-6 aspect-square relative">
+          <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
-              <div className="absolute inset-0 w-full h-full">
-                {selected ? (
-                  <>
-                    <img
-                      src={selected.image}
-                      alt={selected.name}
-                      data-detail-image="member"
-                      className="absolute inset-0 w-full h-full object-cover block"
-                    />
-                    {selected.projects.map((p) =>
-                      p.image ? (
-                        <img
-                          key={p.id}
-                          src={p.image}
-                          alt={p.client}
-                          data-detail-image={p.id}
-                          className="absolute inset-0 w-full h-full object-contain opacity-0"
-                        />
-                      ) : p.thumbnail ? (
-                        <img
-                          key={p.id}
-                          src={p.thumbnail}
-                          alt={p.client}
-                          data-detail-image={p.id}
-                          className="absolute inset-0 w-full h-full object-contain opacity-0"
-                        />
-                      ) : null,
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <img
-                      src={teamImg}
-                      alt="team"
-                      data-team-image="default"
-                      className="absolute inset-0 w-full h-full object-cover block"
-                    />
-                    {heroMembers.map((m) => (
-                      <img
-                        key={m.key}
-                        src={m.image}
-                        alt={m.name}
-                        data-team-image={m.key}
-                        className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-0"
-                      />
-                    ))}
-                  </>
-                )}
+              <div className="absolute inset-0 w-full h-full ">
+                <img
+                  src={teamImg}
+                  alt="team"
+                  data-team-image="default"
+                  className="absolute inset-0 w-full h-full object-cover block"
+                />
+                {heroMembers.map((m) => (
+                  <img
+                    key={m.key}
+                    src={m.image}
+                    alt={m.name}
+                    data-team-image={m.key}
+                    className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-0"
+                  />
+                ))}
               </div>
             </ViewTransition>
           </div>
         </div>
-      </div>
+      </section>
       <ViewTransition name="team-list">
-        <div className="flex flex-col gap-0 md:pt-0 pb-4">
-          {selected ? (
-            <MemberDetail member={selected} />
-          ) : (
-            sections?.map((section) => (
-              <div
-                key={section.label}
-                className="border-t border-black/20 pt-2 pb-2"
-              >
-                {section.members.map((member, i) => (
-                  <Link
-                    key={member.key}
-                    to={`/team/${member.slug}`}
-                    viewTransition
-                    data-team-row
-                    data-member={member.key}
-                    className="grid grid-cols-12 md:grid-cols-18 gap-x-2 relative"
-                  >
-                    <span
-                      data-team-hl
-                      className="absolute inset-0 bg-green scale-y-0 origin-top hidden md:block"
-                    />
-                    <p className="col-span-12 md:col-span-2 relative z-10 opacity-70">
-                      {i === 0 ? section.label : ""}
-                    </p>
-                    <p className="col-span-12 md:col-span-4 relative z-10">
-                      {member.name}
-                    </p>
-                    <p className="col-span-6 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
-                      {member.role}
-                    </p>
-                    <p className="col-span-6 md:col-span-4 relative z-10 opacity-70 md:opacity-100 text-right md:text-left">
-                      {member.location}
-                    </p>
-                    <p className="col-span-12 md:col-span-4 relative z-10 flex justify-between gap-2">
-                      <span>
-                        {member.projects.map((p) => p.client).join(", ")}
-                      </span>
-                      <span>[+]</span>
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            ))
-          )}
+        <div className="flex flex-col gap-0 md:pt-0  tracking-[-0.01em] border-b border-black/20">
+          {sections?.map((section) => (
+            <div
+              key={section.label}
+              className="border-t border-black/20 pt-2 pb-2"
+            >
+              {section.members.map((member, i) => (
+                <Link
+                  key={member.key}
+                  to={`/team/${member.slug}`}
+                  viewTransition
+                  data-team-row
+                  data-member={member.key}
+                  className="grid grid-cols-12 md:grid-cols-18 gap-x-2 relative"
+                >
+                  <span
+                    data-team-hl
+                    className="absolute inset-0 bg-green scale-y-0 origin-top hidden md:block"
+                  />
+                  <p className="col-span-12 md:col-span-2 relative z-10 opacity-70">
+                    {i === 0 ? section.label : ""}
+                  </p>
+                  <p className="col-span-12 md:col-span-4 relative z-10">
+                    {member.name}
+                  </p>
+                  <p className="col-span-6 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
+                    {member.role}
+                  </p>
+                  <p className="col-span-6 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
+                    {member.location}
+                  </p>
+
+                  <p className="col-span-12 md:col-span-4 relative z-10 flex justify-between gap-2">
+                    <span>
+                      {member.projects.map((p) => p.client).join(", ")}
+                    </span>
+                  </p>
+                </Link>
+              ))}
+            </div>
+          ))}
         </div>
       </ViewTransition>
     </main>
@@ -369,24 +396,14 @@ function MemberDetail({ member }: { member: MemberView }) {
   }, [member.key]);
 
   return (
-    <div
-      ref={detailRef}
-      className="border-t border-b border-black/20 pt-2 pb-2"
-    >
+    <div ref={detailRef} className="">
       <div className="grid grid-cols-12 md:grid-cols-18 gap-x-2 gap-y-6 md:gap-y-8">
-        <Link
-          to="/team"
-          viewTransition
-          data-nav-link
-          className="col-span-12 md:col-span-2 relative w-fit h-fit flex items-center"
-        >
-          <span
-            data-nav-hl
-            className="absolute inset-0 bg-green scale-y-0 origin-top"
-          />
-          <span className="relative z-10">← Back</span>
-        </Link>
-        <p className="col-span-12 md:col-span-4">{member.name}</p>
+        <p className="col-span-4">{member.name}</p>
+        <p className="col-span-12 md:col-span-4">{member.bio}</p>
+
+        <p className="col-span-6 md:col-span-4 opacity-70 md:opacity-100 text-right md:text-left">
+          {member.location}
+        </p>
         <div
           data-services
           className="col-span-6 md:col-span-4 opacity-70 md:opacity-100 flex flex-col items-start"
@@ -407,34 +424,6 @@ function MemberDetail({ member }: { member: MemberView }) {
             </span>
           ))}
         </div>
-        <p className="col-span-6 md:col-span-4 opacity-70 md:opacity-100 text-right md:text-left">
-          {member.location}
-        </p>
-        <div
-          data-projects
-          className="col-span-12 md:col-span-4 flex flex-col items-start"
-        >
-          {member.projects.map((project) => (
-            <Link
-              key={project.id}
-              to={`/projects/${project.id}`}
-              data-reveal-line
-              data-project-hover={project.id}
-              className="relative overflow-hidden w-fit"
-            >
-              <span data-reveal-text className="inline-block">
-                {project.client}
-              </span>
-              <span
-                data-reveal-bar
-                className="absolute inset-0 bg-green origin-left scale-x-0 pointer-events-none"
-              />
-            </Link>
-          ))}
-        </div>
-        <p className="col-start-1 md:col-start-3 col-span-12 md:col-span-16 text-4xl font-bold tracking-[-0.02em] leading-[105%]">
-          {member.bio}
-        </p>
       </div>
     </div>
   );
