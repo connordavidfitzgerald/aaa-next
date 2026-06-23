@@ -220,11 +220,11 @@ export function TeamView({
             regardless of the info's height; the info is bottom-anchored via
             justify-end. Selected work sits outside this block. */}
         <div className="relative flex flex-col h-screen min-h-200 md:justify-end">
-          <div className="flex items-center justify-center md:absolute md:inset-0">
+          <div className="flex items-center justify-center md:absolute md:inset-0 pt-[var(--nav-height)] md:pt-0">
             <div className="grid grid-cols-18 gap-2 w-full">
-              <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative">
+              <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative ">
                 <ViewTransition name="team-hero">
-                  <div className="absolute inset-0 w-full h-full">
+                  <div className="absolute inset-0 w-full h-full ">
                     {selected.image && (
                       <img
                         src={selected.image}
@@ -306,7 +306,7 @@ export function TeamView({
           {sections?.map((section) => (
             <div
               key={section.label}
-              className="border-t border-black/20 pt-2 pb-2 flex flex-col gap-5 md:gap-0"
+              className="border-t border-black/20 pt-2 pb-2 flex flex-col gap-2 md:gap-0"
             >
               {/* On mobile the rows stack, so the section label is shown once
                   as a heading instead of in a per-row column. */}
@@ -318,7 +318,7 @@ export function TeamView({
                   viewTransition
                   data-team-row
                   data-member={member.key}
-                  className="grid grid-cols-12 md:grid-cols-18 gap-x-2 gap-y-0 relative"
+                  className="grid grid-cols-12 md:grid-cols-18 gap-x-2 gap-y-0 relative h-fit"
                 >
                   <span
                     data-team-hl
@@ -330,14 +330,14 @@ export function TeamView({
                   <p className="col-span-12 md:col-span-4 relative z-10">
                     {member.name}
                   </p>
-                  <p className="col-span-12 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
+                  <p className="col-span-12 md:col-span-4 relative z-10">
                     {member.role}
                   </p>
-                  <p className="col-span-6 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
+                  <p className="col-span-6 md:col-span-4 relative z-10 ">
                     {member.location}
                   </p>
 
-                  <p className="col-span-6 hidden md:flex md:col-span-4 relative z-10 text-right md:text-left opacity-70 md:opacity-100">
+                  <p className="col-span-6 hidden md:flex md:col-span-4 relative z-10 text-right md:text-left">
                     {member.projects.map((p) => p.client).join(", ")}
                   </p>
                 </Link>

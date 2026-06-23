@@ -35,22 +35,30 @@ const LINES = [
   "to the people you serve,",
   "there is a place for it here,",
   "people who carry it with you and stay.",
-
+  "",
+  "",
   "",
   "Approach",
   "",
+  "",
+  "",
   "Welcome.",
+  "",
   "Open the door to every voice, every story.",
   "Honour every heritage, every face.",
+  "",
   "Cultivate.",
   "Act with conviction and ethics,",
   "to elevate projects and their missions.",
+  "",
   "Illuminate.",
   "Open conversations guided by real needs.",
+  "",
   "Craft.",
   "Fashion living archives,",
   "equal to the desires of the age.",
   "Amplify.",
+  "",
   "Translate singular dreams",
   "and the utopias at the margins.",
   "Weave bonds between progress and humanity.",
@@ -135,7 +143,7 @@ export function ManifestoPage() {
         className="relative z-10 -mt-[100vh] flex flex-col items-center gap-2 pb-[100vh]"
       >
         <div className="h-screen" aria-hidden></div>
-        <div className=" text-center text-lg uppercase font-bold tracking-[-0.02em] leading-[85%]">
+        <div className=" text-center text-lg uppercase font-bold tracking-[-0.022em] leading-[80%]">
           {LINES.map((line, i) =>
             line === "" ? (
               <div key={i} aria-hidden className="h-[1.1em]" />
