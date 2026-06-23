@@ -29,5 +29,5 @@ export function TeamPage() {
     { label: "Collaborators", members: collaborators.map(withProjects) },
   ];
 
-  return <TeamView sections={sections} className="" />;
+  return <TeamView sections={sections} className="min-h-200" />;
 }
