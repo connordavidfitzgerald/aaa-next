@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { BudgetSlider } from "@/components/BudgetSlider";
 import { useTitle } from "@/lib/useTitle";
@@ -15,6 +15,13 @@ export function ContactPage() {
 
   const [typedPrefix, setTypedPrefix] = useState("");
   const [placeholder, setPlaceholder] = useState("");
+  const messageRef = useRef<HTMLInputElement>(null);
+
+  // Focus the message field on load so the caret blinks there, ready to type.
+  // preventScroll keeps the page from jumping to it.
+  useEffect(() => {
+    messageRef.current?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -46,6 +53,7 @@ export function ContactPage() {
             {typedPrefix}
           </span>
           <input
+            ref={messageRef}
             type="text"
             name="message"
             form="contact-form"
@@ -67,44 +75,44 @@ export function ContactPage() {
           <div className="flex flex-col gap-4 md:col-span-12 md:grid md:grid-cols-12 md:grid-rows-2 md:gap-x-2 md:gap-y-0 md:h-full">
             {/* Row 1 */}
             <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
-              <span className="opacity-70">Name</span>
               <input
                 type="text"
                 name="name"
                 required
                 autoComplete="name"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%]"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
               />
+              <span className="opacity-70">Name</span>
             </label>
             <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
-              <span className="opacity-70">Email</span>
               <input
                 type="email"
                 name="email"
                 required
                 autoComplete="email"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%]"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
               />
+              <span className="opacity-70">Email</span>
             </label>
             <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
-              <span className="opacity-70">Organization (optional)</span>
               <input
                 type="text"
                 name="organization"
                 autoComplete="organization"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%]"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
               />
+              <span className="opacity-70">Organization (optional)</span>
             </label>
 
             {/* Row 2 */}
             <label className="col-span-4 flex flex-col justify-between gap-1 h-full pt-2">
-              <span className="opacity-70">Timeline (optional)</span>
               <input
                 type="text"
                 name="timeline"
                 placeholder="When are you hoping to start?"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green pb-1 leading-[115%] placeholder:opacity-40"
+                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%] placeholder:opacity-40"
               />
+              <span className="opacity-70">Timeline (optional)</span>
             </label>
             <BudgetSlider className="col-span-4 pt-2" />
           </div>

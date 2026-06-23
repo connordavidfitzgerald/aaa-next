@@ -1,9 +1,19 @@
-import { Fragment, type CSSProperties, type ReactNode } from "react";
+import {
+  Fragment,
+  createContext,
+  useContext,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { Link } from "react-router-dom";
 
 import { type MediaItem, type Project } from "@/lib/projects";
 import { MuxAutoPlayer } from "@/components/MuxAutoPlayer";
 import { MemberLink } from "@/components/MemberLink";
+
+// Lets each media Cell link to its project page without wrapping the whole card
+// (so the info header / member names stay independently interactive).
+const ProjectHrefContext = createContext<string | null>(null);
 
 function flattenMedia(rows: Project["media"]): MediaItem[] {
   return rows.flatMap((row) => (Array.isArray(row) ? row : [row]));
@@ -28,6 +38,7 @@ function Cell({
   hideOnMobile?: boolean;
   className?: string;
 }) {
+  const to = useContext(ProjectHrefContext);
   if (!item) return null;
 
   const style = {
@@ -36,29 +47,42 @@ function Cell({
     "--cell-start-md": start,
   } as CSSProperties;
 
+  const media = (
+    <>
+      {item.kind === "video" ? (
+        <MuxAutoPlayer
+          playbackId={item.muxPlaybackId}
+          thumbnail={item.thumbnail}
+          className="group-hover:mix-blend-multiply"
+        />
+      ) : (
+        <img
+          src={item.src}
+          alt={item.alt ?? ""}
+          className="w-full h-auto group-hover:mix-blend-multiply ease-in transition duration-500"
+        />
+      )}
+      <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <span className="text-xs bg-green px-1 pt-0.5">View Project</span>
+      </div>
+    </>
+  );
+
+  const innerClass =
+    "relative w-full h-fit overflow-hidden flex items-start justify-start group";
+
   return (
     <div
       style={style}
       className={`home-cell ${hideOnMobile ? "hidden md:block" : ""} ${className}`}
     >
-      <div className="relative w-full h-fit overflow-hidden flex items-start justify-start group">
-        {item.kind === "video" ? (
-          <MuxAutoPlayer
-            playbackId={item.muxPlaybackId}
-            thumbnail={item.thumbnail}
-            className="group-hover:mix-blend-multiply"
-          />
-        ) : (
-          <img
-            src={item.src}
-            alt={item.alt ?? ""}
-            className="w-full h-auto group-hover:mix-blend-multiply ease-in transition duration-500"
-          />
-        )}
-        <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="text-xs bg-green px-1 pt-0.5">View Project</span>
-        </div>
-      </div>
+      {to ? (
+        <Link to={to} className={`${innerClass} block`}>
+          {media}
+        </Link>
+      ) : (
+        <div className={innerClass}>{media}</div>
+      )}
     </div>
   );
 }
@@ -129,12 +153,7 @@ export function ProjectPreview({ project }: { project: Project }) {
   const layout = homeLayouts[project.id] ?? defaultLayout;
 
   return (
-    <Link
-      to={`/projects/${project.id}`}
-      id={project.id}
-      data-project
-      className="grid grid-cols-6 gap-2 text-xs"
-    >
+    <div data-project className="grid grid-cols-6 gap-2 text-xs">
       <div className="grid grid-cols-18 gap-2 col-span-6 sticky top-[calc(var(--nav-height)-0.5em)] h-fit pb-2 pt-2 z-40 bg-white leading-[110%]">
         <div className="col-span-8 grid-cols-8 gap-2 grid">
           <div className="col-span-4 text-xs leading-[110%]">
@@ -162,7 +181,9 @@ export function ProjectPreview({ project }: { project: Project }) {
           {project.services}
         </div>
       </div>
-      {layout(flattenMedia(project.media))}
-    </Link>
+      <ProjectHrefContext.Provider value={`/projects/${project.id}`}>
+        {layout(flattenMedia(project.media))}
+      </ProjectHrefContext.Provider>
+    </div>
   );
 }

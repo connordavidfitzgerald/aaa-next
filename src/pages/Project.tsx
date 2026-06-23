@@ -38,7 +38,7 @@ export function ProjectPage() {
 
             <div key={project.team}>
               <MemberLink name={project.team} />
-              <p className="opacity-50">{project.services}</p>
+              <p className="">{project.services}</p>
             </div>
           </div>
 

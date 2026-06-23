@@ -73,12 +73,27 @@ export function Navbar() {
       ref={navRef}
       data-navbar
       onMouseEnter={() => {
+        // Re-entering cancels a pending collapse; the actual expand is gated by
+        // pointer position in onMouseMove below.
         if (leaveTimer.current) {
           clearTimeout(leaveTimer.current);
           leaveTimer.current = null;
         }
-        hoveredRef.current = true;
-        setHovered(true);
+      }}
+      onMouseMove={(e) => {
+        // Only expand when the pointer is at or above the menu-headers row, so
+        // hovering just below the collapsed navbar doesn't trigger it. Once
+        // open, onMouseLeave (on the whole nav) keeps the submenus hoverable.
+        if (hoveredRef.current) return;
+        const nav = navRef.current;
+        const header = nav?.querySelector<HTMLElement>("[data-nav-header]");
+        const limit = header
+          ? header.getBoundingClientRect().bottom
+          : Infinity;
+        if (e.clientY <= limit) {
+          hoveredRef.current = true;
+          setHovered(true);
+        }
       }}
       onMouseLeave={() => {
         // Start the collapse, but keep the height frozen until the 300ms

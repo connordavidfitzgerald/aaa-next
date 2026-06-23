@@ -10,7 +10,7 @@ export function InitiativesPage() {
   return (
     <main className="flex flex-col justify-start px-2 w-full text-xs leading-[115%] pt-[calc(var(--nav-height)*1.2)] pb-2">
       <div className="grid grid-cols-18 gap-2 flex-1 min-h-0">
-        <aside className="md:col-span-4 col-span-4 self-start flex flex-col gap-2 pb-12 md:pb-0">
+        <aside className="md:col-span-4 col-span-4 self-start flex flex-col gap-2 pb-12 md:pb-0 sticky top-[calc(var(--nav-height)*1.2)]">
           <h1 className="uppercase">Initiatives</h1>
 
           <p>

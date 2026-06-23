@@ -32,11 +32,16 @@ function ScrollManager() {
 }
 
 export function Layout() {
+    const { pathname } = useLocation();
+    // No footer on the contact and team-list pages; the member view (/team/:slug)
+    // and every other page keep it.
+    const hideFooter = pathname === "/contact" || pathname === "/team";
+
     return (
         <>
             <Navbar />
             <Outlet />
-            <Footer />
+            {!hideFooter && <Footer />}
             <LenisInit />
             <NavInteractions />
             <ScrollManager />

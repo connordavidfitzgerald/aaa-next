@@ -90,14 +90,6 @@ export function Footer() {
         ? 1
         : Math.min(1, Math.max(0, (window.innerHeight - r.top) / r.height));
       word.style.fontSize = `${fillSize * (MIN_SCALE + (1 - MIN_SCALE) * p)}px`;
-
-      // Footer background runs as a vertical gradient: the bottom stays green
-      // (#20fe06) while the top fades from white to green across the scroll
-      // progress, so it starts as a white→green gradient and ends fully green.
-      const ch = (from: number, to: number) =>
-        Math.round(from + (to - from) * p);
-      const top = `rgb(${ch(255, 32)}, ${ch(255, 254)}, ${ch(255, 6)})`;
-      footer.style.background = `linear-gradient(to bottom, ${top}, var(--color-green))`;
     };
 
     const onScroll = () => {
@@ -126,7 +118,7 @@ export function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="flex flex-col justify-between min-h-[max(100vh,600px)] pb-2 px-2 bg-white mt-[50vh]"
+      className="flex flex-col justify-between min-h-[max(100vh,600px)] pb-2 px-2 bg-green mt-[50vh]"
     >
       <div className=" pt-2 tracking-[-0.01em]">
         <NavMenu />
