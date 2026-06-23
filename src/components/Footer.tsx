@@ -184,7 +184,7 @@ export function Footer() {
               src={g.src}
               alt=""
               aria-hidden="true"
-              className="block px-2"
+              className="block px-0.5 "
               style={{ width: `${g.w}em`, height: `${g.h}em` }}
             />
           ))}
