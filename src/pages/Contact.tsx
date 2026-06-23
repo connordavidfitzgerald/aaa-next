@@ -111,7 +111,9 @@ export function ContactPage() {
                 name="timeline"
                 className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%] placeholder:opacity-40"
               />
-              <span className="">Timeline (optional)</span>
+              <span className="">
+                When are you hoping the project to be done?
+              </span>
             </label>
             <BudgetSlider className="col-span-4 pt-3" />
           </div>
