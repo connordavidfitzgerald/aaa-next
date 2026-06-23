@@ -107,8 +107,8 @@ export function ManifestoPage() {
         />
       </div>
       <div className="h-screen"></div>
-      <div ref={containerRef} className="z-10 grid grid-cols-9 gap-2">
-        <div className="col-span-5 col-start-3 text-center text-3xl uppercase font-bold tracking-[-0.02em] leading-[110%]">
+      <div ref={containerRef} className="z-10 flex flex-col items-center gap-2">
+        <div className=" text-center text-lg uppercase font-bold tracking-[-0.035em] leading-[100%]">
           {LINES.map((line, i) =>
             line === "" ? (
               <div key={i} aria-hidden className="h-[1.1em]" />
