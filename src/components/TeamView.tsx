@@ -219,8 +219,8 @@ export function TeamView({
             absolutely-centred layer so it sits in the middle of the viewport
             regardless of the info's height; the info is bottom-anchored via
             justify-end. Selected work sits outside this block. */}
-        <div className="relative flex flex-col h-screen min-h-200 md:justify-end">
-          <div className="flex items-center justify-center md:absolute md:inset-0 pt-[var(--nav-height)] md:pt-0">
+        <div className="relative flex flex-col h-screen min-h-200 md:justify-end ">
+          <div className="flex items-center justify-center md:absolute md:inset-0 pt-[var(--nav-height)]  md:pt-0">
             <div className="grid grid-cols-18 gap-2 w-full">
               <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative ">
                 <ViewTransition name="team-hero">
