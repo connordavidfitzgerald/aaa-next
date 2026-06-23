@@ -21,12 +21,14 @@ const GLYPHS = [
 
 export function Footer() {
   const footerRef = useRef<HTMLElement>(null);
+  const spacerRef = useRef<HTMLDivElement>(null);
   const wordRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const footer = footerRef.current;
+    const spacer = spacerRef.current;
     const word = wordRef.current;
-    if (!footer || !word) return;
+    if (!footer || !spacer || !word) return;
     const nav = document.querySelector<HTMLElement>("[data-navbar]");
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -64,12 +66,23 @@ export function Footer() {
     const update = () => {
       ticking = false;
 
-      // Hide the fixed navbar once the footer is reached (its top rises past
-      // the middle of the viewport), and restore it on the way back up. Guarded
-      // so a short page never hides the navbar while resting at the top.
+      // The footer is fixed behind the page; the in-flow spacer at the bottom
+      // of the page is what scrolls, uncovering the footer as its top rises up
+      // the viewport. Reveal progress runs 0→1 as the spacer's top travels from
+      // the viewport bottom up by one footer height (the point at which the
+      // page content has fully cleared the footer).
+      const fh = footer.offsetHeight || window.innerHeight;
+      const spTop = spacer.getBoundingClientRect().top;
+      const p = reduce
+        ? 1
+        : Math.min(1, Math.max(0, (window.innerHeight - spTop) / fh));
+
+      // Hide the fixed navbar once the footer is reached (the spacer's top
+      // rises past the middle of the viewport), and restore it on the way back
+      // up. Guarded so a short page never hides the navbar while resting at the
+      // top.
       if (nav) {
-        const reached =
-          footer.getBoundingClientRect().top < window.innerHeight * 0.5;
+        const reached = spTop < window.innerHeight * 0.5;
         const atTop = window.scrollY < 50;
         const hide = reached && !atTop;
         // Slide the navbar up when hiding, but snap it back instantly when
@@ -81,14 +94,9 @@ export function Footer() {
         nav.style.transform = hide ? "translateY(-100%)" : "translateY(0)";
       }
 
-      // Grow the wordmark into place as it enters from the bottom. Progress
-      // runs 0→1 as the (fixed-height) row scrolls fully into view; font-size
+      // Grow the wordmark into place as the footer is revealed: font-size
       // animates from MIN_SCALE up to fillSize, where the characters meet edge
       // to edge with no gaps.
-      const r = word.getBoundingClientRect();
-      const p = reduce
-        ? 1
-        : Math.min(1, Math.max(0, (window.innerHeight - r.top) / r.height));
       word.style.fontSize = `${fillSize * (MIN_SCALE + (1 - MIN_SCALE) * p)}px`;
     };
 
@@ -116,32 +124,41 @@ export function Footer() {
   }, []);
 
   return (
-    <footer
-      ref={footerRef}
-      className="flex flex-col justify-between min-h-[max(100vh,600px)] pb-2 px-2 bg-green mt-[50vh]"
-    >
-      <div className=" pt-2 tracking-[-0.01em]">
-        <NavMenu />
-      </div>
-
+    <>
+      {/* In-flow spacer at the bottom of the page. It reserves the scroll room
+          that uncovers the fixed footer sitting behind the page content. */}
       <div
-        ref={wordRef}
-        className="flex justify-between items-end w-full"
-        style={{ willChange: "font-size" }}
-        role="img"
-        aria-label="Applied Archive Atelier"
+        ref={spacerRef}
+        aria-hidden="true"
+        className="h-[max(100vh,600px)]"
+      />
+      <footer
+        ref={footerRef}
+        className="fixed inset-x-0 bottom-0 -z-10 flex flex-col justify-between h-[max(100vh,600px)] pb-2 px-2 bg-green"
       >
-        {GLYPHS.map((g, i) => (
-          <img
-            key={i}
-            src={g.src}
-            alt=""
-            aria-hidden="true"
-            className="block"
-            style={{ width: `${g.w}em`, height: `${g.h}em` }}
-          />
-        ))}
-      </div>
-    </footer>
+        <div className=" pt-2 tracking-[-0.01em]">
+          <NavMenu />
+        </div>
+
+        <div
+          ref={wordRef}
+          className="flex justify-between items-end w-full"
+          style={{ willChange: "font-size" }}
+          role="img"
+          aria-label="Applied Archive Atelier"
+        >
+          {GLYPHS.map((g, i) => (
+            <img
+              key={i}
+              src={g.src}
+              alt=""
+              aria-hidden="true"
+              className="block"
+              style={{ width: `${g.w}em`, height: `${g.h}em` }}
+            />
+          ))}
+        </div>
+      </footer>
+    </>
   );
 }

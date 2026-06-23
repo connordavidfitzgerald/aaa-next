@@ -40,7 +40,11 @@ export function Layout() {
     return (
         <>
             <Navbar />
-            <Outlet />
+            {/* Opaque layer above the fixed footer: it covers the footer until
+                the page's bottom spacer scrolls up and reveals it. */}
+            <div className="relative z-0 min-h-screen bg-[var(--page-bg)]">
+                <Outlet />
+            </div>
             {!hideFooter && <Footer />}
             <LenisInit />
             <NavInteractions />
