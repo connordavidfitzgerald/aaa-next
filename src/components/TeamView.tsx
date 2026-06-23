@@ -219,13 +219,13 @@ export function TeamView({
             absolutely-centred layer so it sits in the middle of the viewport
             regardless of the info's height; the info is bottom-anchored via
             justify-end. Selected work sits outside this block. */}
-        <div className="relative flex flex-col min-h-screen pt-[var(--nav-height)]">
+        <div className="relative flex flex-col min-h-screen pt-[var(--nav-height)] pb-2 ">
           {/* The image fills the white space between the navbar and the member
               info: this region grows to take the gap and centers the image in
               it; the info sits below at the bottom. */}
           <div className="grow shrink-0 flex items-center justify-center py-2">
             <div className="grid grid-cols-18 gap-2 w-full">
-              <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative ">
+              <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative -translate-y-1">
                 <ViewTransition name="team-hero">
                   <div className="absolute inset-0 w-full h-full ">
                     {selected.image && (
@@ -233,7 +233,7 @@ export function TeamView({
                         src={selected.image}
                         alt={selected.name}
                         data-detail-image="member"
-                        className="absolute inset-0 w-full h-full object-cover block"
+                        className="absolute inset-0 w-full h-full object-cover block "
                       />
                     )}
                     {selected.projects.map((p) =>
@@ -277,16 +277,16 @@ export function TeamView({
   return (
     <main
       ref={containerRef}
-      className={`relative flex flex-col px-2 text-xs leading-[120%] min-h-screen pt-[var(--nav-height)] ${className}`}
+      className={`relative flex flex-col px-2 text-xs leading-[120%] min-h-screen pt-[var(--nav-height)]  ${className}`}
     >
       {/* The image fills the white space between the navbar and the list: this
           region grows to take the gap and centers the image in it; the list
           sits below. */}
-      <div className="grow shrink-0 flex items-center justify-center py-2">
+      <div className="grow shrink-0 flex items-center justify-center ">
         <div className="grid grid-cols-18 gap-2 w-full">
           <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
-              <div className="absolute inset-0 w-full h-full">
+              <div className="absolute inset-0 w-full h-full ">
                 <img
                   src={teamImg}
                   alt="team"
@@ -308,7 +308,7 @@ export function TeamView({
         </div>
       </div>
       <ViewTransition name="team-list">
-        <div className="relative z-10 flex flex-col gap-0 md:pt-0 pt-2 tracking-[-0.01em] border-b border-black/20">
+        <div className="relative z-10 flex flex-col gap-0 pt-2 tracking-[-0.01em]">
           {sections?.map((section) => (
             <div
               key={section.label}
@@ -409,7 +409,7 @@ function MemberDetail({ member }: { member: MemberView }) {
 
   return (
     <div ref={detailRef} className="">
-      <div className="grid grid-cols-18 gap-2  md:mt-0 md:border-none border-black/20 border-t pt-2 md:pt-0 md:gap-y-8">
+      <div className="grid grid-cols-18 gap-2 md:border-none border-black/20 border-t pt-2 md:pt-0 md:gap-y-8">
         <p className="col-span-12 md:col-span-4">{member.name}</p>
         <p className="col-span-12 md:col-span-4">{member.bio}</p>
 
