@@ -64,7 +64,7 @@ export function ContactPage() {
         </label>
       </div>
 
-      <div className="mt-auto md:mt-0 border-t border-b border-black/20 pt-2 pb-4">
+      <div className="mt-auto md:mt-0 pb-6">
         <form
           id="contact-form"
           method="POST"
@@ -74,7 +74,7 @@ export function ContactPage() {
         >
           <div className="flex flex-col gap-4 md:col-span-12 md:grid md:grid-cols-12 md:grid-rows-2 md:gap-x-2 md:gap-y-0 md:h-full">
             {/* Row 1 */}
-            <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
+            <label className="col-span-4 flex flex-col gap-1">
               <input
                 type="text"
                 name="name"
@@ -82,9 +82,9 @@ export function ContactPage() {
                 autoComplete="name"
                 className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
               />
-              <span className="opacity-70">Name</span>
+              <span className="">Name</span>
             </label>
-            <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
+            <label className="col-span-4 flex flex-col gap-1">
               <input
                 type="email"
                 name="email"
@@ -92,33 +92,32 @@ export function ContactPage() {
                 autoComplete="email"
                 className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
               />
-              <span className="opacity-70">Email</span>
+              <span className="">Email</span>
             </label>
-            <label className="col-span-4 flex flex-col justify-between gap-1 h-full">
+            <label className="col-span-4 flex flex-col gap-1">
               <input
                 type="text"
                 name="organization"
                 autoComplete="organization"
                 className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
               />
-              <span className="opacity-70">Organization (optional)</span>
+              <span className="">Organization (optional)</span>
             </label>
 
             {/* Row 2 */}
-            <label className="col-span-4 flex flex-col justify-between gap-1 h-full pt-2">
+            <label className="col-span-4 flex flex-col gap-1 pt-2">
               <input
                 type="text"
                 name="timeline"
-                placeholder="When are you hoping to start?"
                 className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%] placeholder:opacity-40"
               />
-              <span className="opacity-70">Timeline (optional)</span>
+              <span className="">Timeline (optional)</span>
             </label>
-            <BudgetSlider className="col-span-4 pt-2" />
+            <BudgetSlider className="col-span-4 pt-3" />
           </div>
 
           <div className="flex flex-col gap-4 md:col-span-6 md:grid md:grid-cols-6 md:content-between md:gap-x-0 md:gap-y-2 md:h-full">
-            <p className="col-start-3 col-span-4 opacity-70">
+            <p className="col-start-3 col-span-4 pt-3 ">
               The living projects start with a conversation. A coffee or a call,
               whatever&apos;s easiest for you. Every budget is welcome. We read
               it as energy. Tell us yours, and we&apos;ll be honest about what
@@ -134,7 +133,7 @@ export function ContactPage() {
                   data-nav-hl
                   className="absolute inset-0 bg-green scale-y-0 origin-top"
                 />
-                <span className="relative z-10">
+                <span className="relative z-10 -mb-4">
                   Send <span className="text-[10px]">↗</span>
                 </span>
               </button>

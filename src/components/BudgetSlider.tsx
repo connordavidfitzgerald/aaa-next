@@ -11,9 +11,7 @@ export function BudgetSlider({ className = "" }: { className?: string }) {
   const [value, setValue] = useState(0);
 
   return (
-    <label
-      className={`flex flex-col justify-between gap-1 h-full border-b border-black/20 pb-1 ${className}`}
-    >
+    <label className={`flex flex-col gap-1 ${className}`}>
       <input
         type="range"
         name="budget"
@@ -22,10 +20,10 @@ export function BudgetSlider({ className = "" }: { className?: string }) {
         step={5000}
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
-        className="budget-slider w-full"
+        className="budget-slider w-full mt-[6px] -mb-[6px]"
       />
       <span className="flex justify-between">
-        <span className="opacity-70">Budget</span>
+        <span className="pt-0.5">Budget</span>
         <span>{format(value)}</span>
       </span>
     </label>
