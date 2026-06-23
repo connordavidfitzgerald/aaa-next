@@ -154,7 +154,10 @@ export function ProjectPreview({ project }: { project: Project }) {
 
   return (
     <div data-project className="grid grid-cols-6 gap-2 text-xs">
-      <div className="grid grid-cols-18 gap-2 col-span-6 sticky top-[calc(var(--nav-height)-0.5em)] h-fit pb-2 pt-2 z-40 bg-white leading-[110%]">
+      <div
+        data-sticky-info
+        className="grid grid-cols-18 gap-2 col-span-6 sticky top-[calc(var(--nav-height)-0.5em)] h-fit pb-2 pt-2 z-40 bg-white leading-[110%]"
+      >
         <div className="col-span-8 grid-cols-8 gap-2 grid">
           <div className="col-span-4 text-xs leading-[110%]">
             <div>{project.client}</div>

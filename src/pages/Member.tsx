@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import { TeamView } from "@/components/TeamView";
-import { core } from "@/lib/team";
+import { getMemberBySlug } from "@/lib/team";
 import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
@@ -9,7 +9,7 @@ import { NotFound } from "@/pages/NotFound";
 
 export function MemberPage() {
     const { member: slug } = useParams<{ member: string }>();
-    const member = core.find((m) => m.slug === slug);
+    const member = slug ? getMemberBySlug(slug) : undefined;
     const { data: projects } = useQuery(getProjects, []);
 
     useTitle(

@@ -34,8 +34,6 @@ export function Footer() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    const MIN_SCALE = 0.3;
-
     // Gap (px) left between each pair of glyphs once fully enlarged.
     const FULL_GAP = 20;
 
@@ -45,7 +43,28 @@ export function Footer() {
     // row never reflows (a changing height would feed back into the scroll
     // progress below).
     let fillSize = 0;
+    // Starting font-size (px): the glyphs begin the height of an "A" set in
+    // text-xs / font-bold, so the wordmark matches the surrounding nav text
+    // before it grows. The A fills its SVG box, so its rendered height equals
+    // the font-size — measure the bold text-xs cap height and start there.
+    let startSize = 11.5;
     let ticking = false;
+
+    const measureStartSize = () => {
+      const xs =
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--text-xs",
+          ),
+        ) || 14;
+      const ctx = document.createElement("canvas").getContext("2d");
+      if (!ctx) return;
+      ctx.font = `700 ${25}px ${getComputedStyle(word).fontFamily}`;
+      const m = ctx.measureText("A");
+      const h =
+        (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0);
+      if (h > 0) startSize = h;
+    };
 
     const measure = () => {
       const W = word.clientWidth;
@@ -61,6 +80,7 @@ export function Footer() {
         fillSize = (REF * Math.max(0, W - gaps)) / sum;
         word.style.height = `${(hRef * fillSize) / REF}px`;
       }
+      measureStartSize();
     };
 
     const update = () => {
@@ -77,27 +97,41 @@ export function Footer() {
         ? 1
         : Math.min(1, Math.max(0, (window.innerHeight - spTop) / fh));
 
-      // Hide the fixed navbar once the footer is reached (the spacer's top
-      // rises past the middle of the viewport), and restore it on the way back
-      // up. Guarded so a short page never hides the navbar while resting at the
-      // top.
+      // Hide the fixed navbar and any sticky project-info headers together once
+      // the footer is reached (the spacer's top rises past the middle of the
+      // viewport), and restore them on the way back up. Guarded so a short page
+      // never hides them while resting at the top.
+      const reached = spTop < window.innerHeight * 0.5;
+      const atTop = window.scrollY < 50;
+      const hide = reached && !atTop;
+
       if (nav) {
-        const reached = spTop < window.innerHeight * 0.5;
-        const atTop = window.scrollY < 50;
-        const hide = reached && !atTop;
-        // Slide the navbar up when hiding, but snap it back instantly when
-        // reappearing: a slide-down would briefly open a gap between the navbar
-        // and the sticky project info as its bottom edge animates into place.
-        nav.style.transition = hide
-          ? "gap 0.05s linear, transform 0.4s ease"
-          : "gap 0.05s linear";
+        // Slide the navbar and the sticky project info with the same 0.4s ease
+        // in both directions so they hide and reappear in sync. They animate
+        // together, so the navbar always covers the sticky header during the
+        // transition and no gap opens between them.
+        nav.style.transition = "gap 0.05s linear, transform 0.4s ease";
         nav.style.transform = hide ? "translateY(-100%)" : "translateY(0)";
       }
 
+      // The sticky project-preview headers ride up with the navbar so the
+      // preview clears the screen as the footer reveals. Queried each frame
+      // since the previews mount/unmount across route changes while the footer
+      // stays mounted. Move up by the full header height plus its sticky top
+      // offset so it fully clears the top edge.
+      const stickies =
+        document.querySelectorAll<HTMLElement>("[data-sticky-info]");
+      stickies.forEach((el) => {
+        el.style.transition = "transform 0.4s ease";
+        el.style.transform = hide
+          ? "translateY(calc(-100% - var(--nav-height)))"
+          : "translateY(0)";
+      });
+
       // Grow the wordmark into place as the footer is revealed: font-size
-      // animates from MIN_SCALE up to fillSize, where the characters meet edge
-      // to edge with no gaps.
-      word.style.fontSize = `${fillSize * (MIN_SCALE + (1 - MIN_SCALE) * p)}px`;
+      // animates from startSize (text-xs height) up to fillSize, where the
+      // characters meet edge to edge with no gaps.
+      word.style.fontSize = `${startSize + (fillSize - startSize) * p}px`;
     };
 
     const onScroll = () => {
@@ -132,9 +166,12 @@ export function Footer() {
         aria-hidden="true"
         className="h-[max(100vh,600px)]"
       />
+      {/* Fixed at z-0: above the in-flow spacer (so the revealed nav is
+          clickable) but below the page content (z-10), which keeps it covered
+          until the spacer scrolls up. */}
       <footer
         ref={footerRef}
-        className="fixed inset-x-0 bottom-0 -z-10 flex flex-col justify-between h-[max(100vh,600px)] pb-2 px-2 bg-green"
+        className="fixed inset-x-0 bottom-0 z-0 flex flex-col justify-between h-[max(100vh,600px)] pb-2 px-2 bg-green"
       >
         <div className=" pt-2 tracking-[-0.01em]">
           <NavMenu />
@@ -142,7 +179,7 @@ export function Footer() {
 
         <div
           ref={wordRef}
-          className="flex justify-between items-end w-full"
+          className="flex justify-between items-end w-full "
           style={{ willChange: "font-size" }}
           role="img"
           aria-label="Applied Archive Atelier"
@@ -153,7 +190,7 @@ export function Footer() {
               src={g.src}
               alt=""
               aria-hidden="true"
-              className="block"
+              className="block px-2"
               style={{ width: `${g.w}em`, height: `${g.h}em` }}
             />
           ))}

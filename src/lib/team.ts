@@ -212,3 +212,8 @@ export function memberSlugByName(name: string): string | undefined {
   const trimmed = name.trim();
   return allMembers.find((m) => m.name === trimmed)?.slug;
 }
+
+// Look up a member (core or collaborator) by their URL slug.
+export function getMemberBySlug(slug: string): TeamMember | undefined {
+  return allMembers.find((m) => m.slug === slug);
+}

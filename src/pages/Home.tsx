@@ -7,7 +7,7 @@ export function HomePage() {
   const { data: projects } = useQuery(getProjects, []);
 
   return (
-    <main className="flex flex-col justify-start px-2 pb-140">
+    <main className="flex flex-col justify-start px-2 pb-2">
       <section
         id="video"
         className="h-screen flex flex-col justify-end items-center pb-2 min-h-200"

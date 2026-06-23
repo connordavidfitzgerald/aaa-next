@@ -40,9 +40,10 @@ export function Layout() {
     return (
         <>
             <Navbar />
-            {/* Opaque layer above the fixed footer: it covers the footer until
-                the page's bottom spacer scrolls up and reveals it. */}
-            <div className="relative z-0 min-h-screen bg-[var(--page-bg)]">
+            {/* Opaque layer above the fixed footer (z-10 > footer z-0): it
+                covers the footer until the page's bottom spacer scrolls up and
+                reveals it. */}
+            <div className="relative z-10 min-h-screen bg-[var(--page-bg)]">
                 <Outlet />
             </div>
             {!hideFooter && <Footer />}

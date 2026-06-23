@@ -225,12 +225,14 @@ export function TeamView({
               <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
                 <ViewTransition name="team-hero">
                   <div className="absolute inset-0 w-full h-full">
-                    <img
-                      src={selected.image}
-                      alt={selected.name}
-                      data-detail-image="member"
-                      className="absolute inset-0 w-full h-full object-cover block"
-                    />
+                    {selected.image && (
+                      <img
+                        src={selected.image}
+                        alt={selected.name}
+                        data-detail-image="member"
+                        className="absolute inset-0 w-full h-full object-cover block"
+                      />
+                    )}
                     {selected.projects.map((p) =>
                       p.image || p.thumbnail ? (
                         <img
@@ -278,7 +280,7 @@ export function TeamView({
         <div className="grid grid-cols-18 gap-2 w-full">
           <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
-              <div className="absolute inset-0 w-full h-full ">
+              <div className="absolute inset-0 w-full h-full mb-[calc(var(--nav-height))] pb-2 ">
                 <img
                   src={teamImg}
                   alt="team"
