@@ -43,7 +43,6 @@ const LINES = [
   "",
   "",
   "Welcome.",
-  "",
   "Open the door to every voice, every story.",
   "Honour every heritage, every face.",
   "",
