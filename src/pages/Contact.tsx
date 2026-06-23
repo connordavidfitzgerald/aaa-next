@@ -6,7 +6,7 @@ import { useTitle } from "@/lib/useTitle";
 // The opening line types itself out on load: first the fixed "Hi there,"
 // prefix, then the example message which lands as the input's placeholder.
 const PREFIX = "Hi there,";
-const PLACEHOLDER = "my non profit organisation needs a new website";
+const PLACEHOLDER = "my non profit organisation needs a new website.";
 const TYPE_SPEED = 45; // ms per character
 const START_DELAY = 350; // ms before typing begins
 
@@ -48,7 +48,7 @@ export function ContactPage() {
   return (
     <main className="flex flex-col px-2 text-xs leading-[120%] min-h-screen">
       <div className="flex md:flex-1 items-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6">
-        <label className="flex w-full items-baseline gap-[0.25em] text-[clamp(1.5rem,4vw,3rem)] leading-[1.15] tracking-[-0.02em]">
+        <label className="flex w-full items-baseline gap-[0.25em] text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]">
           <span className="shrink-0 whitespace-nowrap select-none">
             {typedPrefix}
           </span>
