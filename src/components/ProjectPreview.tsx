@@ -158,15 +158,16 @@ export function ProjectPreview({ project }: { project: Project }) {
         data-sticky-info
         className="grid grid-cols-18 gap-2 col-span-6 sticky top-[calc(var(--nav-height)-0.5em)] h-fit pb-2 pt-2 z-40 bg-white leading-[110%]"
       >
-        <div className="col-span-8 grid-cols-8 gap-2 grid">
-          <div className="col-span-4 text-xs leading-[110%]">
-            <div>{project.client}</div>
-          </div>
-          <div className="col-span-4 text-xs leading-[110%]">
-            <div>{project.description}</div>
-          </div>
+        <div className="col-span-4 md:col-span-4 text-xs leading-[110%]">
+          <div>{project.client}</div>
         </div>
-        <div className="col-span-4 flex flex-col gap-2 leading-[110%] text-xs">
+        {/* On mobile the team and services columns are hidden, so the
+            description fills the remaining grid width; on md+ it returns to its
+            4-column slot alongside them. */}
+        <div className="col-span-14 md:col-span-4 text-xs leading-[110%]">
+          <div>{project.description}</div>
+        </div>
+        <div className="hidden md:flex col-span-4 flex-col gap-2 leading-[110%] text-xs">
           <span>
             {project.team
               .split(",")
@@ -180,7 +181,7 @@ export function ProjectPreview({ project }: { project: Project }) {
               ))}
           </span>
         </div>
-        <div className="col-span-4 flex flex-col gap-2 leading-[110%] text-xs">
+        <div className="hidden md:flex col-span-4 flex-col gap-2 leading-[110%] text-xs">
           {project.services}
         </div>
       </div>

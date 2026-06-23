@@ -35,6 +35,25 @@ const LINES = [
   "to the people you serve,",
   "there is a place for it here,",
   "people who carry it with you and stay.",
+
+  "",
+  "Approach",
+  "",
+  "Welcome.",
+  "Open the door to every voice, every story.",
+  "Honour every heritage, every face.",
+  "Cultivate.",
+  "Act with conviction and ethics,",
+  "to elevate projects and their missions.",
+  "Illuminate.",
+  "Open conversations guided by real needs.",
+  "Craft.",
+  "Fashion living archives,",
+  "equal to the desires of the age.",
+  "Amplify.",
+  "Translate singular dreams",
+  "and the utopias at the margins.",
+  "Weave bonds between progress and humanity.",
 ];
 
 // clip-path states: hidden collapses the line to its left edge; shown reveals
@@ -99,16 +118,24 @@ export function ManifestoPage() {
   }, []);
 
   return (
-    <main className="flex flex-col justify-start w-full text-xs">
-      <div className="w-full h-auto aspect-4/3 overflow-hidden fixed flex items-center justify-center">
+    <main className="relative w-full text-xs">
+      {/* Full-viewport video background. Sticky (not fixed) so it stays behind
+          the manifesto while it scrolls, then rises away with the content
+          before the footer is revealed below. */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
         <MuxAutoPlayer
           playbackId="y78a00Av1dLxN4u201SYutcUghoFm9up8JppX8CkbIahY"
-          className="aspect-4/3 w-full object-cover px-2 "
+          fillMode="cover"
         />
       </div>
-      <div className="h-screen"></div>
-      <div ref={containerRef} className="z-10 flex flex-col items-center gap-2">
-        <div className=" text-center text-lg uppercase font-bold tracking-[-0.035em] leading-[100%]">
+      {/* Text scrolls up over the video. Pulled up one viewport so the first
+          screen shows only the video, then the lines rise into view. */}
+      <div
+        ref={containerRef}
+        className="relative z-10 -mt-[100vh] flex flex-col items-center gap-2 pb-[100vh]"
+      >
+        <div className="h-screen" aria-hidden></div>
+        <div className=" text-center text-lg uppercase font-bold tracking-[-0.02em] leading-[85%]">
           {LINES.map((line, i) =>
             line === "" ? (
               <div key={i} aria-hidden className="h-[1.1em]" />
@@ -116,7 +143,7 @@ export function ManifestoPage() {
               <div key={i}>
                 <span
                   data-line
-                  className="inline-block bg-green -my-2 pt-0.5 text-black"
+                  className="inline-block bg-green px-0.5 pt-1 text-black"
                   style={{ clipPath: HIDDEN }}
                 >
                   {line}

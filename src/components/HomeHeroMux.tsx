@@ -9,10 +9,10 @@ export function HomeHeroMux() {
       minResolution="1080p"
       loop
       playsInline
+      className="md:aspect-1870/664 aspect-9/16 object-cover md:w-auto md:h-auto w-full h-full block md:flex"
       style={{
-        aspectRatio: "1870/664",
         width: "100%",
-        paddingTop: "var(--nav-height)+(var",
+        paddingTop: "var(--nav-height)",
       }}
     />
   );

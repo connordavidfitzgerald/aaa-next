@@ -81,7 +81,12 @@ export function MuxAutoPlayer({
             <MuxPlayer
                 playbackId={playbackId}
                 className="absolute inset-0 w-full h-full"
-                style={{ "--media-background-color": "white" }}
+                style={{
+                    "--media-background-color": "white",
+                    ...(fillMode === "cover"
+                        ? { "--media-object-fit": "cover" }
+                        : {}),
+                }}
                 loop
                 muted
                 maxResolution="2160p"

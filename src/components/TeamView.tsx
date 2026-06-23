@@ -222,7 +222,7 @@ export function TeamView({
         <div className="relative flex flex-col h-screen min-h-200 md:justify-end">
           <div className="flex items-center justify-center md:absolute md:inset-0">
             <div className="grid grid-cols-18 gap-2 w-full">
-              <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
+              <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative">
                 <ViewTransition name="team-hero">
                   <div className="absolute inset-0 w-full h-full">
                     {selected.image && (
@@ -259,8 +259,8 @@ export function TeamView({
 
         {/* Selected work, rendered in the homepage project format. */}
         {work && work.length > 0 && (
-          <section className="flex flex-col w-full">
-            <div className="flex flex-col gap-25 font-normal tracking-[-0.01em] mt-25">
+          <section className="flex flex-col w-full md:pt-20 ">
+            <div className="flex flex-col gap-25 font-normal tracking-[-0.01em] mt-2 border-black/20 border-t pb-2">
               {work.map((project) => (
                 <ProjectPreview key={project.id} project={project} />
               ))}
@@ -276,9 +276,9 @@ export function TeamView({
       ref={containerRef}
       className={`relative flex flex-col px-2 text-xs leading-[120%] h-screen min-h-200 md:justify-end ${className}`}
     >
-      <div className="flex items-center justify-center md:absolute md:inset-0">
+      <div className="flex items-center justify-center md:absolute md:inset-0 pt-[var(--nav-height)] md:pt-0">
         <div className="grid grid-cols-18 gap-2 w-full">
-          <div className="col-span-18 col-start-4 md:col-start-8 md:col-span-4 aspect-square relative">
+          <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
               <div className="absolute inset-0 w-full h-full mb-[calc(var(--nav-height))] pb-2 ">
                 <img
@@ -302,12 +302,15 @@ export function TeamView({
         </div>
       </div>
       <ViewTransition name="team-list">
-        <div className="relative z-10 flex flex-col gap-0 md:pt-0  tracking-[-0.01em] border-b border-black/20">
+        <div className="relative z-10 flex flex-col gap-0 md:pt-0 pt-2 tracking-[-0.01em] border-b border-black/20">
           {sections?.map((section) => (
             <div
               key={section.label}
-              className="border-t border-black/20 pt-2 pb-2"
+              className="border-t border-black/20 pt-2 pb-2 flex flex-col gap-5 md:gap-0"
             >
+              {/* On mobile the rows stack, so the section label is shown once
+                  as a heading instead of in a per-row column. */}
+              <p className="md:hidden opacity-70">{section.label}</p>
               {section.members.map((member, i) => (
                 <Link
                   key={member.key}
@@ -315,29 +318,27 @@ export function TeamView({
                   viewTransition
                   data-team-row
                   data-member={member.key}
-                  className="grid grid-cols-12 md:grid-cols-18 gap-x-2 relative"
+                  className="grid grid-cols-12 md:grid-cols-18 gap-x-2 gap-y-0 relative"
                 >
                   <span
                     data-team-hl
                     className="absolute inset-0 bg-green scale-y-0 origin-top hidden md:block"
                   />
-                  <p className="col-span-12 md:col-span-2 relative z-10 opacity-70">
+                  <p className="hidden md:block md:col-span-2 relative z-10 opacity-70">
                     {i === 0 ? section.label : ""}
                   </p>
                   <p className="col-span-12 md:col-span-4 relative z-10">
                     {member.name}
                   </p>
-                  <p className="col-span-6 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
+                  <p className="col-span-12 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
                     {member.role}
                   </p>
                   <p className="col-span-6 md:col-span-4 relative z-10 opacity-70 md:opacity-100">
                     {member.location}
                   </p>
 
-                  <p className="col-span-12 md:col-span-4 relative z-10 flex justify-between gap-2">
-                    <span>
-                      {member.projects.map((p) => p.client).join(", ")}
-                    </span>
+                  <p className="col-span-6 hidden md:flex md:col-span-4 relative z-10 text-right md:text-left opacity-70 md:opacity-100">
+                    {member.projects.map((p) => p.client).join(", ")}
                   </p>
                 </Link>
               ))}
@@ -402,16 +403,16 @@ function MemberDetail({ member }: { member: MemberView }) {
 
   return (
     <div ref={detailRef} className="">
-      <div className="grid grid-cols-12 md:grid-cols-18 gap-x-2 gap-y-6 md:gap-y-8">
-        <p className="col-span-4">{member.name}</p>
+      <div className="grid grid-cols-18 gap-2  md:mt-0 md:border-none border-black/20 border-t pt-2 md:pt-0 md:gap-y-8">
+        <p className="col-span-12 md:col-span-4">{member.name}</p>
         <p className="col-span-12 md:col-span-4">{member.bio}</p>
 
-        <p className="col-span-6 md:col-span-4 opacity-70 md:opacity-100 text-right md:text-left">
+        <p className="md:flex hidden md:col-span-4  md:opacity-100">
           {member.location}
         </p>
         <div
           data-services
-          className="col-span-6 md:col-span-4 opacity-70 md:opacity-100 flex flex-col items-start"
+          className="col-span-4 col-start-13 md:col-span-4  md:opacity-100 flex flex-col items-start"
         >
           {member.services.map((service) => (
             <span

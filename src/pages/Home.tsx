@@ -57,14 +57,13 @@ export function HomePage() {
       <CursorImageTrail
         id="tagline"
         images={trailImages}
-        className="w-full aspect-video"
+        className="w-full h-screen"
       >
         <h3 className="text-md uppercase font-bold tracking-[-0.02em] leading-[105%] grid grid-cols-9 gap-2">
-          <span className="col-span-5 col-start-3 text-center">
-            <span className="bg-green box-decoration-clone px-1 pt-0.5 text-black">
+          <span className="col-span-5 col-start-3 text-center ">
+            <span className="bg-green box-decoration-clone h-fit w-fit px-0.5 pt-0.5 text-black">
               Applied Archive Atelier is a creative studio amplifying
-              exclusively non-profits, cultural institutions and social
-              businesses.
+              non-profits, cultural institutions and social businesses.
             </span>
           </span>
         </h3>

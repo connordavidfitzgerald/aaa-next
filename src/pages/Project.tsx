@@ -27,7 +27,7 @@ export function ProjectPage() {
   return (
     <main className="flex flex-col justify-start px-2 pb-2 w-full h-fit text-xs leading-[115%]">
       <div className="grid grid-cols-18 gap-2 pt-[calc(var(--nav-height)*1.2)]">
-        <aside className="col-span-10 md:col-span-4 self-start flex flex-col gap-2 justify-start md:sticky md:top-[calc(var(--nav-height)*1.2)] pb-8 md:pb-0">
+        <aside className="col-span-18 md:col-span-4 self-start flex flex-col gap-2 justify-start md:sticky md:top-[calc(var(--nav-height)*1.2)] pb-8 md:pb-0">
           <h1 className="pt-2">{project.client}</h1>
           <div className="flex flex-col gap-2">
             <p>{project.description}</p>
@@ -45,13 +45,13 @@ export function ProjectPage() {
           {project.links && project.links.length > 0 && (
             <div className="flex flex-col gap-2 pt-4">
               <p className="">Links</p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid md:grid-cols-2 grid-cols-9 gap-2">
                 {project.links.map((link) => (
                   <a
                     key={link.href}
                     href={link.href}
                     data-nav-link
-                    className="relative flex items-center w-fit"
+                    className="relative flex items-center w-fit md:col-span-1 col-span-4"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
