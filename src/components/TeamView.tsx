@@ -219,8 +219,11 @@ export function TeamView({
             absolutely-centred layer so it sits in the middle of the viewport
             regardless of the info's height; the info is bottom-anchored via
             justify-end. Selected work sits outside this block. */}
-        <div className="relative flex flex-col h-screen min-h-200 md:justify-end ">
-          <div className="flex items-center justify-center md:absolute md:inset-0 pt-[var(--nav-height)]  md:pt-0">
+        <div className="relative flex flex-col min-h-screen pt-[var(--nav-height)]">
+          {/* The image fills the white space between the navbar and the member
+              info: this region grows to take the gap and centers the image in
+              it; the info sits below at the bottom. */}
+          <div className="grow shrink-0 flex items-center justify-center py-2">
             <div className="grid grid-cols-18 gap-2 w-full">
               <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative ">
                 <ViewTransition name="team-hero">
@@ -274,13 +277,16 @@ export function TeamView({
   return (
     <main
       ref={containerRef}
-      className={`relative flex flex-col px-2 text-xs leading-[120%] h-screen min-h-200 md:justify-end ${className}`}
+      className={`relative flex flex-col px-2 text-xs leading-[120%] min-h-screen pt-[var(--nav-height)] ${className}`}
     >
-      <div className="flex items-center justify-center md:absolute md:inset-0 pt-[var(--nav-height)] md:pt-0">
+      {/* The image fills the white space between the navbar and the list: this
+          region grows to take the gap and centers the image in it; the list
+          sits below. */}
+      <div className="grow shrink-0 flex items-center justify-center py-2">
         <div className="grid grid-cols-18 gap-2 w-full">
           <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
-              <div className="absolute inset-0 w-full h-full mb-[calc(var(--nav-height))] pb-2 ">
+              <div className="absolute inset-0 w-full h-full">
                 <img
                   src={teamImg}
                   alt="team"
