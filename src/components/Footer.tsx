@@ -51,12 +51,6 @@ export function Footer() {
     let ticking = false;
 
     const measureStartSize = () => {
-      const xs =
-        parseFloat(
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--text-xs",
-          ),
-        ) || 14;
       const ctx = document.createElement("canvas").getContext("2d");
       if (!ctx) return;
       ctx.font = `700 ${25}px ${getComputedStyle(word).fontFamily}`;
