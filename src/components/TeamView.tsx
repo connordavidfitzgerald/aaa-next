@@ -293,7 +293,7 @@ export function TeamView({
             absolutely-centred layer so it sits in the middle of the viewport
             regardless of the info's height; the info is bottom-anchored via
             justify-end. Selected work sits outside this block. */}
-        <div className="relative flex flex-col min-h-screen pt-[var(--nav-height)] pb-2 ">
+        <div className="relative flex flex-col min-h-screen pt-[var(--nav-height)] md:pb-2 ">
           {/* The image fills the white space between the navbar and the member
               info: this region grows to take the gap and centers the image in
               it; the info sits below at the bottom. */}
@@ -337,11 +337,12 @@ export function TeamView({
         {/* Selected work, rendered in the homepage project format. */}
         {work && work.length > 0 && (
           <section className="flex flex-col w-full md:pt-20 ">
-            <div className="flex flex-col gap-25 font-normal tracking-[-0.01em] mt-2 border-black/20 border-t pb-2">
+            <div className="flex flex-col gap-25 font-normal tracking-[-0.01em] md:mt-2 border-black/20 border-t md:pb-2">
               {work.map((project) => (
                 <ProjectPreview key={project.id} project={project} />
               ))}
             </div>
+            <div className="h-50 flex md:hidden"></div>
           </section>
         )}
       </main>
@@ -494,7 +495,7 @@ function MemberDetail({ member }: { member: MemberView }) {
   return (
     <div ref={detailRef} className="">
       <div className="grid grid-cols-18 gap-2 md:gap-y-8">
-        <p className="col-span-12 md:col-span-4">{member.name}</p>
+        <p className="col-span-18 md:col-span-4">{member.name}</p>
         <p className="col-span-12 md:col-span-4">{member.bio}</p>
 
         <p className="md:flex hidden md:col-span-4  md:opacity-100">
@@ -502,7 +503,7 @@ function MemberDetail({ member }: { member: MemberView }) {
         </p>
         <div
           data-services
-          className="col-span-4 col-start-13 md:col-span-4  md:opacity-100 flex flex-col items-start"
+          className="col-span-6 md:col-span-4  md:opacity-100 flex flex-col items-start"
         >
           {member.services.map((service) => (
             <span
@@ -523,7 +524,7 @@ function MemberDetail({ member }: { member: MemberView }) {
 
         {/* Member's links, stacked in the last two columns and right-aligned. */}
         {(member.instagram || member.linkedin) && (
-          <div className="col-span-6 col-start-13 md:col-span-2 md:col-start-17 flex flex-col items-end text-right">
+          <div className="col-span-8 md:col-span-2 md:col-start-17 grid grid-cols-2 md:flex md:flex-col gap-2 md:gap-0 md:items-end items-start md:text-right text-left">
             {member.instagram && (
               <a
                 href={member.instagram}
@@ -541,7 +542,7 @@ function MemberDetail({ member }: { member: MemberView }) {
                 rel="noreferrer"
                 className="w-fit"
               >
-                LinkedIn <span className="text-[10px]">↗</span>
+                LinkedIn <span className="text-[10px] align-baseline">↗</span>
               </a>
             )}
           </div>

@@ -47,7 +47,7 @@ export function ProjectPage() {
                   </div>
 
                   {credit.role && (
-                    <div className="flex flex-col md:col-span-1 col-span-5">
+                    <div className="flex flex-col md:col-span-1 col-span-4">
                       {credit.role
                         .split(",")
                         .map((role) => role.trim())

@@ -59,12 +59,12 @@ export function HomePage() {
         images={trailImages}
         className="w-full h-screen"
       >
-        <h3 className="text-lg uppercase font-bold tracking-[-0.02em] leading-[100%]  grid grid-cols-9 ">
+        <h3 className="text-lg uppercase font-bold tracking-[-0.02em] leading-[95%]  grid grid-cols-9 ">
           <span className="col-span-5 col-start-3 text-center">
             <span
               className="box-decoration-clone w-fit px-0.5 text-black
               bg-[linear-gradient(var(--color-green),var(--color-green))]
-              bg-size-[100%_80%] bg-no-repeat bg-center align-top"
+              bg-size-[100%_80%] bg-no-repeat bg-center align-middle pt-0.5"
             >
               Applied Archive Atelier is a creative studio amplifying
               non-profits, cultural institutions and social businesses.
