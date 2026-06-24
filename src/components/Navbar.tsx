@@ -120,8 +120,8 @@ export function Navbar() {
       };
       gsap.to(proxy, {
         v: target,
-        duration: 0.7,
-        delay: 0.2,
+        duration: 0.6,
+        delay: 0.1,
         ease: "power2.out",
         overwrite: true,
         // onStart fires after the delay — so on reveal the items re-expand at
@@ -183,7 +183,7 @@ export function Navbar() {
       style={{
         background: "var(--nav-bg)",
         gap: "5px",
-        transition: "gap 0.05s linear, transform 0.4s ease",
+        transition: "gap 0.05s linear, transform 0.75s ease",
       }}
     >
       <Link

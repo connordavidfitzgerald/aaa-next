@@ -192,7 +192,8 @@ mux-player {
     --text-xs: 11.5px;
     --text-md: 24px;
     --text-lg: clamp(1rem, 0.5385rem + 2.0513vw, 3rem);
-    --text-header: clamp(1.625rem, 0.2917rem + 5.9259vw, 5.625rem);
+    --text-header: clamp(1.125rem, -0.135rem + 5.6vw, 8.825rem);
+    --text-header-2: clamp(1.625rem, 0.2917rem + 5.9259vw, 5.625rem);
     --text-header-small: clamp(1.125rem, 1.0385rem + 0.3846vw, 1.5rem);
     --color-green: #20fe06;
 
