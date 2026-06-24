@@ -201,3 +201,12 @@ mux-player {
     --space-2xl: clamp(2.5rem, 1.3462rem + 5.1282vw, 7.5rem);
     --space-3xl: clamp(3.75rem, 2.0192rem + 7.6923vw, 11.25rem);
 }
+
+/* Force a solid background color on autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}

@@ -26,9 +26,17 @@ export function TeamPage() {
       })),
   });
 
+  // Sort each section alphabetically by name (locale-aware so accented names
+  // like "Hazoumé" sort naturally).
+  const byName = (a: TeamMember, b: TeamMember) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+
   const sections = [
-    { label: "Core", members: core.map(withProjects) },
-    { label: "Collaborators", members: collaborators.map(withProjects) },
+    { label: "Core", members: [...core].sort(byName).map(withProjects) },
+    {
+      label: "Collaborators",
+      members: [...collaborators].sort(byName).map(withProjects),
+    },
   ];
 
   return <TeamView sections={sections} className="min-h-200" />;

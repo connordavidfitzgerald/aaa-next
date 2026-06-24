@@ -312,7 +312,7 @@ export function TeamView({
                     viewTransition
                     data-team-row
                     data-member={member.key}
-                    className="relative grid grid-cols-9 gap-x-2 items-end border-b border-black/20 py-2"
+                    className="relative grid grid-cols-9 gap-x-2 items-center border-b border-black/20 py-2"
                   >
                     <span
                       data-team-hl
@@ -341,7 +341,7 @@ export function TeamView({
                         <img
                           src={member.image}
                           alt={member.name}
-                          className="absolute -top-2 left-0 w-full aspect-square object-cover"
+                          className="absolute top-4.5 translate-y-[-50%] left-0 w-full aspect-square object-cover"
                         />
                       </div>
                     )}
