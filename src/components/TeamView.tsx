@@ -272,30 +272,48 @@ export function TeamView({
     );
   }
 
+  const allMembers = sections?.flatMap((section) => section.members) ?? [];
+
   return (
     <main
       ref={containerRef}
       className={`relative flex flex-col px-2 text-xs leading-[120%] pt-[var(--nav-height)] ${className}`}
     >
-      {/* The team image is its own ~80vh section, separate from the list. */}
-      <section className="flex items-center justify-center h-[70vh] min-h-120">
+      {/* The team image is fixed in the viewport centre and layered above the
+          list. It defaults to the team photo; hovering a name swaps in that
+          member's portrait (toggled in the hover effect above). It is
+          pointer-events-none so the names underneath stay hoverable. */}
+      <div className="fixed inset-0 z-20 flex items-center justify-center px-2 pointer-events-none">
         <div className="grid grid-cols-18 gap-2 w-full">
-          <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative">
+          <div className="col-start-8 col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
               <img
                 src={teamImg}
                 alt="team"
+                data-team-image="default"
                 className="absolute inset-0 w-full h-full object-cover block"
               />
             </ViewTransition>
+            {allMembers.map((member) =>
+              member.image ? (
+                <img
+                  key={member.key}
+                  src={member.image}
+                  alt={member.name}
+                  data-team-image={member.key}
+                  className="absolute inset-0 w-full h-full object-cover block opacity-0"
+                />
+              ) : null,
+            )}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* The team list. Each section's label sits above its rows. Rows are a
-          9-column grid (name 1–3, role 4–5, location 6–7) with the hover
-          portrait absolutely placed in columns 8–9. */}
+          9-column grid: the name spans columns 1–6, with role and location
+          sharing columns 7–9, justified to opposite edges. */}
       <ViewTransition name="team-list">
+        <div className="h-[70vh]"></div>
         <div className="relative z-10 flex flex-col tracking-[-0.01em] pb-2">
           {sections?.map((section) => (
             <div key={section.label} className="flex flex-col pt-8">
@@ -318,33 +336,17 @@ export function TeamView({
                       data-team-hl
                       className="absolute inset-0 bg-green scale-y-0 origin-top"
                     />
-                    <p className="col-span-3 relative z-10 text-lg leading-none">
+                    <p className="col-span-6 relative z-10 text-lg leading-none pt-1">
                       {member.name}
                     </p>
-                    <div className="col-span-2 relative z-10 flex flex-col">
-                      {roles.map((role) => (
-                        <span key={role}>{role}</span>
-                      ))}
-                    </div>
-                    <p className="col-span-2 relative z-10">
-                      {member.location}
-                    </p>
-
-                    {/* Hover portrait: square, anchored to the top of the row,
-                        layered above the row content, and absolute so it never
-                        grows the row. Toggled in the hover effect above. */}
-                    {member.image && (
-                      <div
-                        data-team-image={member.key}
-                        className="col-start-8 col-span-2 self-stretch relative z-20 opacity-0 pointer-events-none"
-                      >
-                        <img
-                          src={member.image}
-                          alt={member.name}
-                          className="absolute top-4.5 translate-y-[-50%] left-0 w-full aspect-square object-cover"
-                        />
+                    <div className="col-span-3 relative z-10 flex justify-between items-center gap-x-2">
+                      <div className="flex flex-col">
+                        {roles.map((role) => (
+                          <span key={role}>{role}</span>
+                        ))}
                       </div>
-                    )}
+                      <p>{member.location}</p>
+                    </div>
                   </Link>
                 );
               })}

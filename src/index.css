@@ -111,6 +111,12 @@ html[data-manifesto] [data-nav-link]:hover {
     color: var(--color-green);
 }
 
+/* Contact page: the success colour drop is painted behind the page content, so
+   drop the navbar's opaque background to let the green flood through it too. */
+html[data-contact] {
+    --nav-bg: transparent;
+}
+
 /* Minimal budget range slider: 1px line track, black circular thumb. */
 .budget-slider {
     -webkit-appearance: none;

@@ -17,6 +17,7 @@ export function ContactPage() {
   const [placeholder, setPlaceholder] = useState("");
   const [hasInput, setHasInput] = useState(false);
   const [sent, setSent] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
   // Where the send button was pressed — the origin of the colour drop.
@@ -26,6 +27,14 @@ export function ContactPage() {
   // preventScroll keeps the page from jumping to it.
   useEffect(() => {
     messageRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  // Flag the page on <html> so the navbar background can go transparent (see
+  // index.css) and the success colour drop shows through behind it.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute("data-contact", "");
+    return () => root.removeAttribute("data-contact");
   }, []);
 
   useEffect(() => {
@@ -82,6 +91,39 @@ export function ContactPage() {
     );
   };
 
+  // Line-mask transition: every field/message (data-hide-line) wipes down out
+  // of its mask, while the confirmation (data-rise-line) rises up into view.
+  // Masking uses clip-path (not overflow) so it's purely visual — the fields
+  // stay exactly in place rather than reflowing — and it's applied only now so
+  // the message textarea can grow freely while the visitor is typing.
+  const playMaskTransition = async () => {
+    const root = mainRef.current;
+    if (!root) return;
+
+    const { gsap } = await import("gsap");
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    gsap.set(root.querySelectorAll("[data-mask]"), {
+      clipPath: "inset(0)",
+    });
+
+    const tl = gsap.timeline();
+    tl.to(root.querySelectorAll("[data-hide-line]"), {
+      yPercent: 100,
+      duration: reduce ? 0 : 0.5,
+      ease: "power3.in",
+      stagger: reduce ? 0 : 0.05,
+    });
+    tl.fromTo(
+      root.querySelectorAll("[data-rise-line]"),
+      { yPercent: 110 },
+      { yPercent: 0, duration: reduce ? 0 : 0.6, ease: "power3.out" },
+      reduce ? 0 : 0.25,
+    );
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (sent) return;
@@ -94,55 +136,86 @@ export function ContactPage() {
       y: window.innerHeight / 2,
     };
     setSent(true);
+    playMaskTransition();
     playColorDrop(pos.x, pos.y);
   };
 
   return (
-    <main className="relative flex flex-col px-2 text-xs leading-[120%] min-h-screen">
+    <main
+      ref={mainRef}
+      className="relative flex flex-col px-2 text-xs leading-[120%] min-h-screen"
+    >
       <div className="relative z-10 flex md:flex-1 items-center justify-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6">
-        {sent ? (
-          // On success the prompt is replaced in place by the confirmation.
-          <p className="w-full text-center text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]">
-            Thanks — we&apos;ll be in touch.
-          </p>
-        ) : (
-          <label className="flex w-full flex-wrap items-baseline justify-center gap-[0.25em] text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]">
-            <span className="shrink-0 whitespace-nowrap select-none">
-              {typedPrefix}
+        <div className="relative w-full">
+          {/* The prompt; wipes down out of its mask on success. */}
+          <div data-mask>
+            <label
+              data-hide-line
+              className="flex w-full flex-wrap items-baseline justify-center gap-[0.25em] text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
+            >
+              <span className="shrink-0 whitespace-nowrap select-none">
+                {typedPrefix}
+              </span>
+              {/* The example is a dimmed span rather than a native placeholder,
+                  so the (empty) textarea — and therefore the caret — sits right
+                  at the end of it instead of in the centre of the field. The
+                  span is dropped as soon as the visitor types. A textarea (not
+                  an input) lets the message wrap once it reaches the viewport
+                  width; field-sizing-content grows it to fit the text. */}
+              <span className="relative inline-block max-w-full text-left align-baseline">
+                {!hasInput && (
+                  <span
+                    aria-hidden
+                    className="pointer-events-none select-none opacity-30"
+                  >
+                    {placeholder}
+                  </span>
+                )}
+                <textarea
+                  ref={messageRef}
+                  name="message"
+                  form="contact-form"
+                  aria-label="Your message"
+                  rows={1}
+                  onInput={(e) => setHasInput(e.currentTarget.value.length > 0)}
+                  // min-w keeps a sliver of width when empty so the caret (drawn
+                  // at the field's left edge, right after the placeholder) isn't
+                  // collapsed away by field-sizing-content / clipped by overflow.
+                  // text-center keeps multi-line messages centred as a block.
+                  className="field-sizing-content min-w-[3px] max-w-full resize-none overflow-hidden bg-transparent text-center align-baseline leading-[1.15] focus:outline-none"
+                />
+              </span>
+            </label>
+          </div>
+
+          {/* The confirmation, overlaid in the same spot. Its mask hugs the
+              text tightly (overflow-hidden on a content-sized box) so the
+              translate-110% always fully hides it regardless of how tall the
+              message above grew, and the rise reveals it on success. */}
+          <div
+            className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            aria-hidden={!sent}
+          >
+            <span className="inline-block max-w-full overflow-hidden">
+              <p
+                data-rise-line
+                // Initial offset via inline transform (the same property GSAP
+                // animates) so it doesn't fight Tailwind's translate utilities.
+                style={{ transform: "translateY(110%)" }}
+                className="max-w-full text-center text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
+              >
+                Thanks — we&apos;ll be in touch.
+              </p>
             </span>
-            {/* The example is a dimmed span rather than a native placeholder, so
-                the (empty) textarea — and therefore the caret — sits right at
-                the end of it instead of in the centre of the field. The span is
-                dropped as soon as the visitor types. A textarea (not an input)
-                lets the message wrap once it reaches the viewport width;
-                field-sizing-content grows it to fit the text. */}
-            <span className="relative inline-block max-w-full text-left align-baseline">
-              {!hasInput && (
-                <span
-                  aria-hidden
-                  className="pointer-events-none select-none opacity-30"
-                >
-                  {placeholder}
-                </span>
-              )}
-              <textarea
-                ref={messageRef}
-                name="message"
-                form="contact-form"
-                aria-label="Your message"
-                rows={1}
-                onInput={(e) => setHasInput(e.currentTarget.value.length > 0)}
-                // min-w keeps a sliver of width when empty so the caret (drawn
-                // at the field's left edge, right after the placeholder) isn't
-                // collapsed away by field-sizing-content / clipped by overflow.
-                className="field-sizing-content min-w-[3px] max-w-full resize-none overflow-hidden bg-transparent align-baseline leading-[1.15] focus:outline-none"
-              />
-            </span>
-          </label>
-        )}
+          </div>
+        </div>
       </div>
 
-      <div className="relative z-10 mt-auto md:mt-0 pb-6">
+      <div
+        className={`relative z-10 mt-auto md:mt-0 pb-6 ${
+          sent ? "pointer-events-none" : ""
+        }`}
+      >
         <form
           id="contact-form"
           onSubmit={handleSubmit}
@@ -150,58 +223,73 @@ export function ContactPage() {
           className="flex flex-col gap-4 md:grid md:grid-cols-18 md:gap-2 "
         >
           <div className="flex flex-col gap-4 md:col-span-12 md:grid md:grid-cols-12 md:grid-rows-2 md:gap-x-2 md:gap-y-0 md:h-full">
-            {/* Row 1 */}
-            <label className="col-span-4 flex flex-col gap-1">
-              <input
-                type="text"
-                name="name"
-                required
-                autoComplete="name"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
-              />
-              <span className="">Name</span>
+            {/* Row 1 — each field is a mask whose content wipes down on send. */}
+            <label data-mask className="col-span-4 block">
+              <span data-hide-line className="flex flex-col gap-1">
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  autoComplete="name"
+                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
+                />
+                <span className="">Name</span>
+              </span>
             </label>
-            <label className="col-span-4 flex flex-col gap-1">
-              <input
-                type="email"
-                name="email"
-                required
-                autoComplete="email"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
-              />
-              <span className="">Email</span>
+            <label data-mask className="col-span-4 block">
+              <span data-hide-line className="flex flex-col gap-1">
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  autoComplete="email"
+                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
+                />
+                <span className="">Email</span>
+              </span>
             </label>
-            <label className="col-span-4 flex flex-col gap-1">
-              <input
-                type="text"
-                name="organization"
-                autoComplete="organization"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
-              />
-              <span className="">Organization (optional)</span>
+            <label data-mask className="col-span-4 block">
+              <span data-hide-line className="flex flex-col gap-1">
+                <input
+                  type="text"
+                  name="organization"
+                  autoComplete="organization"
+                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
+                />
+                <span className="">Organization (optional)</span>
+              </span>
             </label>
 
             {/* Row 2 */}
-            <label className="col-span-4 flex flex-col gap-1 pt-2">
-              <input
-                type="text"
-                name="timeline"
-                className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%] placeholder:opacity-40"
-              />
-              <span className="">
-                When are you hoping the project to be done?
+            <label data-mask className="col-span-4 block pt-2">
+              <span data-hide-line className="flex flex-col gap-1">
+                <input
+                  type="text"
+                  name="timeline"
+                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%] placeholder:opacity-40"
+                />
+                <span className="">
+                  When are you hoping the project to be done?
+                </span>
               </span>
             </label>
-            <BudgetSlider className="col-span-4 pt-3" />
+            <div data-mask className="col-span-4 pt-3">
+              <div data-hide-line>
+                <BudgetSlider />
+              </div>
+            </div>
             {/* Sits in the empty cell beside the budget slider. */}
-            <p className="col-span-4 pt-2">
-              Every budget is welcome. We read it as energy. Tell us yours, and
-              we&apos;ll be honest about what we can make with it, together.
-            </p>
+            <div data-mask className="col-span-4 pt-2">
+              <p data-hide-line>
+                Every budget is welcome. We read it as energy. Tell us yours, and
+                we&apos;ll be honest about what we can make with it, together.
+              </p>
+            </div>
           </div>
 
           {/* The send button fills the column beside the form, bordered, with
-              its label anchored to the bottom-left. */}
+              its label anchored to the bottom-left. It stays put on success
+              (no hide animation). */}
           <div className="md:col-span-6 md:h-full mt-4">
             <button
               type="submit"
