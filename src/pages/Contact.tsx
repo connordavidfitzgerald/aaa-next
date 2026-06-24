@@ -17,17 +17,22 @@ export function ContactPage() {
   const [placeholder, setPlaceholder] = useState("");
   const [hasInput, setHasInput] = useState(false);
   const [sent, setSent] = useState(false);
+  // Bumped after the success sequence to remount the message + form to their
+  // pristine, page-load state (clears inputs, resets the budget slider, etc.).
+  const [runKey, setRunKey] = useState(0);
   const mainRef = useRef<HTMLElement>(null);
-  const messageRef = useRef<HTMLTextAreaElement>(null);
+  const editableRef = useRef<HTMLSpanElement>(null);
+  const messageValueRef = useRef<HTMLInputElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
+  const whiteDropRef = useRef<HTMLDivElement>(null);
   // Where the send button was pressed — the origin of the colour drop.
   const clickPos = useRef<{ x: number; y: number } | null>(null);
 
-  // Focus the message field on load so the caret blinks there, ready to type.
-  // preventScroll keeps the page from jumping to it.
+  // Focus the message field so the caret blinks there, ready to type — on load
+  // and again after a reset (runKey remounts the field).
   useEffect(() => {
-    messageRef.current?.focus({ preventScroll: true });
-  }, []);
+    editableRef.current?.focus({ preventScroll: true });
+  }, [runKey]);
 
   // Flag the page on <html> so the navbar background can go transparent (see
   // index.css) and the success colour drop shows through behind it.
@@ -37,7 +42,11 @@ export function ContactPage() {
     return () => root.removeAttribute("data-contact");
   }, []);
 
+  // The type-on intro, replayed whenever the form is reset (runKey changes).
   useEffect(() => {
+    setTypedPrefix("");
+    setPlaceholder("");
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setTypedPrefix(PREFIX);
       setPlaceholder(PLACEHOLDER);
@@ -57,87 +66,111 @@ export function ContactPage() {
 
     timer = setTimeout(type, START_DELAY);
     return () => clearTimeout(timer);
-  }, []);
+  }, [runKey]);
 
-  // Procreate-style colour drop: a green disc planted at the click point and
-  // scaled until it covers the whole viewport. Sized so its radius reaches the
-  // farthest corner from the origin, so it always fills the screen.
-  const playColorDrop = async (x: number, y: number) => {
-    const el = dropRef.current;
-    if (!el) return;
+  // After a reset, the fresh message + form are committed behind the covering
+  // white disc; collapse both discs to reveal the pristine page underneath.
+  useEffect(() => {
+    if (runKey === 0) return;
+    [dropRef.current, whiteDropRef.current].forEach((el) => {
+      if (el) el.style.transform = "scale(0)";
+    });
+  }, [runKey]);
 
-    const dx = Math.max(x, window.innerWidth - x);
-    const dy = Math.max(y, window.innerHeight - y);
+  // Position and size a disc so it's centred on (ox, oy) and its radius reaches
+  // the farthest viewport corner — i.e. scaling it to 1 always fills the screen.
+  const sizeDisc = (el: HTMLElement, ox: number, oy: number) => {
+    const dx = Math.max(ox, window.innerWidth - ox);
+    const dy = Math.max(oy, window.innerHeight - oy);
     const radius = Math.hypot(dx, dy);
-
-    el.style.left = `${x - radius}px`;
-    el.style.top = `${y - radius}px`;
+    el.style.left = `${ox - radius}px`;
+    el.style.top = `${oy - radius}px`;
     el.style.width = `${radius * 2}px`;
     el.style.height = `${radius * 2}px`;
-
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const { gsap } = await import("gsap");
-    gsap.fromTo(
-      el,
-      { scale: 0 },
-      {
-        scale: 1,
-        duration: reduce ? 0 : 0.85,
-        ease: "power2.out",
-        transformOrigin: "center center",
-      },
-    );
   };
 
-  // Line-mask transition: every field/message (data-hide-line) wipes down out
-  // of its mask, while the confirmation (data-rise-line) rises up into view.
-  // Masking uses clip-path (not overflow) so it's purely visual — the fields
-  // stay exactly in place rather than reflowing — and it's applied only now so
-  // the message textarea can grow freely while the visitor is typing.
-  const playMaskTransition = async () => {
+  // The full success sequence, as one timeline:
+  //  1. green floods in from the click point while the fields' values + message
+  //     wipe down out of their masks;
+  //  2. the confirmation rises up into the message's place;
+  //  3. it holds long enough to read;
+  //  4. the confirmation wipes back down;
+  //  5. a white disc drops out from the centre, returning the page to white.
+  // onComplete remounts the form to its pristine state (see runKey).
+  const runSuccessSequence = async (x: number, y: number) => {
     const root = mainRef.current;
-    if (!root) return;
+    const green = dropRef.current;
+    const white = whiteDropRef.current;
+    if (!root || !green || !white) return;
 
     const { gsap } = await import("gsap");
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const d = (s: number) => (reduce ? 0 : s);
+    const hold = 1.6; // read time, kept even under reduced motion
 
-    gsap.set(root.querySelectorAll("[data-mask]"), {
-      clipPath: "inset(0)",
-    });
+    const hideLines = root.querySelectorAll("[data-hide-line]");
+    const riseLines = root.querySelectorAll("[data-rise-line]");
 
-    const tl = gsap.timeline();
-    tl.to(root.querySelectorAll("[data-hide-line]"), {
-      yPercent: 100,
-      duration: reduce ? 0 : 0.5,
-      ease: "power3.in",
-      stagger: reduce ? 0 : 0.05,
-    });
-    tl.fromTo(
-      root.querySelectorAll("[data-rise-line]"),
-      { yPercent: 110 },
-      { yPercent: 0, duration: reduce ? 0 : 0.6, ease: "power3.out" },
-      reduce ? 0 : 0.25,
+    // The white drop emerges from the centre of where the confirmation sits.
+    const successBox = (riseLines[0] as HTMLElement | undefined)?.parentElement;
+    const box = successBox?.getBoundingClientRect();
+    const wx = box ? box.left + box.width / 2 : window.innerWidth / 2;
+    const wy = box ? box.top + box.height / 2 : window.innerHeight / 2;
+
+    sizeDisc(green, x, y);
+    sizeDisc(white, wx, wy);
+    gsap.set([green, white], { scale: 0 });
+    gsap.set(root.querySelectorAll("[data-mask]"), { clipPath: "inset(0)" });
+
+    const tl = gsap.timeline({ onComplete: resetForm });
+    tl.to(green, { scale: 1, duration: d(0.85), ease: "power2.out" }, 0);
+    tl.to(
+      hideLines,
+      {
+        yPercent: 100,
+        duration: d(0.5),
+        ease: "power3.in",
+        stagger: d(0.05),
+      },
+      0,
     );
+    tl.fromTo(
+      riseLines,
+      { yPercent: 110, autoAlpha: 1 },
+      { yPercent: 0, duration: d(0.6), ease: "power3.out" },
+      d(0.45),
+    );
+    tl.to(
+      riseLines,
+      { yPercent: 110, duration: d(0.5), ease: "power3.in" },
+      `+=${hold}`,
+    );
+    tl.to(white, { scale: 1, duration: d(0.85), ease: "power2.out" });
+  };
+
+  // Return the form to its page-load state by remounting it (runKey) once the
+  // white disc is covering, so the reset never flashes the wiped fields.
+  const resetForm = () => {
+    setSent(false);
+    setHasInput(false);
+    setRunKey((k) => k + 1);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (sent) return;
 
-    // No backend is wired yet, so a submit is treated as success: fire the
-    // colour drop from where the button was pressed (falling back to the
-    // viewport centre for keyboard submits).
+    // No backend is wired yet, so a submit is treated as success: run the
+    // sequence from where the button was pressed (falling back to the viewport
+    // centre for keyboard submits).
     const pos = clickPos.current ?? {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
     };
     setSent(true);
-    playMaskTransition();
-    playColorDrop(pos.x, pos.y);
+    runSuccessSequence(pos.x, pos.y);
   };
 
   return (
@@ -145,73 +178,100 @@ export function ContactPage() {
       ref={mainRef}
       className="relative flex flex-col px-2 text-xs leading-[120%] min-h-screen"
     >
-      <div className="relative z-10 flex md:flex-1 items-center justify-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6">
+      <div
+        key={`hero-${runKey}`}
+        className="relative z-10 flex md:flex-1 items-center justify-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6"
+      >
         <div className="relative w-full">
-          {/* The prompt; wipes down out of its mask on success. */}
+          {/* The prompt; wipes down out of its mask on success. The prefix,
+              dimmed example, and the editable region are all inline text in one
+              centred flow, so "Hi there," and the message wrap together and
+              centre as a single block (a textarea couldn't — it's a separate
+              box). The example is a dimmed span the caret sits at the end of,
+              dropped once the visitor types. */}
           <div data-mask>
-            <label
+            <div
               data-hide-line
-              className="flex w-full flex-wrap items-baseline justify-center gap-[0.25em] text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
+              onMouseDown={(e) => {
+                // The empty editable is a tiny target; clicking anywhere on the
+                // prompt focuses it (caret lands after the placeholder).
+                if (e.target !== editableRef.current) {
+                  e.preventDefault();
+                  editableRef.current?.focus();
+                }
+              }}
+              className="w-full cursor-text text-center text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
             >
-              <span className="shrink-0 whitespace-nowrap select-none">
-                {typedPrefix}
+              <span key="prefix" className="select-none whitespace-pre-wrap">
+                {typedPrefix ? `${typedPrefix} ` : typedPrefix}
               </span>
-              {/* The example is a dimmed span rather than a native placeholder,
-                  so the (empty) textarea — and therefore the caret — sits right
-                  at the end of it instead of in the centre of the field. The
-                  span is dropped as soon as the visitor types. A textarea (not
-                  an input) lets the message wrap once it reaches the viewport
-                  width; field-sizing-content grows it to fit the text. */}
-              <span className="relative inline-block max-w-full text-left align-baseline">
-                {!hasInput && (
-                  <span
-                    aria-hidden
-                    className="pointer-events-none select-none opacity-30"
-                  >
-                    {placeholder}
-                  </span>
-                )}
-                <textarea
-                  ref={messageRef}
-                  name="message"
-                  form="contact-form"
-                  aria-label="Your message"
-                  rows={1}
-                  onInput={(e) => setHasInput(e.currentTarget.value.length > 0)}
-                  // min-w keeps a sliver of width when empty so the caret (drawn
-                  // at the field's left edge, right after the placeholder) isn't
-                  // collapsed away by field-sizing-content / clipped by overflow.
-                  // text-center keeps multi-line messages centred as a block.
-                  className="field-sizing-content min-w-[3px] max-w-full resize-none overflow-hidden bg-transparent text-center align-baseline leading-[1.15] focus:outline-none"
-                />
-              </span>
-            </label>
+              {!hasInput && (
+                <span
+                  key="placeholder"
+                  aria-hidden
+                  className="select-none opacity-30"
+                >
+                  {placeholder}
+                </span>
+              )}
+              <span
+                key="editable"
+                ref={editableRef}
+                role="textbox"
+                aria-label="Your message"
+                contentEditable
+                suppressContentEditableWarning
+                onKeyDown={(e) => {
+                  // Keep Enter as a plain line break instead of letting the
+                  // browser split the flow into block elements.
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    document.execCommand("insertLineBreak");
+                  }
+                }}
+                onInput={(e) => {
+                  const text = e.currentTarget.innerText;
+                  setHasInput(text.trim().length > 0);
+                  if (messageValueRef.current)
+                    messageValueRef.current.value = text;
+                }}
+                className="whitespace-pre-wrap outline-none"
+              />
+            </div>
           </div>
+          <input
+            ref={messageValueRef}
+            type="hidden"
+            name="message"
+            form="contact-form"
+          />
 
-          {/* The confirmation, overlaid in the same spot. Its mask hugs the
-              text tightly (overflow-hidden on a content-sized box) so the
-              translate-110% always fully hides it regardless of how tall the
-              message above grew, and the rise reveals it on success. */}
+          {/* The confirmation, overlaid in the same spot. The mask is a
+              full-width block whose height is exactly the line of text, so the
+              translate-110% always fully hides it (no matter how tall the
+              message above grew) and the rise cleanly reveals it on success. */}
           <div
             className="pointer-events-none absolute inset-0 flex items-center justify-center"
             aria-hidden={!sent}
           >
-            <span className="inline-block max-w-full overflow-hidden">
+            <div className="w-full overflow-hidden">
               <p
                 data-rise-line
-                // Initial offset via inline transform (the same property GSAP
-                // animates) so it doesn't fight Tailwind's translate utilities.
-                style={{ transform: "translateY(110%)" }}
-                className="max-w-full text-center text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
+                // Hidden via `invisible` (not an inline transform) so a React
+                // re-render can't reset it mid-animation; GSAP owns the position
+                // and visibility from here (autoAlpha makes it visible as it
+                // rises, then it's masked away again when it wipes back down).
+                className="invisible w-full text-center text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
               >
                 Thanks — we&apos;ll be in touch.
               </p>
-            </span>
+            </div>
           </div>
         </div>
       </div>
 
       <div
+        key={`form-${runKey}`}
         className={`relative z-10 mt-auto md:mt-0 pb-6 ${
           sent ? "pointer-events-none" : ""
         }`}
@@ -223,68 +283,80 @@ export function ContactPage() {
           className="flex flex-col gap-4 md:grid md:grid-cols-18 md:gap-2 "
         >
           <div className="flex flex-col gap-4 md:col-span-12 md:grid md:grid-cols-12 md:grid-rows-2 md:gap-x-2 md:gap-y-0 md:h-full">
-            {/* Row 1 — each field is a mask whose content wipes down on send. */}
-            <label data-mask className="col-span-4 block">
-              <span data-hide-line className="flex flex-col gap-1">
+            {/* Row 1 — only the typed value masks/clears on send: the bottom
+                border lives on the mask wrapper, so it stays put as the baseline
+                while the input text wipes down beneath it; the caption stays. */}
+            <label className="col-span-4 flex flex-col gap-1">
+              <span
+                data-mask
+                className="block border-b border-black/20 focus-within:border-green"
+              >
                 <input
+                  data-hide-line
                   type="text"
                   name="name"
                   required
                   autoComplete="name"
-                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%]"
                 />
-                <span className="">Name</span>
               </span>
+              <span className="">Name</span>
             </label>
-            <label data-mask className="col-span-4 block">
-              <span data-hide-line className="flex flex-col gap-1">
+            <label className="col-span-4 flex flex-col gap-1">
+              <span
+                data-mask
+                className="block border-b border-black/20 focus-within:border-green"
+              >
                 <input
+                  data-hide-line
                   type="email"
                   name="email"
                   required
                   autoComplete="email"
-                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%]"
                 />
-                <span className="">Email</span>
               </span>
+              <span className="">Email</span>
             </label>
-            <label data-mask className="col-span-4 block">
-              <span data-hide-line className="flex flex-col gap-1">
+            <label className="col-span-4 flex flex-col gap-1">
+              <span
+                data-mask
+                className="block border-b border-black/20 focus-within:border-green"
+              >
                 <input
+                  data-hide-line
                   type="text"
                   name="organization"
                   autoComplete="organization"
-                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%]"
                 />
-                <span className="">Organization (optional)</span>
               </span>
+              <span className="">Organization (optional)</span>
             </label>
 
             {/* Row 2 */}
-            <label data-mask className="col-span-4 block pt-2">
-              <span data-hide-line className="flex flex-col gap-1">
+            <label className="col-span-4 flex flex-col gap-1 pt-2">
+              <span
+                data-mask
+                className="block border-b border-black/20 focus-within:border-green"
+              >
                 <input
+                  data-hide-line
                   type="text"
                   name="timeline"
-                  className="bg-transparent border-b border-black/20 focus:outline-none focus:border-green leading-[115%] placeholder:opacity-40"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] placeholder:opacity-40"
                 />
-                <span className="">
-                  When are you hoping the project to be done?
-                </span>
+              </span>
+              <span className="">
+                When are you hoping the project to be done?
               </span>
             </label>
-            <div data-mask className="col-span-4 pt-3">
-              <div data-hide-line>
-                <BudgetSlider />
-              </div>
-            </div>
-            {/* Sits in the empty cell beside the budget slider. */}
-            <div data-mask className="col-span-4 pt-2">
-              <p data-hide-line>
-                Every budget is welcome. We read it as energy. Tell us yours, and
-                we&apos;ll be honest about what we can make with it, together.
-              </p>
-            </div>
+            {/* Budget slider and the copy beside it stay put on send. */}
+            <BudgetSlider className="col-span-4 pt-3" />
+            <p className="col-span-4 pt-2">
+              Every budget is welcome. We read it as energy. Tell us yours, and
+              we&apos;ll be honest about what we can make with it, together.
+            </p>
           </div>
 
           {/* The send button fills the column beside the form, bordered, with
@@ -312,13 +384,18 @@ export function ContactPage() {
       </div>
 
       {/* Colour-drop layer, behind the page content (z-0 vs the message/form's
-          z-10) so the text and form stay legible as the green floods in. The
-          disc is invisible (scale 0) until a successful send expands it to fill
-          the viewport. */}
+          z-10) so the text and form stay legible as the discs flood in. Both
+          discs sit at scale 0 until a send: the green floods the page on
+          success, then the white drops out from the centre to restore it. */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div
           ref={dropRef}
           className="absolute rounded-full bg-green"
+          style={{ width: 0, height: 0, transform: "scale(0)" }}
+        />
+        <div
+          ref={whiteDropRef}
+          className="absolute rounded-full bg-[var(--page-bg)]"
           style={{ width: 0, height: 0, transform: "scale(0)" }}
         />
       </div>

@@ -12,44 +12,44 @@ type Lenis = { scrollTo: (t: number | string | HTMLElement) => void };
 // the targeted element when the URL carries a hash. Uses the shared Lenis
 // instance when present so the smooth-scroll engine stays in sync.
 function ScrollManager() {
-    const { pathname, hash } = useLocation();
+  const { pathname, hash } = useLocation();
 
-    useEffect(() => {
-        const lenis = (window as unknown as { lenis?: Lenis }).lenis;
-        if (hash) {
-            const el = document.querySelector(hash);
-            if (el) {
-                if (lenis) lenis.scrollTo(el as HTMLElement);
-                else el.scrollIntoView();
-                return;
-            }
-        }
-        if (lenis) lenis.scrollTo(0);
-        else window.scrollTo(0, 0);
-    }, [pathname, hash]);
+  useEffect(() => {
+    const lenis = (window as unknown as { lenis?: Lenis }).lenis;
+    if (hash) {
+      const el = document.querySelector(hash);
+      if (el) {
+        if (lenis) lenis.scrollTo(el as HTMLElement);
+        else el.scrollIntoView();
+        return;
+      }
+    }
+    if (lenis) lenis.scrollTo(0);
+    else window.scrollTo(0, 0);
+  }, [pathname, hash]);
 
-    return null;
+  return null;
 }
 
 export function Layout() {
-    const { pathname } = useLocation();
-    // No footer on the contact and team-list pages; the member view (/team/:slug)
-    // and every other page keep it.
-    const hideFooter = pathname === "/contact" || pathname === "/team";
+  const { pathname } = useLocation();
+  // No footer on the contact and team-list pages; the member view (/team/:slug)
+  // and every other page keep it.
+  const hideFooter = pathname === "/contact";
 
-    return (
-        <>
-            <Navbar />
-            {/* Opaque layer above the fixed footer (z-10 > footer z-0): it
+  return (
+    <>
+      <Navbar />
+      {/* Opaque layer above the fixed footer (z-10 > footer z-0): it
                 covers the footer until the page's bottom spacer scrolls up and
                 reveals it. */}
-            <div className="relative z-10 min-h-screen bg-[var(--page-bg)]">
-                <Outlet />
-            </div>
-            {!hideFooter && <Footer />}
-            <LenisInit />
-            <NavInteractions />
-            <ScrollManager />
-        </>
-    );
+      <div className="relative z-10 min-h-screen bg-[var(--page-bg)]">
+        <Outlet />
+      </div>
+      {!hideFooter && <Footer />}
+      <LenisInit />
+      <NavInteractions />
+      <ScrollManager />
+    </>
+  );
 }

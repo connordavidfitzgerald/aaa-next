@@ -79,8 +79,71 @@ export function TeamView({
         window.removeEventListener("pageshow", resetAll);
         window.removeEventListener("pagehide", resetAll);
       });
+      const isMobileLayout = window.matchMedia("(max-width: 767px)").matches;
 
-      if (!canHover) return;
+      if (isMobileLayout) {
+        const activateMember = (memberKey: string | null) => {
+          rows.forEach((row) => {
+            const hl = row.querySelector<HTMLElement>("[data-team-hl]");
+            const active = row.dataset.member === memberKey;
+
+            if (!hl) return;
+
+            gsap.to(hl, {
+              scaleY: active ? 1 : 0,
+              duration: 0.2,
+              ease: "power3.out",
+              overwrite: true,
+            });
+          });
+
+          memberImages.forEach((img) => {
+            gsap.set(img, {
+              opacity: img.dataset.teamImage === memberKey ? 1 : 0,
+            });
+          });
+        };
+
+        const updateClosest = () => {
+          const viewportCenter = window.innerHeight * 0.6;
+
+          let closestRow: HTMLElement | null = null;
+          let closestDistance = Infinity;
+
+          rows.forEach((row) => {
+            const rect = row.getBoundingClientRect();
+            const rowCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(rowCenter - viewportCenter);
+
+            if (distance < closestDistance) {
+              closestDistance = distance;
+              closestRow = row;
+            }
+          });
+
+          activateMember(closestRow?.dataset.member ?? null);
+        };
+
+        updateClosest();
+
+        let raf = 0;
+
+        const handleScroll = () => {
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(updateClosest);
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+
+        cleanups.push(() => {
+          cancelAnimationFrame(raf);
+          window.removeEventListener("scroll", handleScroll);
+          window.removeEventListener("resize", handleScroll);
+        });
+
+        return;
+      }
 
       rows.forEach((row) => {
         const hl = row.querySelector<HTMLElement>("[data-team-hl]");
@@ -277,15 +340,15 @@ export function TeamView({
   return (
     <main
       ref={containerRef}
-      className={`relative flex flex-col px-2 text-xs leading-[120%] pt-[var(--nav-height)] ${className}`}
+      className={`relative flex flex-col px-2 text-xs leading-[120%] pt-[calc(var(--nav-height))] md:pt-0 ${className}`}
     >
       {/* The team image is fixed in the viewport centre and layered above the
           list. It defaults to the team photo; hovering a name swaps in that
           member's portrait (toggled in the hover effect above). It is
           pointer-events-none so the names underneath stay hoverable. */}
-      <div className="fixed inset-0 z-20 flex items-center justify-center px-2 pointer-events-none">
+      <div className="sticky h-auto w-full aspect-square md:aspect-auto md:h-screen md:top-0 top-[calc(var(--nav-height))] w-full z-20 flex items-center justify-center px-2  pointer-events-none bg-white md:bg-transparent">
         <div className="grid grid-cols-18 gap-2 w-full">
-          <div className="col-start-8 col-span-4 aspect-square relative">
+          <div className="col-start-5 col-span-10 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
               <img
                 src={teamImg}
@@ -313,11 +376,12 @@ export function TeamView({
           9-column grid: the name spans columns 1–6, with role and location
           sharing columns 7–9, justified to opposite edges. */}
       <ViewTransition name="team-list">
-        <div className="h-[70vh]"></div>
-        <div className="relative z-10 flex flex-col tracking-[-0.01em] pb-2">
+        <div className="md:-mt-40 relative z-10 flex flex-col tracking-[-0.01em] pb-2 gap-10">
           {sections?.map((section) => (
             <div key={section.label} className="flex flex-col pt-8">
-              <p className="opacity-70 pb-2">{section.label}</p>
+              <p className="opacity-70 md:pb-2 pb-0.5 border-b border-black/20">
+                {section.label}
+              </p>
               {section.members.map((member) => {
                 const roles = member.role
                   .split(",")
@@ -330,19 +394,21 @@ export function TeamView({
                     viewTransition
                     data-team-row
                     data-member={member.key}
-                    className="relative grid grid-cols-9 gap-x-2 items-center border-b border-black/20 py-2"
+                    className="relative grid grid-cols-9 gap-x-2 items-center  border-b border-black/20 md:py-2 py-0.5"
                   >
                     <span
                       data-team-hl
                       className="absolute inset-0 bg-green scale-y-0 origin-top"
                     />
-                    <p className="col-span-6 relative z-10 text-lg leading-none pt-1">
+                    <p className="col-span-6 relative z-10 text-xs md:text-lg leading-none pt-1">
                       {member.name}
                     </p>
                     <div className="col-span-3 relative z-10 flex justify-between items-center gap-x-2">
                       <div className="flex flex-col">
                         {roles.map((role) => (
-                          <span key={role}>{role}</span>
+                          <span className="md:flex hidden" key={role}>
+                            {role}
+                          </span>
                         ))}
                       </div>
                       <p>{member.location}</p>
@@ -353,6 +419,7 @@ export function TeamView({
             </div>
           ))}
         </div>
+        <div className="h-20 flex md:hidden"></div>
       </ViewTransition>
     </main>
   );
@@ -411,7 +478,7 @@ function MemberDetail({ member }: { member: MemberView }) {
 
   return (
     <div ref={detailRef} className="">
-      <div className="grid grid-cols-18 gap-2 md:border-none border-black/20 border-t pt-2 md:pt-0 md:gap-y-8">
+      <div className="grid grid-cols-18 gap-2 md:gap-y-8">
         <p className="col-span-12 md:col-span-4">{member.name}</p>
         <p className="col-span-12 md:col-span-4">{member.bio}</p>
 
