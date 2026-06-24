@@ -207,8 +207,6 @@ export function TeamView({
     };
   }, [selected]);
 
-  const heroMembers = sections?.[0].members ?? [];
-
   if (selected) {
     return (
       <main
@@ -277,77 +275,79 @@ export function TeamView({
   return (
     <main
       ref={containerRef}
-      className={`relative flex flex-col px-2 text-xs leading-[120%] min-h-screen pt-[var(--nav-height)]  ${className}`}
+      className={`relative flex flex-col px-2 text-xs leading-[120%] pt-[var(--nav-height)] ${className}`}
     >
-      {/* The image fills the white space between the navbar and the list: this
-          region grows to take the gap and centers the image in it; the list
-          sits below. */}
-      <div className="grow shrink-0 flex items-center justify-center ">
+      {/* The team image is its own ~80vh section, separate from the list. */}
+      <section className="flex items-center justify-center h-[70vh] min-h-120">
         <div className="grid grid-cols-18 gap-2 w-full">
           <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
-              <div className="absolute inset-0 w-full h-full ">
-                <img
-                  src={teamImg}
-                  alt="team"
-                  data-team-image="default"
-                  className="absolute inset-0 w-full h-full object-cover block"
-                />
-                {heroMembers.map((m) => (
-                  <img
-                    key={m.key}
-                    src={m.image}
-                    alt={m.name}
-                    data-team-image={m.key}
-                    className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-0"
-                  />
-                ))}
-              </div>
+              <img
+                src={teamImg}
+                alt="team"
+                className="absolute inset-0 w-full h-full object-cover block"
+              />
             </ViewTransition>
           </div>
         </div>
-      </div>
-      <ViewTransition name="team-list">
-        <div className="relative z-10 flex flex-col gap-0 pt-2 tracking-[-0.01em]">
-          {sections?.map((section) => (
-            <div
-              key={section.label}
-              className="border-t border-black/20 pt-2 pb-2 flex flex-col gap-2 md:gap-0"
-            >
-              {/* On mobile the rows stack, so the section label is shown once
-                  as a heading instead of in a per-row column. */}
-              <p className="md:hidden opacity-70">{section.label}</p>
-              {section.members.map((member, i) => (
-                <Link
-                  key={member.key}
-                  to={`/team/${member.slug}`}
-                  viewTransition
-                  data-team-row
-                  data-member={member.key}
-                  className="grid grid-cols-12 md:grid-cols-18 gap-x-2 gap-y-0 relative h-fit"
-                >
-                  <span
-                    data-team-hl
-                    className="absolute inset-0 bg-green scale-y-0 origin-top hidden md:block"
-                  />
-                  <p className="hidden md:block md:col-span-2 relative z-10 opacity-70">
-                    {i === 0 ? section.label : ""}
-                  </p>
-                  <p className="col-span-12 md:col-span-4 relative z-10">
-                    {member.name}
-                  </p>
-                  <p className="col-span-12 md:col-span-4 relative z-10">
-                    {member.role}
-                  </p>
-                  <p className="col-span-6 md:col-span-4 relative z-10 ">
-                    {member.location}
-                  </p>
+      </section>
 
-                  <p className="col-span-6 hidden md:flex md:col-span-4 relative z-10 text-right md:text-left">
-                    {member.projects.map((p) => p.client).join(", ")}
-                  </p>
-                </Link>
-              ))}
+      {/* The team list. Each section's label sits above its rows. Rows are a
+          9-column grid (name 1–3, role 4–5, location 6–7) with the hover
+          portrait absolutely placed in columns 8–9. */}
+      <ViewTransition name="team-list">
+        <div className="relative z-10 flex flex-col tracking-[-0.01em] pb-2">
+          {sections?.map((section) => (
+            <div key={section.label} className="flex flex-col pt-8">
+              <p className="opacity-70 pb-2">{section.label}</p>
+              {section.members.map((member) => {
+                const roles = member.role
+                  .split(",")
+                  .map((r) => r.trim())
+                  .filter(Boolean);
+                return (
+                  <Link
+                    key={member.key}
+                    to={`/team/${member.slug}`}
+                    viewTransition
+                    data-team-row
+                    data-member={member.key}
+                    className="relative grid grid-cols-9 gap-x-2 items-end border-b border-black/20 py-2"
+                  >
+                    <span
+                      data-team-hl
+                      className="absolute inset-0 bg-green scale-y-0 origin-top"
+                    />
+                    <p className="col-span-3 relative z-10 text-lg leading-none">
+                      {member.name}
+                    </p>
+                    <div className="col-span-2 relative z-10 flex flex-col">
+                      {roles.map((role) => (
+                        <span key={role}>{role}</span>
+                      ))}
+                    </div>
+                    <p className="col-span-2 relative z-10">
+                      {member.location}
+                    </p>
+
+                    {/* Hover portrait: square, anchored to the top of the row,
+                        layered above the row content, and absolute so it never
+                        grows the row. Toggled in the hover effect above. */}
+                    {member.image && (
+                      <div
+                        data-team-image={member.key}
+                        className="col-start-8 col-span-2 self-stretch relative z-20 opacity-0 pointer-events-none"
+                      >
+                        <img
+                          src={member.image}
+                          alt={member.name}
+                          className="absolute -top-2 left-0 w-full aspect-square object-cover"
+                        />
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           ))}
         </div>
