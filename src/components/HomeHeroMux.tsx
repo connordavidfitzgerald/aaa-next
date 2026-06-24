@@ -9,10 +9,9 @@ export function HomeHeroMux() {
       minResolution="1080p"
       loop
       playsInline
-      className="md:aspect-1870/664 aspect-9/16 object-cover md:w-auto md:h-auto w-full h-full block md:flex"
+      className="aspect-9/16 md:aspect-auto object-cover md:w-auto md:h-auto w-full md:h-auto h-full block md:flex md:pt-0  pt-[calc(var(--nav-height))]"
       style={{
         width: "100%",
-        paddingTop: "var(--nav-height)",
       }}
     />
   );

@@ -26,10 +26,9 @@ const columns: MenuColumn[] = [
     label: "Manifesto",
     to: "/manifesto",
     items: [
-      { label: "Welcome", to: "/manifesto#welcome" },
-      { label: "Craft", to: "/manifesto#craft" },
-      { label: "Amplify", to: "/manifesto#amplify" },
-      { label: "Cultivate", to: "/manifesto#cultivate" },
+      { label: "Stance", to: "/manifesto" },
+      { label: "Approach", to: "/manifesto" },
+      { label: "Capabilities", to: "/manifesto" },
     ],
   },
   {
@@ -47,9 +46,9 @@ const columns: MenuColumn[] = [
     label: "Initiatives",
     to: "/initiatives",
     items: [
-      { label: "Gia", href: "https://www.instagram.com/gia.grants/" },
-      { label: "DJTAL", href: "https://djt.al" },
-      { label: "Espace Septima" },
+      { label: "Gia", href: "/initiatives" },
+      { label: "DJTAL", href: "/initiatives" },
+      { label: "Espace Septima", href: "/initiatives" },
     ],
   },
 ];

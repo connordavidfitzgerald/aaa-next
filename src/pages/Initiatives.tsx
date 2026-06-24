@@ -8,19 +8,24 @@ export function InitiativesPage() {
   const { data: initiatives } = useQuery(getInitiatives, []);
 
   return (
-    <main className="flex flex-col justify-start px-2 w-full text-xs leading-[115%] pt-[calc(var(--nav-height)*1.2)] pb-2">
+    <main className="flex flex-col justify-start px-2 w-full text-xs leading-[115%] md:pt-[calc(var(--nav-height)*1.2)] pb-2">
       <div className="grid grid-cols-18 gap-2 flex-1 min-h-0">
-        <aside className="md:col-span-4 col-span-4 self-start flex flex-col gap-2 pb-12 md:pb-0 sticky top-[calc(var(--nav-height)*1.2)]">
-          <h1 className="uppercase">Initiatives</h1>
+        <aside
+          data-sticky-info
+          className="md:col-span-4 col-span-18 self-start flex flex-col justify-start gap-2 pb-2 md:pb-0 bg-white sticky md:top-[calc(var(--nav-height)-0.5em)] top-0 z-40"
+        >
+          <div className="flex md:hidden h-[calc(var(--nav-height))]"></div>
+          <h1>Initiatives</h1>
 
           <p>
-            Some projects exist because they need to, not because anyone paid
-            for them. We carry these alongside the studio — in service of the
-            people they&apos;re built for.
+            Five percent of every project goes into the projects part of A.A.A.
+            ecosystem. Fuel for the adjacent projects we believe in, from Bloom
+            to the work our own members start. Your budget keeps the ecosystem
+            alive.
           </p>
         </aside>
 
-        <div className="col-start-7 col-span-12 grid grid-cols-12 gap-x-2 gap-y-[var(--nav-gap)] h-fit">
+        <div className="col-span-18 md:col-start-7 md:col-span-12 grid grid-cols-12 gap-x-2 gap-y-[var(--nav-gap)] h-fit">
           {(initiatives ?? []).map((initiative) => (
             <article
               key={initiative.id}
@@ -58,6 +63,7 @@ export function InitiativesPage() {
             </article>
           ))}
         </div>
+        <div className="h-40"></div>
       </div>
     </main>
   );

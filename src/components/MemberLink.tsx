@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-
+import { useTransitionNavigate } from "@/components/PageTransition";
 import { useTeam } from "@/lib/TeamContext";
 
 // Renders a person's name. If the name matches a team member it becomes a
@@ -7,8 +6,18 @@ import { useTeam } from "@/lib/TeamContext";
 // plain text. Uses onClick navigation (not an <a>) so it can sit inside the
 // ProjectPreview card, which is itself a link, without nesting anchors. The
 // hover is CSS-driven so it works for content rendered after route load.
-export function MemberLink({ name }: { name: string }) {
-  const navigate = useNavigate();
+//
+// `fill` makes the link span its column at the text's height with the bar
+// growing from the top — matching the navbar's hover (used in project credits).
+// The default is inline, for names that flow within a line of text.
+export function MemberLink({
+  name,
+  fill = false,
+}: {
+  name: string;
+  fill?: boolean;
+}) {
+  const navigate = useTransitionNavigate();
   const { memberSlugByName } = useTeam();
   const slug = memberSlugByName(name);
 
@@ -32,7 +41,11 @@ export function MemberLink({ name }: { name: string }) {
           go();
         }
       }}
-      className="group relative inline-block w-fit cursor-pointer align-baseline"
+      className={`group relative cursor-pointer ${
+        fill
+          ? "flex items-center w-full self-start"
+          : "inline-block w-fit align-baseline"
+      }`}
     >
       <span className="absolute inset-0 bg-green origin-top scale-y-0 transition-transform duration-200 ease-out group-hover:scale-y-100" />
       <span className="relative z-10">{name}</span>

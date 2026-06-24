@@ -1,5 +1,4 @@
 import {
-  Fragment,
   createContext,
   useContext,
   type CSSProperties,
@@ -167,19 +166,14 @@ export function ProjectPreview({ project }: { project: Project }) {
         <div className="col-span-14 md:col-span-4 text-xs leading-[110%]">
           <div>{project.description}</div>
         </div>
-        <div className="hidden md:flex col-span-4 flex-col gap-2 leading-[110%] text-xs">
-          <span>
-            {project.team
-              .split(",")
-              .map((name) => name.trim())
-              .filter(Boolean)
-              .map((name, i) => (
-                <Fragment key={i}>
-                  {i > 0 && ", "}
-                  <MemberLink name={name} />
-                </Fragment>
-              ))}
-          </span>
+        <div className="hidden md:flex col-span-4 flex-col leading-[110%] text-xs">
+          {project.team
+            .split(",")
+            .map((name) => name.trim())
+            .filter(Boolean)
+            .map((name, i) => (
+              <MemberLink key={i} name={name} fill />
+            ))}
         </div>
         <div className="hidden md:flex col-span-4 flex-col gap-2 leading-[110%] text-xs">
           {project.services}

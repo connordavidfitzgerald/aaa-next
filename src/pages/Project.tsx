@@ -33,14 +33,34 @@ export function ProjectPage() {
             <p>{project.description}</p>
           </div>
 
-          <div className="flex flex-col gap-2 pt-4">
-            <p className="">Credits</p>
+          {project.credits && project.credits.length > 0 && (
+            <div className="flex flex-col gap-x-2 pt-4">
+              <p className="">Credits</p>
 
-            <div className="grid grid-cols-2 " key={project.team}>
-              <MemberLink name={project.team} />
-              <p className="">{project.services}</p>
+              {project.credits.map((credit, i) => (
+                <div
+                  className="grid md:grid-cols-2 grid-cols-9 pt-2 gap-2 h-fit"
+                  key={`${credit.name}-${i}`}
+                >
+                  <div className="md:col-span-1 col-span-4">
+                    <MemberLink name={credit.name} fill />
+                  </div>
+
+                  {credit.role && (
+                    <div className="flex flex-col md:col-span-1 col-span-5">
+                      {credit.role
+                        .split(",")
+                        .map((role) => role.trim())
+                        .filter(Boolean)
+                        .map((role) => (
+                          <span key={role}>{role}</span>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          </div>
+          )}
 
           {project.links && project.links.length > 0 && (
             <div className="flex flex-col gap-2 pt-4">
@@ -50,15 +70,11 @@ export function ProjectPage() {
                   <a
                     key={link.href}
                     href={link.href}
-                    data-nav-link
-                    className="relative flex items-center w-fit md:col-span-1 col-span-4"
+                    className="group relative flex items-center w-full self-start md:col-span-1 col-span-4"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span
-                      data-nav-hl
-                      className="absolute inset-0 bg-green scale-y-0 origin-top"
-                    />
+                    <span className="absolute inset-0 bg-green origin-top scale-y-0 transition-transform duration-200 ease-out group-hover:scale-y-100" />
                     <span className="relative z-10">
                       {link.label} <span className="text-[10px]">↗</span>
                     </span>

@@ -22,6 +22,8 @@ export interface MemberView {
   location: string;
   image: string;
   bio: string;
+  instagram?: string;
+  linkedin?: string;
   projects: MemberProject[];
 }
 
@@ -518,6 +520,32 @@ function MemberDetail({ member }: { member: MemberView }) {
             </span>
           ))}
         </div>
+
+        {/* Member's links, stacked in the last two columns and right-aligned. */}
+        {(member.instagram || member.linkedin) && (
+          <div className="col-span-6 col-start-13 md:col-span-2 md:col-start-17 flex flex-col items-end text-right">
+            {member.instagram && (
+              <a
+                href={member.instagram}
+                target="_blank"
+                rel="noreferrer"
+                className="w-fit"
+              >
+                Instagram <span className="text-[10px]">↗</span>
+              </a>
+            )}
+            {member.linkedin && (
+              <a
+                href={member.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="w-fit"
+              >
+                LinkedIn <span className="text-[10px]">↗</span>
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

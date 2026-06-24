@@ -57,6 +57,10 @@ export function findSlugByName(
   members: TeamMember[],
   name: string,
 ): string | undefined {
-  const trimmed = name.trim();
-  return members.find((m) => m.name === trimmed)?.slug;
+  // Match leniently (case- and whitespace-insensitive) so a credit's name
+  // links to the member even when the casing/spacing differs slightly from
+  // the roster entry.
+  const normalize = (s: string) => s.trim().replace(/\s+/g, " ").toLowerCase();
+  const target = normalize(name);
+  return members.find((m) => normalize(m.name) === target)?.slug;
 }

@@ -20,7 +20,13 @@ export type TransitionPhase = "idle" | "cover" | "hold" | "reveal";
 
 const PageTransitionContext = createContext<TransitionPhase>("idle");
 
+// Navigate through the cover transition. Exposed so programmatic navigations
+// (e.g. MemberLink, which isn't a real <a> the click interceptor can catch)
+// can opt into the same transition instead of jumping instantly.
+const TransitionNavigateContext = createContext<(to: string) => void>(() => {});
+
 export const usePageTransition = () => useContext(PageTransitionContext);
+export const useTransitionNavigate = () => useContext(TransitionNavigateContext);
 
 const COVER_DURATION = 0.8; // seconds, sheet rise / wipe
 const HOLD_DURATION = 50; // ms the screen stays fully covered
@@ -137,18 +143,20 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
 
   return (
     <PageTransitionContext.Provider value={phase}>
-      {children}
-      {/* The cover sheet. Sits below the navbar (z-50) so the navbar stays on
-          top and visibly shrinks while the rest of the page is covered. The
-          resting (hidden) state lives in className so React never reasserts it;
-          GSAP exclusively owns transform/visibility/pointer-events as inline
-          styles from here, which a re-render won't clobber. */}
-      <div
-        ref={overlayRef}
-        aria-hidden
-        className="invisible pointer-events-none fixed inset-0 z-40 bg-white"
-        style={{ willChange: "transform" }}
-      />
+      <TransitionNavigateContext.Provider value={run}>
+        {children}
+        {/* The cover sheet. Sits below the navbar (z-50) so the navbar stays on
+            top and visibly shrinks while the rest of the page is covered. The
+            resting (hidden) state lives in className so React never reasserts it;
+            GSAP exclusively owns transform/visibility/pointer-events as inline
+            styles from here, which a re-render won't clobber. */}
+        <div
+          ref={overlayRef}
+          aria-hidden
+          className="invisible pointer-events-none fixed inset-0 z-40 bg-white"
+          style={{ willChange: "transform" }}
+        />
+      </TransitionNavigateContext.Provider>
     </PageTransitionContext.Provider>
   );
 }
