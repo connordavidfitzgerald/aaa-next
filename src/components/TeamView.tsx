@@ -54,7 +54,6 @@ export function TeamView({
       const { gsap } = await import("gsap");
       if (cancelled) return;
 
-      const canHover = window.matchMedia("(hover: hover)").matches;
       const rows = root.querySelectorAll<HTMLElement>("[data-team-row]");
       const stickyEl = root.querySelector<HTMLElement>("[data-team-sticky]");
       const memberImages = root.querySelectorAll<HTMLElement>(
@@ -119,7 +118,7 @@ export function TeamView({
           // what's visible" without hugging the image's edge.
           const detectionPoint = bandTop + (bandBottom - bandTop) * 0.1;
 
-          let closestRow: HTMLElement | null = null;
+          let closestMember: string | null = null;
           let closestDistance = Infinity;
 
           rows.forEach((row) => {
@@ -129,11 +128,11 @@ export function TeamView({
 
             if (distance < closestDistance) {
               closestDistance = distance;
-              closestRow = row;
+              closestMember = row.dataset.member ?? null;
             }
           });
 
-          activateMember(closestRow?.dataset.member ?? null);
+          activateMember(closestMember);
         };
 
         updateClosest();
