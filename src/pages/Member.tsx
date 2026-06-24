@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import { TeamView } from "@/components/TeamView";
-import { getMemberBySlug } from "@/lib/team";
+import { useTeam } from "@/lib/TeamContext";
 import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
@@ -9,6 +9,7 @@ import { NotFound } from "@/pages/NotFound";
 
 export function MemberPage() {
     const { member: slug } = useParams<{ member: string }>();
+    const { getMemberBySlug, loading: teamLoading } = useTeam();
     const member = slug ? getMemberBySlug(slug) : undefined;
     const { data: projects } = useQuery(getProjects, []);
 
@@ -18,7 +19,9 @@ export function MemberPage() {
             : "Applied Archive Atelier",
     );
 
-    if (!member) return <NotFound />;
+    // Wait for the roster before deciding a slug is unknown, otherwise the page
+    // would flash NotFound on first load while members are still fetching.
+    if (!member) return teamLoading ? null : <NotFound />;
 
     // Full project records for this member's work, in the member's own order.
     const allProjects = projects ?? [];

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { memberSlugByName } from "@/lib/team";
+import { useTeam } from "@/lib/TeamContext";
 
 // Renders a person's name. If the name matches a team member it becomes a
 // clickable link to their page with the green-bar hover effect; otherwise it's
@@ -9,6 +9,7 @@ import { memberSlugByName } from "@/lib/team";
 // hover is CSS-driven so it works for content rendered after route load.
 export function MemberLink({ name }: { name: string }) {
   const navigate = useNavigate();
+  const { memberSlugByName } = useTeam();
   const slug = memberSlugByName(name);
 
   if (!slug) return <>{name}</>;

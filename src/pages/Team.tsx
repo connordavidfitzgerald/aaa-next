@@ -1,5 +1,6 @@
 import { TeamView } from "@/components/TeamView";
-import { core, collaborators, type TeamMember } from "@/lib/team";
+import { type TeamMember } from "@/lib/team";
+import { useTeam } from "@/lib/TeamContext";
 import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
@@ -7,6 +8,7 @@ import { useTitle } from "@/lib/useTitle";
 export function TeamPage() {
   useTitle("Applied Archive Atelier — Team");
 
+  const { core, collaborators } = useTeam();
   const { data: projects } = useQuery(getProjects, []);
   const allProjects = projects ?? [];
 
