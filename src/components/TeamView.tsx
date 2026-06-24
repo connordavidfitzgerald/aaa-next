@@ -433,7 +433,7 @@ export function TeamView({
             </div>
           ))}
         </div>
-        <div className="h-20 flex md:hidden"></div>
+        <div className="h-20 flex md:h-[50vh] md:min-h-80"></div>
       </ViewTransition>
     </main>
   );

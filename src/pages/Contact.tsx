@@ -180,7 +180,7 @@ export function ContactPage() {
     >
       <div
         key={`hero-${runKey}`}
-        className="relative z-10 flex md:flex-1 items-center justify-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6"
+        className="relative z-10 flex flex-1 items-center justify-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6"
       >
         <div className="relative w-full">
           {/* The prompt; wipes down out of its mask on success. The prefix,
@@ -200,7 +200,7 @@ export function ContactPage() {
                   editableRef.current?.focus();
                 }
               }}
-              className="w-full cursor-text text-center text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
+              className="w-full cursor-text text-center text-lg leading-[1.15] tracking-[-0.02em]"
             >
               <span key="prefix" className="select-none whitespace-pre-wrap">
                 {typedPrefix ? `${typedPrefix} ` : typedPrefix}
@@ -261,7 +261,7 @@ export function ContactPage() {
                 // re-render can't reset it mid-animation; GSAP owns the position
                 // and visibility from here (autoAlpha makes it visible as it
                 // rises, then it's masked away again when it wipes back down).
-                className="invisible w-full text-center text-[clamp(1rem,3vw,3rem)] leading-[1.15] tracking-[-0.02em]"
+                className="invisible w-full text-center text-lg leading-[1.15] tracking-[-0.02em]"
               >
                 Thanks — we&apos;ll be in touch.
               </p>
@@ -297,7 +297,7 @@ export function ContactPage() {
                   name="name"
                   required
                   autoComplete="name"
-                  className="block w-full bg-transparent focus:outline-none leading-[115%]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
               <span className="">Name</span>
@@ -313,7 +313,7 @@ export function ContactPage() {
                   name="email"
                   required
                   autoComplete="email"
-                  className="block w-full bg-transparent focus:outline-none leading-[115%]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
               <span className="">Email</span>
@@ -328,7 +328,7 @@ export function ContactPage() {
                   type="text"
                   name="organization"
                   autoComplete="organization"
-                  className="block w-full bg-transparent focus:outline-none leading-[115%]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
               <span className="">Organization (optional)</span>
@@ -369,7 +369,7 @@ export function ContactPage() {
               onPointerDown={(e) => {
                 clickPos.current = { x: e.clientX, y: e.clientY };
               }}
-              className="relative flex h-full min-h-32 w-full items-end justify-start overflow-hidden border border-black/20 p-2 cursor-pointer"
+              className="relative flex h-full min-h-32 w-full md:items-start md:justify-end items-center justify-center overflow-hidden border border-black/20 p-2 cursor-pointer"
             >
               <span
                 data-nav-hl
