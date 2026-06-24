@@ -132,7 +132,10 @@ export function ContactPage() {
                 aria-label="Your message"
                 rows={1}
                 onInput={(e) => setHasInput(e.currentTarget.value.length > 0)}
-                className="field-sizing-content max-w-full resize-none overflow-hidden bg-transparent align-baseline leading-[1.15] focus:outline-none"
+                // min-w keeps a sliver of width when empty so the caret (drawn
+                // at the field's left edge, right after the placeholder) isn't
+                // collapsed away by field-sizing-content / clipped by overflow.
+                className="field-sizing-content min-w-[3px] max-w-full resize-none overflow-hidden bg-transparent align-baseline leading-[1.15] focus:outline-none"
               />
             </span>
           </label>
