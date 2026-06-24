@@ -56,6 +56,7 @@ export function TeamView({
 
       const canHover = window.matchMedia("(hover: hover)").matches;
       const rows = root.querySelectorAll<HTMLElement>("[data-team-row]");
+      const stickyEl = root.querySelector<HTMLElement>("[data-team-sticky]");
       const memberImages = root.querySelectorAll<HTMLElement>(
         '[data-team-image]:not([data-team-image="default"])',
       );
@@ -105,7 +106,18 @@ export function TeamView({
         };
 
         const updateClosest = () => {
-          const viewportCenter = window.innerHeight * 0.6;
+          // The sticky image covers the top of the viewport with a white
+          // square whose height varies with the screen width. Measuring the
+          // detection point against the whole viewport can land it *behind*
+          // that square, hiding the highlighted name. Instead, target the
+          // visible band of the list that sits below the sticky image, so the
+          // active name is always in clear view regardless of screen size.
+          const stickyRect = stickyEl?.getBoundingClientRect();
+          const bandTop = stickyRect ? stickyRect.bottom : 0;
+          const bandBottom = window.innerHeight;
+          // ~40% into the visible band reads as comfortably "near the top of
+          // what's visible" without hugging the image's edge.
+          const detectionPoint = bandTop + (bandBottom - bandTop) * 0.1;
 
           let closestRow: HTMLElement | null = null;
           let closestDistance = Infinity;
@@ -113,7 +125,7 @@ export function TeamView({
           rows.forEach((row) => {
             const rect = row.getBoundingClientRect();
             const rowCenter = rect.top + rect.height / 2;
-            const distance = Math.abs(rowCenter - viewportCenter);
+            const distance = Math.abs(rowCenter - detectionPoint);
 
             if (distance < closestDistance) {
               closestDistance = distance;
@@ -346,7 +358,10 @@ export function TeamView({
           list. It defaults to the team photo; hovering a name swaps in that
           member's portrait (toggled in the hover effect above). It is
           pointer-events-none so the names underneath stay hoverable. */}
-      <div className="sticky h-auto w-full aspect-square md:aspect-auto md:h-screen md:top-0 top-[calc(var(--nav-height))] w-full z-20 flex items-center justify-center px-2  pointer-events-none bg-white md:bg-transparent">
+      <div
+        data-team-sticky
+        className="sticky h-auto w-full aspect-square md:aspect-auto md:h-screen md:top-0 top-[calc(var(--nav-height))] w-full z-20 flex items-center justify-center px-2  pointer-events-none bg-white md:bg-transparent"
+      >
         <div className="grid grid-cols-18 gap-2 w-full">
           <div className="col-start-5 col-span-10 md:col-start-8 md:col-span-4 aspect-square relative">
             <ViewTransition name="team-hero">
