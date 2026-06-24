@@ -225,7 +225,7 @@ export function TeamView({
               it; the info sits below at the bottom. */}
           <div className="grow shrink-0 flex items-center justify-center py-2">
             <div className="grid grid-cols-18 gap-2 w-full">
-              <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative -translate-y-1">
+              <div className="col-span-18 md:col-start-8 md:col-span-4 aspect-square relative -translate-y-1 ">
                 <ViewTransition name="team-hero">
                   <div className="absolute inset-0 w-full h-full ">
                     {selected.image && (
