@@ -2,6 +2,12 @@ import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
 import { NavMenu } from "@/components/NavMenu";
+import { usePageTransition } from "@/components/PageTransition";
+
+// Scroll distance (px) over which the header interpolates to its shrunk size,
+// and the scroll past which the submenus collapse to their headers.
+const SCROLL_RANGE = 800;
+const COLLAPSE_AT = 50;
 
 export function Navbar() {
   const navRef = useRef<HTMLElement>(null);
@@ -12,23 +18,36 @@ export function Navbar() {
   // animation, and cancel a pending one if the pointer returns.
   const measureRef = useRef<() => void>(() => {});
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // While true, the scroll handler stops writing --nav-shrink so the page
+  // transition can drive (and hold) the shrunk state itself.
+  const forcingRef = useRef(false);
   const [scrolled, setScrolled] = useState(false);
   const [hovered, setHovered] = useState(false);
 
+  const phase = usePageTransition();
+  // The page transition collapses the submenu items as the cover rises and
+  // re-expands them a beat into the reveal, in step with the header growing
+  // back (driven by the phase effect below, not by the phase directly, so the
+  // reveal can be delayed to match the shrink tween's delay).
+  const [menuCollapsed, setMenuCollapsed] = useState(false);
+
   // The submenu lists show when resting at the top of the page, or whenever the
   // pointer is over the navbar; otherwise the menu collapses to its headers.
-  const expanded = !scrolled || hovered;
+  const expanded = menuCollapsed ? false : !scrolled || hovered;
 
   useEffect(() => {
     const nav = navRef.current;
     const root = document.documentElement;
     if (!nav) return;
 
-    const SCROLL_RANGE = 800;
-    const COLLAPSE_AT = 50;
     let ticking = false;
 
     const updateShrink = () => {
+      // The page transition owns --nav-shrink while it forces the shrunk state.
+      if (forcingRef.current) {
+        ticking = false;
+        return;
+      }
       const y = window.scrollY;
       const progress = Math.min(1, Math.max(0, y / SCROLL_RANGE));
       root.style.setProperty("--nav-shrink", progress.toString());
@@ -68,6 +87,62 @@ export function Navbar() {
     };
   }, []);
 
+  // Drive the shrink during a page transition: collapse to the shrunk header as
+  // the cover rises, then animate back to the new page's scroll-based size as
+  // it's revealed. While forcing, the scroll handler leaves --nav-shrink to us.
+  useEffect(() => {
+    if (phase !== "cover" && phase !== "reveal") return;
+
+    const root = document.documentElement;
+    let cancelled = false;
+
+    // Reveal lands on the new page; reflect its actual scroll position so the
+    // header expands at the top but stays shrunk if we landed mid-page (hash).
+    const y = phase === "reveal" ? window.scrollY : 0;
+    const target =
+      phase === "cover" ? 1 : Math.min(1, Math.max(0, y / SCROLL_RANGE));
+
+    if (phase === "cover") {
+      forcingRef.current = true;
+      // Collapse the submenu items immediately as the cover begins.
+      setMenuCollapsed(true);
+    } else {
+      setScrolled(y > COLLAPSE_AT);
+    }
+
+    (async () => {
+      const { gsap } = await import("gsap");
+      if (cancelled) return;
+      const proxy = {
+        v:
+          parseFloat(getComputedStyle(root).getPropertyValue("--nav-shrink")) ||
+          0,
+      };
+      gsap.to(proxy, {
+        v: target,
+        duration: 0.7,
+        delay: 0.2,
+        ease: "power2.out",
+        overwrite: true,
+        // onStart fires after the delay — so on reveal the items re-expand at
+        // the same moment the header starts growing back. (Driven by the tween
+        // rather than a timer so it survives the phase flipping to idle.)
+        onStart: () => {
+          if (phase === "reveal") setMenuCollapsed(false);
+        },
+        onUpdate: () => root.style.setProperty("--nav-shrink", String(proxy.v)),
+        onComplete: () => {
+          // Hand control back to the scroll handler once revealed.
+          if (phase === "reveal") forcingRef.current = false;
+        },
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [phase]);
+
   return (
     <nav
       ref={navRef}
@@ -87,9 +162,7 @@ export function Navbar() {
         if (hoveredRef.current) return;
         const nav = navRef.current;
         const header = nav?.querySelector<HTMLElement>("[data-nav-header]");
-        const limit = header
-          ? header.getBoundingClientRect().bottom
-          : Infinity;
+        const limit = header ? header.getBoundingClientRect().bottom : Infinity;
         if (e.clientY <= limit) {
           hoveredRef.current = true;
           setHovered(true);

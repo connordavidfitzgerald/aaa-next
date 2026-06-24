@@ -36,7 +36,7 @@ export function ProjectPage() {
           <div className="flex flex-col gap-2 pt-4">
             <p className="">Credits</p>
 
-            <div key={project.team}>
+            <div className="grid grid-cols-2 " key={project.team}>
               <MemberLink name={project.team} />
               <p className="">{project.services}</p>
             </div>

@@ -405,7 +405,6 @@ export function TeamView({
                   <Link
                     key={member.key}
                     to={`/team/${member.slug}`}
-                    viewTransition
                     data-team-row
                     data-member={member.key}
                     className="relative grid grid-cols-9 gap-x-2 items-center  border-b border-black/20 md:py-2 py-0.5"

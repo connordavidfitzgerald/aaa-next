@@ -6,7 +6,12 @@ import { Footer } from "@/components/Footer";
 import { LenisInit } from "@/components/LenisInit";
 import { NavInteractions } from "@/components/NavInteractions";
 
-type Lenis = { scrollTo: (t: number | string | HTMLElement) => void };
+type Lenis = {
+  scrollTo: (
+    t: number | string | HTMLElement,
+    opts?: { immediate?: boolean },
+  ) => void;
+};
 
 // Replaces Next's automatic scroll handling: jump to top on navigation, or to
 // the targeted element when the URL carries a hash. Uses the shared Lenis
@@ -16,15 +21,18 @@ function ScrollManager() {
 
   useEffect(() => {
     const lenis = (window as unknown as { lenis?: Lenis }).lenis;
+    // Jumps are immediate: during a page transition this runs while the screen
+    // is covered, so we want the new page already at its landing position
+    // (top, or the hash target) by the time the cover wipes away.
     if (hash) {
       const el = document.querySelector(hash);
       if (el) {
-        if (lenis) lenis.scrollTo(el as HTMLElement);
+        if (lenis) lenis.scrollTo(el as HTMLElement, { immediate: true });
         else el.scrollIntoView();
         return;
       }
     }
-    if (lenis) lenis.scrollTo(0);
+    if (lenis) lenis.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
   }, [pathname, hash]);
 
@@ -43,7 +51,7 @@ export function Layout() {
       {/* Opaque layer above the fixed footer (z-10 > footer z-0): it
                 covers the footer until the page's bottom spacer scrolls up and
                 reveals it. */}
-      <div className="relative z-10 min-h-screen bg-[var(--page-bg)]">
+      <div className="relative z-10 min-h-screen bg-white">
         <Outlet />
       </div>
       {!hideFooter && <Footer />}
