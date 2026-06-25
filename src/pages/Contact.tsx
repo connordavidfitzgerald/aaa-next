@@ -187,14 +187,15 @@ export function ContactPage() {
               dimmed example, and the editable region are all inline text in one
               centred flow, so "Hi there," and the message wrap together and
               centre as a single block (a textarea couldn't — it's a separate
-              box). The example is a dimmed span the caret sits at the end of,
-              dropped once the visitor types. */}
+              box). The caret sits in the editable right after "Hi there,",
+              with the example as a dimmed span after it, dropped once the
+              visitor types. */}
           <div data-mask>
             <div
               data-hide-line
               onMouseDown={(e) => {
                 // The empty editable is a tiny target; clicking anywhere on the
-                // prompt focuses it (caret lands after the placeholder).
+                // prompt focuses it (caret lands right after "Hi there,").
                 if (e.target !== editableRef.current) {
                   e.preventDefault();
                   editableRef.current?.focus();
@@ -205,15 +206,6 @@ export function ContactPage() {
               <span key="prefix" className="select-none whitespace-pre-wrap">
                 {typedPrefix ? `${typedPrefix} ` : typedPrefix}
               </span>
-              {!hasInput && (
-                <span
-                  key="placeholder"
-                  aria-hidden
-                  className="select-none opacity-30"
-                >
-                  {placeholder}
-                </span>
-              )}
               <span
                 key="editable"
                 ref={editableRef}
@@ -237,6 +229,15 @@ export function ContactPage() {
                 }}
                 className="whitespace-pre-wrap outline-none"
               />
+              {!hasInput && (
+                <span
+                  key="placeholder"
+                  aria-hidden
+                  className="select-none opacity-30"
+                >
+                  {placeholder}
+                </span>
+              )}
             </div>
           </div>
           <input
