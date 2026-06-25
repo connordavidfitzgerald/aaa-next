@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { ViewTransition } from "@/components/ViewTransition";
 import { ProjectPreview } from "@/components/ProjectPreview";
@@ -47,6 +47,10 @@ export function TeamView({
   className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  // The slug of the member currently highlighted by the mobile scroll-spy, so
+  // tapping the sticky picture can jump straight to that member's page.
+  const activeSlugRef = useRef<string | null>(null);
 
   useEffect(() => {
     const root = containerRef.current;
@@ -124,6 +128,7 @@ export function TeamView({
           const detectionPoint = bandTop + (bandBottom - bandTop) * 0.1;
 
           let closestMember: string | null = null;
+          let closestSlug: string | null = null;
           let closestDistance = Infinity;
 
           rows.forEach((row) => {
@@ -134,9 +139,11 @@ export function TeamView({
             if (distance < closestDistance) {
               closestDistance = distance;
               closestMember = row.dataset.member ?? null;
+              closestSlug = row.dataset.slug ?? null;
             }
           });
 
+          activeSlugRef.current = closestSlug;
           activateMember(closestMember);
         };
 
@@ -376,7 +383,17 @@ export function TeamView({
         className="sticky h-auto w-full aspect-square md:aspect-auto md:h-screen md:top-0 top-[calc(var(--nav-height))] w-full z-20 flex items-center justify-center px-2  pointer-events-none bg-white md:bg-transparent"
       >
         <div className="grid grid-cols-18 gap-2 w-full">
-          <div className="col-start-5 col-span-10 md:col-start-8 md:col-span-4 aspect-square relative">
+          {/* The picture re-enables pointer events on mobile only (the sticky
+              wrapper is pointer-events-none so names stay tappable): tapping it
+              jumps to whichever member the scroll-spy currently highlights. On
+              desktop it stays click-through so hovering names drives the swap. */}
+          <div
+            onClick={() => {
+              if (activeSlugRef.current)
+                navigate(`/team/${activeSlugRef.current}`);
+            }}
+            className="col-start-5 col-span-10 md:col-start-8 md:col-span-4 aspect-square relative pointer-events-auto md:pointer-events-none cursor-pointer"
+          >
             <ViewTransition name="team-hero">
               <img
                 src={teamImg}
@@ -421,6 +438,7 @@ export function TeamView({
                     to={`/team/${member.slug}`}
                     data-team-row
                     data-member={member.key}
+                    data-slug={member.slug}
                     className="relative grid grid-cols-9 gap-x-2 items-center  border-b border-black/20 md:py-2 py-0.5"
                   >
                     <span
