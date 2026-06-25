@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
-import { BudgetSlider } from "@/components/BudgetSlider";
+import { BudgetSlider, formatBudget } from "@/components/BudgetSlider";
 import { useTitle } from "@/lib/useTitle";
 
 // The opening line types itself out on load: first the fixed "Hi there,"
@@ -10,6 +10,12 @@ const PLACEHOLDER = "my non-profit organisation needs a new website.";
 const TYPE_SPEED = 45; // ms per character
 const START_DELAY = 350; // ms before typing begins
 
+// Web3Forms receives the submissions. The access key is a public, client-side
+// key (like the Sanity project id inlined elsewhere) — it only identifies the
+// destination inbox, so it lives in the frontend rather than a secret.
+const WEB3FORMS_ACCESS_KEY = "1ec3f817-4d62-48ac-ae6a-8d4e90dea5b0";
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+
 export function ContactPage() {
   useTitle("Applied Archive Atelier — Contact");
 
@@ -17,6 +23,10 @@ export function ContactPage() {
   const [placeholder, setPlaceholder] = useState("");
   const [hasInput, setHasInput] = useState(false);
   const [sent, setSent] = useState(false);
+  // In-flight + failure states for the Web3Forms submission. The success path
+  // is the existing colour-drop sequence; only failures surface inline text.
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   // Bumped after the success sequence to remount the message + form to their
   // pristine, page-load state (clears inputs, resets the budget slider, etc.).
   const [runKey, setRunKey] = useState(0);
@@ -158,19 +168,53 @@ export function ContactPage() {
     setRunKey((k) => k + 1);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (sent) return;
+    if (sent || sending) return;
 
-    // No backend is wired yet, so a submit is treated as success: run the
-    // sequence from where the button was pressed (falling back to the viewport
-    // centre for keyboard submits).
+    // Required name/email are enforced by native validation before this fires;
+    // guard the message (a contentEditable, so it isn't natively validated).
+    const message = messageValueRef.current?.value.trim() ?? "";
+    if (!message) {
+      setError("Add a short message so we know what you're after.");
+      editableRef.current?.focus();
+      return;
+    }
+
+    // Capture the form + click origin synchronously (both are unavailable after
+    // the await: the event is recycled and the button may have moved).
+    const form = e.currentTarget;
     const pos = clickPos.current ?? {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
     };
-    setSent(true);
-    runSuccessSequence(pos.x, pos.y);
+
+    const payload = new FormData(form);
+    payload.set("message", message);
+    payload.set("access_key", WEB3FORMS_ACCESS_KEY);
+    payload.set("subject", "New enquiry — Applied Archive Atelier");
+    // Show a readable budget in the email rather than the raw slider number.
+    const budget = payload.get("budget");
+    if (budget !== null) payload.set("budget", formatBudget(Number(budget)));
+
+    setError(null);
+    setSending(true);
+    try {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
+        method: "POST",
+        body: payload,
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message ?? "Submission failed");
+
+      // Success: hand off to the colour-drop sequence (which resets the form).
+      setSending(false);
+      setSent(true);
+      runSuccessSequence(pos.x, pos.y);
+    } catch {
+      setSending(false);
+      setError("Something went wrong. Please try again, or email us directly.");
+    }
   };
 
   return (
@@ -226,6 +270,7 @@ export function ContactPage() {
                   setHasInput(text.trim().length > 0);
                   if (messageValueRef.current)
                     messageValueRef.current.value = text;
+                  if (error) setError(null);
                 }}
                 className="whitespace-pre-wrap outline-none"
               />
@@ -274,7 +319,7 @@ export function ContactPage() {
       <div
         key={`form-${runKey}`}
         className={`relative z-10 mt-auto md:mt-0 pb-6 ${
-          sent ? "pointer-events-none" : ""
+          sent || sending ? "pointer-events-none" : ""
         }`}
       >
         <form
@@ -363,7 +408,7 @@ export function ContactPage() {
           {/* The send button fills the column beside the form, bordered, with
               its label anchored to the bottom-left. It stays put on success
               (no hide animation). */}
-          <div className="md:col-span-6 md:h-full mt-4">
+          <div className="md:col-span-6 md:h-full mt-4 flex flex-col">
             <button
               type="submit"
               data-nav-link
@@ -377,9 +422,20 @@ export function ContactPage() {
                 className="absolute inset-0 bg-green scale-y-0 origin-top"
               />
               <span className="relative z-10">
-                Send <span className="text-[10px]">↗</span>
+                {sending ? (
+                  "Sending…"
+                ) : (
+                  <>
+                    Send <span className="text-[10px]">↗</span>
+                  </>
+                )}
               </span>
             </button>
+            {error && (
+              <p role="alert" className="pt-2">
+                {error}
+              </p>
+            )}
           </div>
         </form>
       </div>

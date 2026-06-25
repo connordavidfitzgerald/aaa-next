@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const format = (n: number) =>
+export const formatBudget = (n: number) =>
   n === 0
     ? "$0"
     : `$${(n / 1000).toLocaleString(undefined, {
@@ -24,7 +24,7 @@ export function BudgetSlider({ className = "" }: { className?: string }) {
       />
       <span className="flex justify-between">
         <span className="pt-0.5">Budget</span>
-        <span>{format(value)}</span>
+        <span>{formatBudget(value)}</span>
       </span>
     </label>
   );
