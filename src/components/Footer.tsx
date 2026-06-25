@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 
 import { NavMenu } from "@/components/NavMenu";
+import { usePageTransition } from "@/components/PageTransition";
 import aSvg from "@/assets/svgs/A.svg";
 import periodSvg from "@/assets/svgs/period.svg";
 
@@ -23,6 +25,42 @@ export function Footer() {
   const footerRef = useRef<HTMLElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
   const wordRef = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+  const phase = usePageTransition();
+  // True while a page transition is mid-flight. The footer-reveal math relies on
+  // the spacer's viewport position and the scroll offset; during a transition
+  // the new page is briefly empty/short and the scroll is being reset, so those
+  // reads are transient and can spuriously hide the navbar as the page appears.
+  // We freeze the hide logic while transitioning and settle once it's idle.
+  const transitioningRef = useRef(false);
+  // Lets the phase effect re-run the latest `update()` (defined in the main
+  // effect's closure) without re-subscribing the scroll listeners.
+  const updateRef = useRef<() => void>(() => {});
+
+  // Restore the navbar on navigation. The scroll handler below hides the fixed
+  // navbar (translateY(-100%)) once the footer is reached, but that inline
+  // transform lives on the persistent navbar element and would carry over to
+  // the next page. Firefox fires a scroll event after the route's scroll-reset
+  // that re-runs `update()` and clears it; Chrome doesn't, leaving the navbar
+  // stuck hidden until the next manual scroll. Reset it here (without a
+  // transition, so it never visibly slides) every time the route changes.
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>("[data-navbar]");
+    if (!nav) return;
+    const prevTransition = nav.style.transition;
+    nav.style.transition = "none";
+    nav.style.transform = "translateY(0)";
+    // Commit the no-transition reset before restoring transitions.
+    void nav.offsetHeight;
+    nav.style.transition = prevTransition;
+  }, [pathname]);
+
+  // Track the transition phase; when it returns to idle, recompute the resting
+  // navbar/wordmark state for the page we landed on.
+  useEffect(() => {
+    transitioningRef.current = phase !== "idle";
+    if (phase === "idle") updateRef.current();
+  }, [phase]);
 
   useEffect(() => {
     const footer = footerRef.current;
@@ -97,7 +135,9 @@ export function Footer() {
       // never hides them while resting at the top.
       const reached = spTop < window.innerHeight * 0.5;
       const atTop = window.scrollY < 50;
-      const hide = reached && !atTop;
+      // Never hide mid-transition: the page is settling and the reads above are
+      // transient (see transitioningRef note).
+      const hide = reached && !atTop && !transitioningRef.current;
 
       if (nav) {
         // Slide the navbar and the sticky project info with the same 0.4s ease
@@ -138,6 +178,10 @@ export function Footer() {
       measure();
       update();
     };
+
+    // Expose the latest update() so the phase effect can settle the navbar
+    // once a transition finishes.
+    updateRef.current = update;
 
     measure();
     update();

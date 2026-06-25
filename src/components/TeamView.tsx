@@ -347,8 +347,11 @@ export function TeamView({
         {/* Optional member video: full width within the page gutter, sitting
             just below the member info. */}
         {selected.videoPlaybackId && (
-          <div className="w-full py-2">
-            <MuxAutoPlayer playbackId={selected.videoPlaybackId} />
+          <div className="grid grid-cols-9 gap-2 border-t border-black/20 md:border-none py-2 md:py-0">
+            <div className="md:col-span-2 col-span-9">Uscripted Love, 2026</div>
+            <div className="md:col-span-7 md:col-start-3 col-span-9 w-full ">
+              <MuxAutoPlayer playbackId={selected.videoPlaybackId} />
+            </div>
           </div>
         )}
 
@@ -456,7 +459,7 @@ export function TeamView({
                           </span>
                         ))}
                       </div>
-                      <p>{member.location}</p>
+                      <p className="pr-1">{member.location}</p>
                     </div>
                   </Link>
                 );
@@ -553,7 +556,7 @@ function MemberDetail({ member }: { member: MemberView }) {
 
         {/* Member's links, stacked in the last two columns and right-aligned. */}
         {(member.instagram || member.linkedin) && (
-          <div className="col-span-8 md:col-span-2 md:col-start-17 grid grid-cols-2 md:flex md:flex-col gap-2 md:gap-0 md:items-end items-start md:text-right text-left">
+          <div className="col-span-8 md:col-span-2 md:col-start-17 grid grid-cols-2 md:flex md:flex-col gap-2 md:gap-0 md:items-end items-start md:text-right text-left ">
             {member.instagram && (
               <a
                 href={member.instagram}
