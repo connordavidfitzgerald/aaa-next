@@ -16,7 +16,7 @@ const columns: MenuColumn[] = [
     to: "/#projects",
     items: [
       { label: "Brique par brique", to: "/projects/bxb" },
-      { label: "Chimie", to: "/projects/chimie" },
+      { label: "chimie", to: "/projects/chimie" },
       { label: "CTRL+ALT", to: "/projects/ctrl" },
       { label: "Ecozoic", to: "/projects/ecozoic" },
       { label: "Ellipse Magazine", to: "/projects/ellipse" },
@@ -26,9 +26,9 @@ const columns: MenuColumn[] = [
     label: "Manifesto",
     to: "/manifesto",
     items: [
-      { label: "Stance", to: "/manifesto" },
-      { label: "Approach", to: "/manifesto" },
-      { label: "Capabilities", to: "/manifesto" },
+      { label: "Stance", to: "/manifesto#capabilities" },
+      { label: "Approach", to: "/manifesto#capabilities" },
+      { label: "Capabilities", to: "/manifesto#capabilities" },
     ],
   },
   {

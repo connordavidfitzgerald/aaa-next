@@ -298,7 +298,7 @@ export function ContactPage() {
                   name="name"
                   required
                   autoComplete="name"
-                  className="block w-full bg-transparent focus:outline-none leading-[115%] text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
               <span className="">Name</span>
@@ -314,7 +314,7 @@ export function ContactPage() {
                   name="email"
                   required
                   autoComplete="email"
-                  className="block w-full bg-transparent focus:outline-none leading-[115%] text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
               <span className="">Email</span>
@@ -329,7 +329,7 @@ export function ContactPage() {
                   type="text"
                   name="organization"
                   autoComplete="organization"
-                  className="block w-full bg-transparent focus:outline-none leading-[115%] text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
               <span className="">Organization (optional)</span>
@@ -345,7 +345,7 @@ export function ContactPage() {
                   data-hide-line
                   type="text"
                   name="timeline"
-                  className="block w-full bg-transparent focus:outline-none leading-[115%] placeholder:opacity-40"
+                  className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 placeholder:opacity-40"
                 />
               </span>
               <span className="">

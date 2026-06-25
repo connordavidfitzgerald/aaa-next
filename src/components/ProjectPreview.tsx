@@ -130,9 +130,9 @@ const homeLayouts: Record<string, (m: MediaItem[]) => ReactNode> = {
     <>
       <Cell item={m[0]} span={4} />
       <Cell item={m[1]} span={2} hideOnMobile />
-      <Cell item={m[6]} span={3} hideOnMobile />
+      <Cell item={m[2]} span={2} hideOnMobile />
 
-      <Cell item={m[5]} span={3} hideOnMobile />
+      <Cell item={m[15]} span={4} hideOnMobile />
     </>
   ),
 };
