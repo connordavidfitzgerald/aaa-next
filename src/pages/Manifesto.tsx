@@ -111,8 +111,8 @@ export function ManifestoPage() {
               trigger: el,
               // Wipe in as the line travels from near the bottom of the
               // viewport up past the middle — tied directly to scroll.
-              start: "top 100%",
-              end: "top 60%",
+              start: "top 90%",
+              end: "top 80%",
               scrub: true,
             },
           },

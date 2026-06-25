@@ -47,6 +47,7 @@ export function InitiativesPage() {
                 <a
                   href={initiative.url}
                   data-nav-link
+                  target="_blank"
                   className="relative flex items-center w-fit"
                 >
                   <span
