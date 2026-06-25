@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { ViewTransition } from "@/components/ViewTransition";
 import { ProjectPreview } from "@/components/ProjectPreview";
+import { MuxAutoPlayer } from "@/components/MuxAutoPlayer";
 import type { Project } from "@/lib/projects";
 import teamImg from "@/assets/images/team.jpg";
 
@@ -21,6 +22,8 @@ export interface MemberView {
   services: string[];
   location: string;
   image: string;
+  /** Mux playback ID, when the member has an uploaded video. */
+  videoPlaybackId?: string;
   bio: string;
   instagram?: string;
   linkedin?: string;
@@ -333,6 +336,14 @@ export function TeamView({
             </div>
           </ViewTransition>
         </div>
+
+        {/* Optional member video: full width within the page gutter, sitting
+            just below the member info. */}
+        {selected.videoPlaybackId && (
+          <div className="w-full py-2">
+            <MuxAutoPlayer playbackId={selected.videoPlaybackId} />
+          </div>
+        )}
 
         {/* Selected work, rendered in the homepage project format. */}
         {work && work.length > 0 && (

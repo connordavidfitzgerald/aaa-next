@@ -8,6 +8,8 @@ export interface TeamMember {
   services: string[];
   location: string;
   image: string;
+  /** Mux playback ID, when the member has an uploaded video. */
+  videoPlaybackId?: string;
   bio: string;
   instagram: string;
   linkedin: string;
@@ -27,6 +29,7 @@ const MEMBER_FIELDS = /* groq */ `
   "services": coalesce(services, []),
   location,
   "image": coalesce(image.asset->url, ""),
+  "videoPlaybackId": video.asset->playbackId,
   "bio": coalesce(bio, ""),
   "instagram": coalesce(instagram, ""),
   "linkedin": coalesce(linkedin, ""),

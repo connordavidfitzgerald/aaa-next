@@ -6,7 +6,7 @@ import { useTitle } from "@/lib/useTitle";
 // The opening line types itself out on load: first the fixed "Hi there,"
 // prefix, then the example message which lands as the input's placeholder.
 const PREFIX = "Hi there,";
-const PLACEHOLDER = "my non profit organisation needs a new website.";
+const PLACEHOLDER = "my non-profit organisation needs a new website.";
 const TYPE_SPEED = 45; // ms per character
 const START_DELAY = 350; // ms before typing begins
 
