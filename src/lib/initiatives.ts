@@ -1,4 +1,6 @@
 import { sanity } from "@/lib/sanity";
+import { loc } from "@/lib/i18n-groq";
+import type { Lang } from "@/lib/locale";
 
 export interface Initiative {
   id: string;
@@ -20,17 +22,18 @@ interface RawInitiative {
   location: string | null;
 }
 
-export async function getInitiatives(): Promise<Initiative[]> {
+export async function getInitiatives(lang: Lang): Promise<Initiative[]> {
   const raw = await sanity.fetch<RawInitiative[]>(
     /* groq */ `*[_type == "initiative"] | order(order asc){
       "id": slug.current,
       title,
-      subtitle,
+      "subtitle": ${loc("subtitle")},
       "image": image.asset->url,
-      description,
+      "description": ${loc("description")},
       url,
-      location
+      "location": ${loc("location")}
     }`,
+    { lang },
   );
   return raw.map((r) => ({
     id: r.id,

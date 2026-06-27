@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+import { LocaleLink } from "@/components/LocaleLink";
+import { useT } from "@/lib/SiteContentProvider";
+import type { UiKey } from "@/lib/siteContent";
 
 const navHl = (
   <span
@@ -8,11 +10,14 @@ const navHl = (
 );
 
 type MenuItem = { label: string; to?: string; href?: string };
-type MenuColumn = { label: string; to: string; items: MenuItem[] };
+type MenuColumn = { labelKey: UiKey; to: string; items: MenuItem[] };
 
+// The submenu sub-items are curated proper nouns (project / member / initiative
+// names), so they aren't translated; the column headers and CTA come from the
+// UI-strings singleton.
 const columns: MenuColumn[] = [
   {
-    label: "Selected Projects",
+    labelKey: "navProjects",
     to: "/#projects",
     items: [
       { label: "Brique par brique", to: "/projects/bxb" },
@@ -23,32 +28,32 @@ const columns: MenuColumn[] = [
     ],
   },
   {
-    label: "Manifesto",
+    labelKey: "navManifesto",
     to: "/manifesto",
     items: [
-      { label: "Stance", to: "/manifesto#capabilities" },
       { label: "Approach", to: "/manifesto#capabilities" },
       { label: "Capabilities", to: "/manifesto#capabilities" },
+      { label: "Labour of Love", to: "/manifesto#capabilities" },
     ],
   },
   {
-    label: "Team",
+    labelKey: "navTeam",
     to: "/team",
     items: [
       { label: "Jean-Julien Hazoumé", to: "/team/jean-julien" },
-      { label: "Luckensy Odigé", to: "/team/luckensy" },
       { label: "Jordane Kaluma", to: "/team/jordane" },
-      { label: "Reatchy Legros", to: "/team/reatchy" },
       { label: "Johnelle Smith", to: "/team/johnelle" },
+      { label: "Luckensy Odigé", to: "/team/luckensy" },
+      { label: "Reatchy Legros", to: "/team/reatchy" },
     ],
   },
   {
-    label: "Initiatives",
+    labelKey: "navInitiatives",
     to: "/initiatives",
     items: [
-      { label: "Gia", href: "/initiatives" },
       { label: "DJTAL", href: "/initiatives" },
       { label: "Espace Septima", href: "/initiatives" },
+      { label: "Gia", href: "/initiatives" },
     ],
   },
 ];
@@ -63,9 +68,9 @@ function MenuItemLink({ item }: { item: MenuItem }) {
   );
   if (item.to) {
     return (
-      <Link to={item.to} data-nav-link className={className}>
+      <LocaleLink to={item.to} data-nav-link className={className}>
         {inner}
-      </Link>
+      </LocaleLink>
     );
   }
   if (item.href) {
@@ -89,19 +94,20 @@ function MenuItemLink({ item }: { item: MenuItem }) {
 // Navbar drives this on scroll/hover); the Footer leaves it at the default so
 // it is always fully open.
 export function NavMenu({ expanded = true }: { expanded?: boolean }) {
+  const t = useT();
   return (
     <div className="grid grid-cols-18 gap-2 text-xs leading-[120%] border-b-black">
       {columns.map((col) => (
         <div key={col.to} className="col-span-4 grid grid-cols-2 gap-2">
-          <Link
+          <LocaleLink
             to={col.to}
             data-nav-link
             data-nav-header
             className="relative  flex items-start w-full h-fit col-span-2 md:col-span-1"
           >
             {navHl}
-            <span className="relative z-10">{col.label}</span>
-          </Link>
+            <span className="relative z-10">{t(col.labelKey)}</span>
+          </LocaleLink>
           <div
             className={`hidden md:grid w-full transition-[grid-template-rows,opacity] duration-300 ease-out ${
               expanded
@@ -118,7 +124,7 @@ export function NavMenu({ expanded = true }: { expanded?: boolean }) {
         </div>
       ))}
       <div className="col-span-2 flex flex-row justify-end items-start">
-        <Link
+        <LocaleLink
           to="/contact"
           data-nav-link
           className="relative flex items-center justify-end w-full"
@@ -126,16 +132,13 @@ export function NavMenu({ expanded = true }: { expanded?: boolean }) {
           {navHl}
           <span className="relative z-10 font-normal">
             <span className="md:hidden text-nowrap">
-              Let&apos;s talk <span className="text-[10px]">↗</span>
+              {t("letsTalk")} <span className="text-[10px]">↗</span>
             </span>
             <span className="hidden md:inline">
-              Start a{" "}
-              <span className="text-nowrap">
-                conversation <span className="text-[10px]">↗</span>
-              </span>
+              {t("startConversation")} <span className="text-[10px]">↗</span>
             </span>
           </span>
-        </Link>
+        </LocaleLink>
       </div>
     </div>
   );

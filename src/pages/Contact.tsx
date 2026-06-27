@@ -2,11 +2,11 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { BudgetSlider, formatBudget } from "@/components/BudgetSlider";
 import { useTitle } from "@/lib/useTitle";
+import { useSiteContent, useT } from "@/lib/SiteContentProvider";
 
-// The opening line types itself out on load: first the fixed "Hi there,"
-// prefix, then the example message which lands as the input's placeholder.
-const PREFIX = "Hi there,";
-const PLACEHOLDER = "my non-profit organisation needs a new website.";
+// The opening line types itself out on load: first the fixed prefix ("Hi there,"),
+// then the example message which lands as the input's placeholder. Both come from
+// the CMS (contactPage singleton).
 const TYPE_SPEED = 45; // ms per character
 const START_DELAY = 350; // ms before typing begins
 
@@ -17,7 +17,10 @@ const WEB3FORMS_ACCESS_KEY = "1ec3f817-4d62-48ac-ae6a-8d4e90dea5b0";
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 export function ContactPage() {
-  useTitle("Applied Archive Atelier — Contact");
+  const { content } = useSiteContent();
+  const t = useT();
+  const c = content?.contact;
+  useTitle(`Applied Archive Atelier — ${t("titleContact")}`);
 
   const [typedPrefix, setTypedPrefix] = useState("");
   const [placeholder, setPlaceholder] = useState("");
@@ -52,31 +55,35 @@ export function ContactPage() {
     return () => root.removeAttribute("data-contact");
   }, []);
 
-  // The type-on intro, replayed whenever the form is reset (runKey changes).
+  // The type-on intro, replayed whenever the form is reset (runKey changes) or
+  // when the CMS copy arrives.
+  const prefixText = c?.prefix ?? "";
+  const exampleText = c?.placeholder ?? "";
   useEffect(() => {
     setTypedPrefix("");
     setPlaceholder("");
+    if (!prefixText && !exampleText) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setTypedPrefix(PREFIX);
-      setPlaceholder(PLACEHOLDER);
+      setTypedPrefix(prefixText);
+      setPlaceholder(exampleText);
       return;
     }
 
-    const full = PREFIX + PLACEHOLDER;
+    const full = prefixText + exampleText;
     let i = 0;
     let timer: ReturnType<typeof setTimeout>;
 
     const type = () => {
       i += 1;
-      setTypedPrefix(full.slice(0, Math.min(i, PREFIX.length)));
-      setPlaceholder(i > PREFIX.length ? full.slice(PREFIX.length, i) : "");
+      setTypedPrefix(full.slice(0, Math.min(i, prefixText.length)));
+      setPlaceholder(i > prefixText.length ? full.slice(prefixText.length, i) : "");
       if (i < full.length) timer = setTimeout(type, TYPE_SPEED);
     };
 
     timer = setTimeout(type, START_DELAY);
     return () => clearTimeout(timer);
-  }, [runKey]);
+  }, [runKey, prefixText, exampleText]);
 
   // After a reset, the fresh message + form are committed behind the covering
   // white disc; collapse both discs to reveal the pristine page underneath.
@@ -176,7 +183,7 @@ export function ContactPage() {
     // guard the message (a contentEditable, so it isn't natively validated).
     const message = messageValueRef.current?.value.trim() ?? "";
     if (!message) {
-      setError("Add a short message so we know what you're after.");
+      setError(c?.validationMessage ?? "");
       editableRef.current?.focus();
       return;
     }
@@ -192,7 +199,7 @@ export function ContactPage() {
     const payload = new FormData(form);
     payload.set("message", message);
     payload.set("access_key", WEB3FORMS_ACCESS_KEY);
-    payload.set("subject", "New enquiry — Applied Archive Atelier");
+    payload.set("subject", c?.emailSubject ?? "New enquiry — Applied Archive Atelier");
     // Show a readable budget in the email rather than the raw slider number.
     const budget = payload.get("budget");
     if (budget !== null) payload.set("budget", formatBudget(Number(budget)));
@@ -213,7 +220,7 @@ export function ContactPage() {
       runSuccessSequence(pos.x, pos.y);
     } catch {
       setSending(false);
-      setError("Something went wrong. Please try again, or email us directly.");
+      setError(c?.errorMessage ?? "");
     }
   };
 
@@ -309,7 +316,7 @@ export function ContactPage() {
                 // rises, then it's masked away again when it wipes back down).
                 className="invisible w-full text-center text-lg leading-[1.15] tracking-[-0.02em]"
               >
-                Thanks — we&apos;ll be in touch.
+                {c?.successMessage}
               </p>
             </div>
           </div>
@@ -346,7 +353,7 @@ export function ContactPage() {
                   className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
-              <span className="">Name</span>
+              <span className="">{c?.nameLabel}</span>
             </label>
             <label className="col-span-4 flex flex-col gap-1">
               <span
@@ -362,7 +369,7 @@ export function ContactPage() {
                   className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
-              <span className="">Email</span>
+              <span className="">{c?.emailLabel}</span>
             </label>
             <label className="col-span-4 flex flex-col gap-1">
               <span
@@ -377,7 +384,7 @@ export function ContactPage() {
                   className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 text-lg md:text-xs md:tracking-normal tracking-[-0.02em]"
                 />
               </span>
-              <span className="">Organization (optional)</span>
+              <span className="">{c?.organizationLabel}</span>
             </label>
 
             {/* Row 2 */}
@@ -393,16 +400,11 @@ export function ContactPage() {
                   className="block w-full bg-transparent focus:outline-none leading-[115%] md:h-4 placeholder:opacity-40"
                 />
               </span>
-              <span className="">
-                When are you hoping the project to be done?
-              </span>
+              <span className="">{c?.timelineLabel}</span>
             </label>
             {/* Budget slider and the copy beside it stay put on send. */}
             <BudgetSlider className="col-span-4 pt-3" />
-            <p className="col-span-4 pt-2">
-              Every budget is welcome. We read it as energy. Tell us yours, and
-              we&apos;ll be honest about what we can make with it, together.
-            </p>
+            <p className="col-span-4 pt-2">{c?.budgetCopy}</p>
           </div>
 
           {/* The send button fills the column beside the form, bordered, with
@@ -423,10 +425,10 @@ export function ContactPage() {
               />
               <span className="relative z-10">
                 {sending ? (
-                  "Sending…"
+                  c?.sendingLabel
                 ) : (
                   <>
-                    Send <span className="text-[10px]">↗</span>
+                    {c?.sendLabel} <span className="text-[10px]">↗</span>
                   </>
                 )}
               </span>

@@ -1,10 +1,37 @@
 import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { NavMenu } from "@/components/NavMenu";
 import { usePageTransition } from "@/components/PageTransition";
+import { useLocale, type Lang } from "@/lib/locale";
 import aSvg from "@/assets/svgs/A.svg";
 import periodSvg from "@/assets/svgs/period.svg";
+
+// EN / FR switch: links to the current page in the other language and saves the
+// choice so the auto-detect never overrides it.
+function LangToggle() {
+  const { lang, otherLang, otherLangPath, persist } = useLocale();
+  const render = (l: Lang) =>
+    l === lang ? (
+      <span className="font-bold">{l.toUpperCase()}</span>
+    ) : (
+      <Link
+        to={otherLangPath}
+        onClick={() => persist(otherLang)}
+        data-no-transition
+        className="opacity-50 hover:opacity-100"
+      >
+        {l.toUpperCase()}
+      </Link>
+    );
+  return (
+    <div className="flex gap-1.5 text-xs" aria-label="Language">
+      {render("en")}
+      <span className="opacity-30">/</span>
+      {render("fr")}
+    </div>
+  );
+}
 
 // The wordmark, one glyph <img> per character. justify-between spreads them
 // while small and pins the outer A's to the footer edges; the middle A stays
@@ -213,6 +240,9 @@ export function Footer() {
       >
         <div className=" pt-2 tracking-[-0.01em]">
           <NavMenu />
+          <div className="flex justify-end pt-4">
+            <LangToggle />
+          </div>
         </div>
 
         <div

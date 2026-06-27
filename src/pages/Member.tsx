@@ -5,13 +5,15 @@ import { useTeam } from "@/lib/TeamContext";
 import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
+import { useLocale } from "@/lib/locale";
 import { NotFound } from "@/pages/NotFound";
 
 export function MemberPage() {
     const { member: slug } = useParams<{ member: string }>();
+    const { lang } = useLocale();
     const { getMemberBySlug, loading: teamLoading } = useTeam();
     const member = slug ? getMemberBySlug(slug) : undefined;
-    const { data: projects } = useQuery(getProjects, []);
+    const { data: projects } = useQuery(() => getProjects(lang), [lang]);
 
     useTitle(
         member

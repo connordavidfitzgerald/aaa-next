@@ -1,9 +1,11 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
 
 import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
+import { useLocale } from "@/lib/locale";
+import { useSiteContent } from "@/lib/SiteContentProvider";
 import { HomeHeroMux } from "@/components/HomeHeroMux";
+import { LocaleLink } from "@/components/LocaleLink";
 import { ProjectPreview } from "@/components/ProjectPreview";
 import { CursorImageTrail } from "@/components/CursorImageTrail";
 
@@ -39,7 +41,9 @@ function trailImagesFrom(projects: Project[]): string[] {
 }
 
 export function HomePage() {
-  const { data: projects } = useQuery(getProjects, []);
+  const { lang } = useLocale();
+  const { content } = useSiteContent();
+  const { data: projects } = useQuery(() => getProjects(lang), [lang]);
 
   const trailImages = useMemo(
     () => trailImagesFrom(projects ?? []),
@@ -66,12 +70,11 @@ export function HomePage() {
               bg-[linear-gradient(var(--color-green),var(--color-green))]
               bg-size-[100%_80%] bg-no-repeat bg-center align-middle pt-0.5"
             >
-              Applied Archive Atelier is a creative studio amplifying
-              non-profits, cultural institutions and social businesses.
+              {content?.home.tagline}
             </span>
           </span>
         </h3>
-        <Link
+        <LocaleLink
           to="/manifesto"
           data-nav-link
           className="relative flex items-center w-fit cursor-pointer text-xs tracking-[-0.01em]"
@@ -81,9 +84,10 @@ export function HomePage() {
             className="absolute inset-0 bg-green scale-y-0 origin-top -mx-0.5 -mt-0.5 "
           />
           <span className="relative z-10">
-            Read more about our stance. <span className="text-[10px]">↗</span>
+            {content?.home.manifestoLinkLabel}{" "}
+            <span className="text-[10px]">↗</span>
           </span>
-        </Link>
+        </LocaleLink>
       </CursorImageTrail>
       <section
         id="projects"

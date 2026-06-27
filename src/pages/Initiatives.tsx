@@ -1,11 +1,17 @@
 import { getInitiatives } from "@/lib/initiatives";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
+import { useLocale } from "@/lib/locale";
+import { useSiteContent, useT } from "@/lib/SiteContentProvider";
+import { SanityImage } from "@/components/SanityImage";
 
 export function InitiativesPage() {
-  useTitle("Applied Archive Atelier — Initiatives");
+  const { lang } = useLocale();
+  const { content } = useSiteContent();
+  const t = useT();
+  useTitle(`Applied Archive Atelier — ${t("titleInitiatives")}`);
 
-  const { data: initiatives } = useQuery(getInitiatives, []);
+  const { data: initiatives } = useQuery(() => getInitiatives(lang), [lang]);
 
   return (
     <main className="flex flex-col justify-start px-2 w-full text-xs leading-[115%] md:pt-[calc(var(--nav-height)*1.2)] pb-2">
@@ -15,14 +21,9 @@ export function InitiativesPage() {
           className="md:col-span-4 col-span-18 self-start flex flex-col justify-start gap-2 pb-2 md:pb-0 bg-white sticky md:top-[calc(var(--nav-height)-0.5em)] top-0 z-40"
         >
           <div className="flex md:hidden h-[calc(var(--nav-height))]"></div>
-          <h1>Initiatives</h1>
+          <h1>{content?.initiatives.heading}</h1>
 
-          <p>
-            Five percent of every project goes into the projects part of A.A.A.
-            ecosystem. Fuel for the adjacent projects we believe in, from Bloom
-            to the work our own members start. Your budget keeps the ecosystem
-            alive.
-          </p>
+          <p>{content?.initiatives.intro}</p>
         </aside>
 
         <div className="col-span-18 md:col-start-7 md:col-span-12 grid grid-cols-12 gap-x-2 gap-y-[var(--nav-gap)] h-fit">
@@ -33,10 +34,11 @@ export function InitiativesPage() {
             >
               <div className="flex flex-col">
                 {initiative.image && (
-                  <img
+                  <SanityImage
                     src={initiative.image}
                     alt={initiative.title}
                     className="w-full h-auto pb-2"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 )}
                 <h2 className="uppercase">{initiative.title}</h2>
@@ -55,7 +57,7 @@ export function InitiativesPage() {
                     className="absolute inset-0 bg-green scale-y-0 origin-top"
                   />
                   <span className="relative z-10">
-                    Visit <span className="text-[10px]">↗</span>
+                    {t("visit")} <span className="text-[10px]">↗</span>
                   </span>
                 </a>
               ) : initiative.location ? (

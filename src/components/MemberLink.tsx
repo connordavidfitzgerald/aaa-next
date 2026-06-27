@@ -1,5 +1,6 @@
 import { useTransitionNavigate } from "@/components/PageTransition";
 import { useTeam } from "@/lib/TeamContext";
+import { useLocale } from "@/lib/locale";
 
 // Renders a person's name. If the name matches a team member it becomes a
 // clickable link to their page with the green-bar hover effect; otherwise it's
@@ -19,11 +20,12 @@ export function MemberLink({
 }) {
   const navigate = useTransitionNavigate();
   const { memberSlugByName } = useTeam();
+  const { localizedPath } = useLocale();
   const slug = memberSlugByName(name);
 
   if (!slug) return <>{name}</>;
 
-  const go = () => navigate(`/team/${slug}`);
+  const go = () => navigate(localizedPath(`/team/${slug}`));
 
   return (
     <span

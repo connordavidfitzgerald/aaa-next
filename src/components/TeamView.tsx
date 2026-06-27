@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { ViewTransition } from "@/components/ViewTransition";
 import { ProjectPreview } from "@/components/ProjectPreview";
 import { MuxAutoPlayer } from "@/components/MuxAutoPlayer";
+import { LocaleLink } from "@/components/LocaleLink";
+import { SanityImage } from "@/components/SanityImage";
+import { useLocale } from "@/lib/locale";
 import type { Project } from "@/lib/projects";
 import teamImg from "@/assets/images/team.jpg";
 
@@ -24,6 +27,8 @@ export interface MemberView {
   image: string;
   /** Mux playback ID, when the member has an uploaded video. */
   videoPlaybackId?: string;
+  /** Caption shown beside the member video. */
+  videoCaption?: string;
   bio: string;
   instagram?: string;
   linkedin?: string;
@@ -48,6 +53,7 @@ export function TeamView({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { localizedPath } = useLocale();
   // The slug of the member currently highlighted by the mobile scroll-spy, so
   // tapping the sticky picture can jump straight to that member's page.
   const activeSlugRef = useRef<string | null>(null);
@@ -313,20 +319,23 @@ export function TeamView({
                 <ViewTransition name="team-hero">
                   <div className="absolute inset-0 w-full h-full ">
                     {selected.image && (
-                      <img
+                      <SanityImage
                         src={selected.image}
                         alt={selected.name}
                         data-detail-image="member"
+                        sizes="(max-width: 768px) 60vw, 25vw"
+                        eager
                         className="absolute inset-0 w-full h-full object-cover block "
                       />
                     )}
                     {selected.projects.map((p) =>
                       p.image || p.thumbnail ? (
-                        <img
+                        <SanityImage
                           key={p.id}
-                          src={p.image ?? p.thumbnail}
+                          src={(p.image ?? p.thumbnail)!}
                           alt={p.client}
                           data-detail-image={p.id}
+                          sizes="(max-width: 768px) 60vw, 25vw"
                           className="absolute inset-0 w-full h-full object-contain opacity-0"
                         />
                       ) : null,
@@ -348,7 +357,9 @@ export function TeamView({
             just below the member info. */}
         {selected.videoPlaybackId && (
           <div className="grid grid-cols-9 gap-2 border-t border-black/20 md:border-none py-2 md:py-0">
-            <div className="md:col-span-2 col-span-9">Uscripted Love, 2026</div>
+            <div className="md:col-span-2 col-span-9">
+              {selected.videoCaption}
+            </div>
             <div className="md:col-span-7 md:col-start-3 col-span-9 w-full ">
               <MuxAutoPlayer playbackId={selected.videoPlaybackId} />
             </div>
@@ -393,7 +404,7 @@ export function TeamView({
           <div
             onClick={() => {
               if (activeSlugRef.current)
-                navigate(`/team/${activeSlugRef.current}`);
+                navigate(localizedPath(`/team/${activeSlugRef.current}`));
             }}
             className="col-start-5 col-span-10 md:col-start-8 md:col-span-4 aspect-square relative pointer-events-auto md:pointer-events-none cursor-pointer"
           >
@@ -407,11 +418,12 @@ export function TeamView({
             </ViewTransition>
             {allMembers.map((member) =>
               member.image ? (
-                <img
+                <SanityImage
                   key={member.key}
                   src={member.image}
                   alt={member.name}
                   data-team-image={member.key}
+                  sizes="(max-width: 768px) 60vw, 25vw"
                   className="absolute inset-0 w-full h-full object-cover block opacity-0"
                 />
               ) : null,
@@ -436,7 +448,7 @@ export function TeamView({
                   .map((r) => r.trim())
                   .filter(Boolean);
                 return (
-                  <Link
+                  <LocaleLink
                     key={member.key}
                     to={`/team/${member.slug}`}
                     data-team-row
@@ -461,7 +473,7 @@ export function TeamView({
                       </div>
                       <p className="pr-1">{member.location}</p>
                     </div>
-                  </Link>
+                  </LocaleLink>
                 );
               })}
             </div>

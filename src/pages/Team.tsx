@@ -4,12 +4,16 @@ import { useTeam } from "@/lib/TeamContext";
 import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
+import { useLocale } from "@/lib/locale";
+import { useT } from "@/lib/SiteContentProvider";
 
 export function TeamPage() {
-  useTitle("Applied Archive Atelier — Team");
+  const { lang } = useLocale();
+  const t = useT();
+  useTitle(`Applied Archive Atelier — ${t("titleTeam")}`);
 
   const { core, collaborators } = useTeam();
-  const { data: projects } = useQuery(getProjects, []);
+  const { data: projects } = useQuery(() => getProjects(lang), [lang]);
   const allProjects = projects ?? [];
 
   // Resolve each member's projectIds into the project previews TeamView wants.
@@ -32,9 +36,9 @@ export function TeamPage() {
     a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
 
   const sections = [
-    { label: "Core", members: [...core].sort(byName).map(withProjects) },
+    { label: t("teamCore"), members: [...core].sort(byName).map(withProjects) },
     {
-      label: "Collaborators",
+      label: t("teamCollaborators"),
       members: [...collaborators].sort(byName).map(withProjects),
     },
   ];

@@ -7,6 +7,7 @@ import {
   type TeamMember,
 } from "@/lib/team";
 import { useQuery } from "@/lib/useQuery";
+import { useLocale } from "@/lib/locale";
 
 interface TeamContextValue {
   members: TeamMember[];
@@ -24,7 +25,8 @@ const TeamContext = createContext<TeamContextValue | null>(null);
 // by project credit links) synchronous after the initial load, and avoids each
 // consumer issuing its own query.
 export function TeamProvider({ children }: { children: ReactNode }) {
-  const { data, loading } = useQuery(getTeamMembers, []);
+  const { lang } = useLocale();
+  const { data, loading } = useQuery(() => getTeamMembers(lang), [lang]);
   const members = data ?? [];
 
   const value: TeamContextValue = {

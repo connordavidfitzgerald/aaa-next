@@ -64,14 +64,18 @@ export function MuxAutoPlayer({
         };
     }, [playbackId]);
 
+    // Mux serves a resized thumbnail when given a width, so we don't pull the
+    // full-resolution still just for the poster behind the video.
     const thumbSrc =
-        thumbnail ?? `https://image.mux.com/${playbackId}/thumbnail.jpg`;
+        thumbnail ?? `https://image.mux.com/${playbackId}/thumbnail.jpg?width=1200`;
 
     return (
         <div ref={wrapperRef} className={`relative w-full h-full ${className}`}>
             <img
                 src={thumbSrc}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className={
                     fillMode === "cover"
                         ? "w-full h-full object-cover block"

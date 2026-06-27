@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
 import { NavMenu } from "@/components/NavMenu";
+import { LocaleLink } from "@/components/LocaleLink";
 import { usePageTransition } from "@/components/PageTransition";
 
 // Scroll distance (px) over which the header interpolates to its shrunk size,
@@ -186,7 +186,7 @@ export function Navbar() {
         transition: "gap 0.05s linear, transform 0.75s ease",
       }}
     >
-      <Link
+      <LocaleLink
         to="/"
         className="col-span-12 flex flex-row w-full justify-between items-start h-fit leading-[82%] tracking-[-0.04em]"
         style={{
@@ -197,7 +197,7 @@ export function Navbar() {
         <h1 className="font-bold text-left flex grow">APPLIED</h1>
         <h1 className="font-bold text-center flex grow">ARCHIVE</h1>
         <h1 className="font-bold text-right">ATELIER</h1>
-      </Link>
+      </LocaleLink>
       <NavMenu expanded={expanded} />
     </nav>
   );

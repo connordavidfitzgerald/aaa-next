@@ -1,5 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
+import { sanityImageUrl } from "@/lib/image";
+
 // Wraps a section and paints a cursor-following image trail behind its content.
 // As the pointer moves across the area, project images are dropped at the cursor
 // (one every MIN_DIST px), cycling through `images` so the trail alternates
@@ -27,8 +29,14 @@ export function CursorImageTrail({
     if (!window.matchMedia("(hover: hover)").matches) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    // The trail thumbnails render small (~12rem), so request a matching size in
+    // a modern format rather than the full-resolution originals.
+    const optimized = images.map((src) =>
+      sanityImageUrl(src, { width: 480, quality: 70 }),
+    );
+
     // Warm the browser cache so dropped images appear instantly.
-    images.forEach((src) => {
+    optimized.forEach((src) => {
       const im = new Image();
       im.src = src;
     });
@@ -64,8 +72,8 @@ export function CursorImageTrail({
       const drop = (x: number, y: number) => {
         const el = pool[poolIndex];
         poolIndex = (poolIndex + 1) % POOL;
-        el.src = images[imgIndex];
-        imgIndex = (imgIndex + 1) % images.length;
+        el.src = optimized[imgIndex];
+        imgIndex = (imgIndex + 1) % optimized.length;
 
         gsap.killTweensOf(el);
         gsap.set(el, {

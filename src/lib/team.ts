@@ -1,4 +1,6 @@
 import { sanity } from "@/lib/sanity";
+import { loc } from "@/lib/i18n-groq";
+import type { Lang } from "@/lib/locale";
 
 export interface TeamMember {
   key: string;
@@ -10,11 +12,17 @@ export interface TeamMember {
   image: string;
   /** Mux playback ID, when the member has an uploaded video. */
   videoPlaybackId?: string;
+  /** Caption shown beside the member video. */
+  videoCaption?: string;
   bio: string;
   instagram: string;
   linkedin: string;
   memberType: "core" | "collaborator";
   projectIds: string[];
+}
+
+interface RawTeamMember extends Omit<TeamMember, "services"> {
+  services: string | null;
 }
 
 // GROQ projection for a teamMember document. `image` resolves to a CDN URL and
@@ -25,24 +33,34 @@ const MEMBER_FIELDS = /* groq */ `
   "key": slug.current,
   "slug": slug.current,
   name,
-  role,
-  "services": coalesce(services, []),
-  location,
+  "role": coalesce(${loc("role")}, ""),
+  "services": ${loc("services")},
+  "location": coalesce(${loc("location")}, ""),
   "image": coalesce(image.asset->url, ""),
   "videoPlaybackId": video.asset->playbackId,
-  "bio": coalesce(bio, ""),
+  "videoCaption": ${loc("videoCaption")},
+  "bio": coalesce(${loc("bio")}, ""),
   "instagram": coalesce(instagram, ""),
   "linkedin": coalesce(linkedin, ""),
   memberType,
   "projectIds": coalesce(projects[]->slug.current, [])
 `;
 
+// Services come back as a localized comma-separated string; the UI wants a list.
+const splitServices = (s: string | null): string[] =>
+  (s ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+
 // All team members, ordered by creation date (the order they were added in the
 // Studio). Split into core/collaborator sections by `memberType` downstream.
-export async function getTeamMembers(): Promise<TeamMember[]> {
-  return sanity.fetch<TeamMember[]>(
+export async function getTeamMembers(lang: Lang): Promise<TeamMember[]> {
+  const raw = await sanity.fetch<RawTeamMember[]>(
     `*[_type == "teamMember"] | order(_createdAt asc){${MEMBER_FIELDS}}`,
+    { lang },
   );
+  return raw.map((m) => ({ ...m, services: splitServices(m.services) }));
 }
 
 // Pure lookups over an already-loaded member list. The TeamProvider binds these

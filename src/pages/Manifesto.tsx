@@ -1,191 +1,53 @@
-import { Fragment, useEffect, useRef, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef } from "react";
 import { MuxAutoPlayer } from "@/components/MuxAutoPlayer";
-
-// The manifesto, one entry per line. Empty strings are stanza breaks (rendered
-// as a blank line). Each line reveals on scroll: a green rectangle wipes across
-// it left→right, leaving black text on a green highlight fitted to the text.
-const LINES = [
-  "There is work you take because it pays.",
-  "There is work you take because it interests you.",
-  "And then there is the other kind.",
-  "The kind that keeps you up.",
-  "",
-  "That work deserves more.",
-  "",
-  "Some work is bigger than any one pair of hands.",
-  "So independent practices came together,",
-  "each with its own craft,",
-  "drawn by the work and by each other,",
-  "until it could finally be carried",
-  "the way it deserved.",
-  "",
-  "It became a cooperative.",
-  "One member, one vote.",
-  "Every voice weighs the same.",
-  "The work flows to whoever can carry it best.",
-  "And the credit stays with the work,",
-  "because how it is built",
-  "is part of what it stands for.",
-  "",
-  "The work is carried long after the launch,",
-  "when the applause has faded",
-  "and the making goes on.",
-  "",
-  "Devotion outlasts attention.",
-  "",
-  "If what you are building matters",
-  "to the people you serve,",
-  "there is a place for it here,",
-  "people who carry it with you and stay.",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "Approach",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "Welcome.",
-  "Open the door to every voice, every story.",
-  "Honour every heritage, every face.",
-  "",
-  "Cultivate.",
-  "Act with conviction and ethics,",
-  "to elevate projects and their missions.",
-  "",
-  "Illuminate.",
-  "Open conversations guided by real needs.",
-  "",
-  "Craft.",
-  "Fashion living archives,",
-  "equal to the desires of the age.",
-  "",
-  "Amplify.",
-  "Translate singular dreams",
-  "and the utopias at the margins.",
-  "Weave bonds between progress and humanity.",
-];
-
-// Reference panel content. Kept as data so the structured layout below stays
-// declarative and the copy is easy to edit in one place.
-
-// Approach: [term, description] pairs.
-const APPROACH: [string, string][] = [
-  [
-    "Welcome",
-    "Open the door to every voice, every story. Honour every heritage, every face.",
-  ],
-  [
-    "Cultivate",
-    "Act with conviction and ethics, to elevate projects and their missions.",
-  ],
-  ["Illuminate", "Open conversations guided by real needs."],
-  ["Craft", "Fashion living archives, equal to the desires of the age."],
-  [
-    "Amplify",
-    "Translate singular dreams and the utopias at the margins. Weave bonds between progress and humanity.",
-  ],
-];
-
-// Manifesto: stanzas, each an array of lines joined by soft breaks.
-const MANIFESTO: string[][] = [
-  [
-    "There is work you take because it pays.",
-    "There is work you take because it interests you.",
-    "And then there is the other kind.",
-    "The kind that keeps you up.",
-  ],
-  ["That work deserves more."],
-  [
-    "Some work is bigger than any one pair of hands.",
-    "So independent practices came together,",
-    "each with its own craft,",
-    "drawn by the work and by each other,",
-    "until it could finally be carried the way it deserved.",
-  ],
-  [
-    "It became a cooperative.",
-    "One member, one vote. Every voice weighs the same.",
-    "The work flows to whoever can carry it best.",
-    "And the credit stays with the work,",
-    "because how it is built is part of what it stands for.",
-  ],
-  [
-    "The work is carried long after the launch,",
-    "when the applause has faded and the making goes on.",
-    "Devotion outlasts attention.",
-  ],
-  [
-    "If what you are building matters to the people you serve,",
-    "there is a place for it here,",
-    "people who carry it with you and stay.",
-  ],
-];
-
-// Capabilities: category title + the services under it.
-const CAPABILITIES: { title: string; items: ReactNode[] }[] = [
-  {
-    title: "Branding",
-    items: [
-      "Creative and art direction",
-      "Visual identity",
-      "Messaging and voice development",
-      "Strategy and positioning",
-      "Content strategy",
-    ],
-  },
-  {
-    title: "Web",
-    items: [
-      "UI/UX design",
-      "Frontend development",
-      "E-commerce",
-      "Maintenance and support",
-    ],
-  },
-  {
-    title: "Visual",
-    items: [
-      "Editorial & publication design",
-      "Campaign",
-      "Illustration",
-      "Motion design",
-      "Photography",
-      "Video production",
-    ],
-  },
-  {
-    title: "Amplification",
-    items: [
-      "Social media",
-      "SEO",
-      "Content management",
-      <>
-        Grant writing via{" "}
-        <a href="/initiatives" className="underline underline-offset-2">
-          Gia
-        </a>
-      </>,
-    ],
-  },
-];
+import { useSiteContent } from "@/lib/SiteContentProvider";
+import { useTitle } from "@/lib/useTitle";
+import { useT } from "@/lib/SiteContentProvider";
 
 // clip-path states: hidden collapses the line to its left edge; shown reveals
 // the whole line. Animating between them wipes the green+text in left→right.
 const HIDDEN = "inset(-1% 100% -1% 0%)";
 const SHOWN = "inset(-1% 0% -1% 0%)";
 
+// Split a sentence-y string into separate display lines (after each period) so
+// the poetic scroll reveals one clause at a time.
+const toClauses = (text: string) =>
+  text
+    .split(/(?<=\.)\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
 export function ManifestoPage() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { content } = useSiteContent();
+  const t = useT();
+  useTitle(`Applied Archive Atelier — ${t("titleManifesto")}`);
+
+  const manifesto = content?.manifesto;
+
+  // The poetic scroll at the top is derived from the manifesto stanzas (a blank
+  // line between each), then the approach section, so the copy is only authored
+  // once in the CMS.
+  const lines = useMemo<string[]>(() => {
+    if (!manifesto) return [];
+    const out: string[] = [];
+    manifesto.stanzas.forEach((stanza) => {
+      stanza.split("\n").forEach((l) => out.push(l));
+      out.push("");
+    });
+    out.push("", "", "");
+    if (manifesto.approachLabel) out.push(manifesto.approachLabel, "", "");
+    manifesto.approach.forEach((a) => {
+      out.push(`${a.term}.`);
+      toClauses(a.description).forEach((c) => out.push(c));
+      out.push("");
+    });
+    return out;
+  }, [manifesto]);
 
   useEffect(() => {
     const root = containerRef.current;
-    if (!root) return;
+    if (!root || lines.length === 0) return;
 
     let cancelled = false;
     const cleanups: Array<() => void> = [];
@@ -196,15 +58,15 @@ export function ManifestoPage() {
       if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
 
-      const lines = gsap.utils.toArray<HTMLElement>("[data-line]", root);
+      const els = gsap.utils.toArray<HTMLElement>("[data-line]", root);
 
       // Reduced motion: show everything, no scroll-driven wipe.
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        lines.forEach((el) => gsap.set(el, { clipPath: SHOWN }));
+        els.forEach((el) => gsap.set(el, { clipPath: SHOWN }));
         return;
       }
 
-      lines.forEach((el) => {
+      els.forEach((el) => {
         const tween = gsap.fromTo(
           el,
           { clipPath: HIDDEN },
@@ -213,8 +75,6 @@ export function ManifestoPage() {
             ease: "none",
             scrollTrigger: {
               trigger: el,
-              // Wipe in as the line travels from near the bottom of the
-              // viewport up past the middle — tied directly to scroll.
               start: "top 90%",
               end: "top 80%",
               scrub: true,
@@ -234,7 +94,7 @@ export function ManifestoPage() {
       cancelled = true;
       cleanups.forEach((fn) => fn());
     };
-  }, []);
+  }, [lines]);
 
   return (
     <main className="relative w-full text-xs">
@@ -255,7 +115,7 @@ export function ManifestoPage() {
       >
         <div className="h-screen" aria-hidden></div>
         <div className=" text-center text-lg uppercase font-bold tracking-[-0.022em] leading-[80%]">
-          {LINES.map((line, i) =>
+          {lines.map((line, i) =>
             line === "" ? (
               <div key={i} aria-hidden className="h-[1.1em]" />
             ) : (
@@ -275,9 +135,7 @@ export function ManifestoPage() {
 
         {/* Structured reference panel. The poetic scroll above resolves into a
             plain editorial index of the three pillars, laid out on the site's
-            18-column grid: Approach (4) · Manifesto (6) · Capabilities (8).
-            Section labels follow the site convention (muted + bottom rule);
-            terms/categories sit at full strength with their copy muted. */}
+            18-column grid: Approach (4) · Manifesto (6) · Capabilities (8). */}
         <section
           id="capabilities"
           className="w-full min-h-screen bg-green px-2 pt-2 -mt-[calc(var(--nav-height)*0.825)] pb-24"
@@ -285,12 +143,14 @@ export function ManifestoPage() {
           <div className="grid grid-cols-18 gap-2 gap-y-6 text-xs leading-[1.2] tracking-[-0.01em]">
             {/* Approach */}
             <div className="col-span-18 md:col-span-4 flex flex-col gap-2">
-              <p className="pb-1  border-b border-black/20">Approach</p>
+              <p className="pb-1  border-b border-black/20">
+                {manifesto?.approachLabel}
+              </p>
               <div className="flex flex-col gap-2">
-                {APPROACH.map(([term, desc]) => (
+                {manifesto?.approach.map(({ term, description }) => (
                   <div key={term} className="flex flex-col">
                     <p>{term}</p>
-                    <p className="opacity-70">{desc}</p>
+                    <p className="opacity-70">{description}</p>
                   </div>
                 ))}
               </div>
@@ -298,28 +158,33 @@ export function ManifestoPage() {
 
             {/* Manifesto */}
             <div className="col-span-18 md:col-span-4 flex flex-col gap-2">
-              <p className="pb-0.5 md:pb-1 border-b border-black/20">Stance</p>
+              <p className="pb-0.5 md:pb-1 border-b border-black/20">
+                {manifesto?.stanceLabel}
+              </p>
               <div className="flex flex-col gap-[1.2em]">
-                {MANIFESTO.map((stanza, i) => (
-                  <p key={i}>
-                    {stanza.map((l, j) => (
-                      <Fragment key={j}>
-                        {l}
-                        {j < stanza.length - 1 && <br />}
-                      </Fragment>
-                    ))}
-                  </p>
-                ))}
+                {manifesto?.stanzas.map((stanza, i) => {
+                  const stanzaLines = stanza.split("\n");
+                  return (
+                    <p key={i}>
+                      {stanzaLines.map((l, j) => (
+                        <Fragment key={j}>
+                          {l}
+                          {j < stanzaLines.length - 1 && <br />}
+                        </Fragment>
+                      ))}
+                    </p>
+                  );
+                })}
               </div>
             </div>
 
             {/* Capabilities */}
             <div className="col-span-18 md:col-span-10 flex flex-col gap-2">
               <p className="pb-0.5 md:pb-1 border-b border-black/20">
-                Capabilities
+                {manifesto?.capabilitiesLabel}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-2">
-                {CAPABILITIES.map(({ title, items }) => (
+                {manifesto?.capabilities.map(({ title, items }) => (
                   <div key={title} className="flex flex-col ">
                     <p>{title}</p>
                     <ul className="flex flex-col opacity-70">

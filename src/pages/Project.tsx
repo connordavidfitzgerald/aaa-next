@@ -6,13 +6,17 @@ import { useQuery } from "@/lib/useQuery";
 import { MediaItem } from "@/components/MediaItem";
 import { MemberLink } from "@/components/MemberLink";
 import { useTitle } from "@/lib/useTitle";
+import { useLocale } from "@/lib/locale";
+import { useT } from "@/lib/SiteContentProvider";
 import { NotFound } from "@/pages/NotFound";
 
 export function ProjectPage() {
   const { project: id } = useParams<{ project: string }>();
+  const { lang } = useLocale();
+  const t = useT();
   const { data: project, loading } = useQuery(
-    useCallback(() => getProject(id ?? ""), [id]),
-    [id],
+    useCallback(() => getProject(id ?? "", lang), [id, lang]),
+    [id, lang],
   );
 
   useTitle(
@@ -35,7 +39,7 @@ export function ProjectPage() {
 
           {project.credits && project.credits.length > 0 && (
             <div className="flex flex-col gap-x-2 pt-4">
-              <p className="">Credits</p>
+              <p className="">{t("credits")}</p>
 
               {project.credits.map((credit, i) => (
                 <div
@@ -64,7 +68,7 @@ export function ProjectPage() {
 
           {project.links && project.links.length > 0 && (
             <div className="flex flex-col gap-2 pt-4">
-              <p className="">Links</p>
+              <p className="">{t("links")}</p>
               <div className="grid md:grid-cols-2 grid-cols-9 gap-2">
                 {project.links.map((link) => (
                   <a

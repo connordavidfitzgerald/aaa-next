@@ -4,11 +4,12 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { Link } from "react-router-dom";
-
 import { type MediaItem, type Project } from "@/lib/projects";
 import { MuxAutoPlayer } from "@/components/MuxAutoPlayer";
+import { LocaleLink } from "@/components/LocaleLink";
 import { MemberLink } from "@/components/MemberLink";
+import { SanityImage } from "@/components/SanityImage";
+import { useT } from "@/lib/SiteContentProvider";
 
 // Lets each media Cell link to its project page without wrapping the whole card
 // (so the info header / member names stay independently interactive).
@@ -38,6 +39,7 @@ function Cell({
   className?: string;
 }) {
   const to = useContext(ProjectHrefContext);
+  const t = useT();
   if (!item) return null;
 
   const style = {
@@ -55,14 +57,15 @@ function Cell({
           className="group-hover:mix-blend-multiply"
         />
       ) : (
-        <img
+        <SanityImage
           src={item.src}
           alt={item.alt ?? ""}
           className="w-full h-auto group-hover:mix-blend-multiply ease-in transition duration-500"
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
       )}
       <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <span className="text-xs bg-green px-1 pt-0.5">View Project</span>
+        <span className="text-xs bg-green px-1 pt-0.5">{t("viewProject")}</span>
       </div>
     </>
   );
@@ -76,9 +79,9 @@ function Cell({
       className={`home-cell ${hideOnMobile ? "hidden md:block" : ""} ${className}`}
     >
       {to ? (
-        <Link to={to} className={`${innerClass} block`}>
+        <LocaleLink to={to} className={`${innerClass} block`}>
           {media}
-        </Link>
+        </LocaleLink>
       ) : (
         <div className={innerClass}>{media}</div>
       )}
@@ -149,7 +152,22 @@ const defaultLayout = (m: MediaItem[]) => (
 // header (client / description / team / services) above the project's media
 // layout. Reused on the member page for "Selected work".
 export function ProjectPreview({ project }: { project: Project }) {
-  const layout = homeLayouts[project.id] ?? defaultLayout;
+  // CMS-driven preview takes precedence: render each chosen item at its
+  // editor-set width. Falls back to the hardcoded per-project layout (then the
+  // default) when no preview media is set in Sanity.
+  const preview =
+    project.previewMedia && project.previewMedia.length > 0 ? (
+      project.previewMedia.map((item, i) => (
+        <Cell
+          key={i}
+          item={item}
+          span={item.width}
+          hideOnMobile={item.hideOnMobile}
+        />
+      ))
+    ) : (
+      (homeLayouts[project.id] ?? defaultLayout)(flattenMedia(project.media))
+    );
 
   return (
     <div data-project className="grid grid-cols-6 gap-2 text-xs">
@@ -180,7 +198,7 @@ export function ProjectPreview({ project }: { project: Project }) {
         </div>
       </div>
       <ProjectHrefContext.Provider value={`/projects/${project.id}`}>
-        {layout(flattenMedia(project.media))}
+        {preview}
       </ProjectHrefContext.Provider>
     </div>
   );
