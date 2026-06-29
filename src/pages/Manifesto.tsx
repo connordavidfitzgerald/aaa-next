@@ -138,9 +138,10 @@ export function ManifestoPage() {
             18-column grid: Approach (4) · Manifesto (6) · Capabilities (8). */}
         <section
           id="capabilities"
-          className="w-full min-h-screen bg-green px-2 pt-2 -mt-[calc(var(--nav-height)*0.825)] pb-24"
+          className="w-full h-screen flex flex-col gap-0 justify-start"
         >
-          <div className="grid grid-cols-18 gap-2 gap-y-6 text-xs leading-[1.2] tracking-[-0.01em]">
+          <div className="h-[calc(var(--nav-height))]"></div>
+          <div className="grid grid-cols-18 gap-2 gap-y-6 text-xs leading-[1.2] tracking-[-0.01em] bg-green px-2 pt-2 grow">
             {/* Approach */}
             <div className="col-span-18 md:col-span-4 flex flex-col gap-2">
               <p className="pb-1  border-b border-black/20">
@@ -150,14 +151,14 @@ export function ManifestoPage() {
                 {manifesto?.approach.map(({ term, description }) => (
                   <div key={term} className="flex flex-col">
                     <p>{term}</p>
-                    <p className="opacity-70">{description}</p>
+                    <p className="">{description}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Manifesto */}
-            <div className="col-span-18 md:col-span-4 flex flex-col gap-2">
+            <div className="col-span-18 md:col-span-8 flex flex-col gap-2">
               <p className="pb-0.5 md:pb-1 border-b border-black/20">
                 {manifesto?.stanceLabel}
               </p>
@@ -179,7 +180,7 @@ export function ManifestoPage() {
             </div>
 
             {/* Capabilities */}
-            <div className="col-span-18 md:col-span-10 flex flex-col gap-2">
+            <div className="col-span-18 md:col-span-6 flex flex-col gap-2">
               <p className="pb-0.5 md:pb-1 border-b border-black/20">
                 {manifesto?.capabilitiesLabel}
               </p>

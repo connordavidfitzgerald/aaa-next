@@ -18,6 +18,7 @@ export const UI_KEYS = [
   "links",
   "teamCore",
   "teamCollaborators",
+  "teamAllies",
   "pageNotFound",
   "titleTeam",
   "titleContact",
@@ -44,7 +45,7 @@ export interface SiteContent {
   manifesto: ManifestoContent;
   contact: {
     prefix: string;
-    placeholder: string;
+    placeholders: string[];
     nameLabel: string;
     emailLabel: string;
     organizationLabel: string;
@@ -58,6 +59,7 @@ export interface SiteContent {
     emailSubject: string;
   };
   initiatives: { heading: string; intro: string };
+  team: { outro: string; careersEmail: string };
 }
 
 const uiProjection = UI_KEYS.map((k) => `"${k}": ${loc(k)}`).join(",\n    ");
@@ -80,7 +82,7 @@ const QUERY = /* groq */ `{
   },
   "contact": *[_id == "contactPage"][0]{
     "prefix": ${loc("prefix")},
-    "placeholder": ${loc("placeholder")},
+    "placeholders": ${loc("placeholders")},
     "nameLabel": ${loc("nameLabel")},
     "emailLabel": ${loc("emailLabel")},
     "organizationLabel": ${loc("organizationLabel")},
@@ -96,6 +98,10 @@ const QUERY = /* groq */ `{
   "initiatives": *[_id == "initiativesPage"][0]{
     "heading": ${loc("heading")},
     "intro": ${loc("intro")}
+  },
+  "team": *[_id == "teamPage"][0]{
+    "outro": ${loc("outro")},
+    careersEmail
   }
 }`;
 
@@ -112,6 +118,7 @@ interface RawSiteContent {
   } | null;
   contact: Record<string, string | null> | null;
   initiatives: { heading: string | null; intro: string | null } | null;
+  team: { outro: string | null; careersEmail: string | null } | null;
 }
 
 const s = (v: string | null | undefined) => v ?? "";
@@ -144,7 +151,11 @@ export async function getSiteContent(lang: Lang): Promise<SiteContent> {
     },
     contact: {
       prefix: s(raw.contact?.prefix),
-      placeholder: s(raw.contact?.placeholder),
+      // One example message per line; the contact form cycles through them.
+      placeholders: s(raw.contact?.placeholders)
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean),
       nameLabel: s(raw.contact?.nameLabel),
       emailLabel: s(raw.contact?.emailLabel),
       organizationLabel: s(raw.contact?.organizationLabel),
@@ -160,6 +171,10 @@ export async function getSiteContent(lang: Lang): Promise<SiteContent> {
     initiatives: {
       heading: s(raw.initiatives?.heading),
       intro: s(raw.initiatives?.intro),
+    },
+    team: {
+      outro: s(raw.team?.outro),
+      careersEmail: s(raw.team?.careersEmail),
     },
   };
 }

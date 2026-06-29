@@ -13,6 +13,7 @@ interface TeamContextValue {
   members: TeamMember[];
   core: TeamMember[];
   collaborators: TeamMember[];
+  allies: TeamMember[];
   loading: boolean;
   getMemberBySlug: (slug: string) => TeamMember | undefined;
   memberSlugByName: (name: string) => string | undefined;
@@ -33,6 +34,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
     members,
     core: members.filter((m) => m.memberType === "core"),
     collaborators: members.filter((m) => m.memberType === "collaborator"),
+    allies: members.filter((m) => m.memberType === "ally"),
     loading,
     getMemberBySlug: (slug) => findMemberBySlug(members, slug),
     memberSlugByName: (name) => findSlugByName(members, name),

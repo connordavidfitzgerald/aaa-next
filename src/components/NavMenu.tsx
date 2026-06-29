@@ -1,13 +1,7 @@
 import { LocaleLink } from "@/components/LocaleLink";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useT } from "@/lib/SiteContentProvider";
 import type { UiKey } from "@/lib/siteContent";
-
-const navHl = (
-  <span
-    data-nav-hl
-    className="absolute inset-0 bg-green scale-y-0 origin-top"
-  />
-);
 
 type MenuItem = { label: string; to?: string; href?: string };
 type MenuColumn = { labelKey: UiKey; to: string; items: MenuItem[] };
@@ -20,7 +14,7 @@ const columns: MenuColumn[] = [
     labelKey: "navProjects",
     to: "/#projects",
     items: [
-      { label: "Brique par brique", to: "/projects/bxb" },
+      { label: "Brique par Brique", to: "/projects/bxb" },
       { label: "chimie", to: "/projects/chimie" },
       { label: "CTRL+ALT", to: "/projects/ctrl" },
       { label: "Ecozoic", to: "/projects/ecozoic" },
@@ -29,11 +23,11 @@ const columns: MenuColumn[] = [
   },
   {
     labelKey: "navManifesto",
-    to: "/manifesto",
+    to: "/about",
     items: [
-      { label: "Approach", to: "/manifesto#capabilities" },
-      { label: "Capabilities", to: "/manifesto#capabilities" },
-      { label: "Labour of Love", to: "/manifesto#capabilities" },
+      { label: "Approach", to: "/about#capabilities" },
+      { label: "Capabilities", to: "/about#capabilities" },
+      { label: "Labour of Love", to: "/about#capabilities" },
     ],
   },
   {
@@ -41,8 +35,8 @@ const columns: MenuColumn[] = [
     to: "/team",
     items: [
       { label: "Jean-Julien Hazoumé", to: "/team/jean-julien" },
-      { label: "Jordane Kaluma", to: "/team/jordane" },
       { label: "Johnelle Smith", to: "/team/johnelle" },
+      { label: "Jordane Kaluma", to: "/team/jordane" },
       { label: "Luckensy Odigé", to: "/team/luckensy" },
       { label: "Reatchy Legros", to: "/team/reatchy" },
     ],
@@ -58,11 +52,32 @@ const columns: MenuColumn[] = [
   },
 ];
 
-function MenuItemLink({ item }: { item: MenuItem }) {
-  const className = "relative flex items-center w-full";
+// Hover bar: green on the navbar's white ground, black (inverted) on the
+// footer's green ground.
+function NavHl({ inverted }: { inverted: boolean }) {
+  return (
+    <span
+      data-nav-hl
+      className={`absolute inset-0 scale-y-0 origin-top ${
+        inverted ? "bg-black" : "bg-green"
+      }`}
+    />
+  );
+}
+
+function MenuItemLink({
+  item,
+  inverted,
+}: {
+  item: MenuItem;
+  inverted: boolean;
+}) {
+  const className = `relative flex items-center w-full ${
+    inverted ? "transition-colors hover:text-green" : ""
+  }`;
   const inner = (
     <>
-      {navHl}
+      <NavHl inverted={inverted} />
       <span className="relative z-10">{item.label}</span>
     </>
   );
@@ -90,11 +105,21 @@ function MenuItemLink({ item }: { item: MenuItem }) {
 
 // The shared navigation menu (without the "Applied Archive Atelier" wordmark).
 // Used by both the fixed Navbar and the page Footer so they stay identical.
-// When `expanded` is false the submenu lists collapse to their headers (the
-// Navbar drives this on scroll/hover); the Footer leaves it at the default so
-// it is always fully open.
-export function NavMenu({ expanded = true }: { expanded?: boolean }) {
+// When `expanded` is false the submenu lists (and the language switcher) collapse
+// to their headers (the Navbar drives this on scroll/hover); the Footer leaves it
+// open. `inverted` flips the hover treatment for the footer's green background.
+export function NavMenu({
+  expanded = true,
+  inverted = false,
+}: {
+  expanded?: boolean;
+  inverted?: boolean;
+}) {
   const t = useT();
+  const linkHover = inverted ? "transition-colors hover:text-green" : "";
+  const collapse = `hidden md:grid w-full transition-[grid-template-rows,opacity] duration-300 ease-out ${
+    expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+  }`;
   return (
     <div className="grid grid-cols-18 gap-2 text-xs leading-[120%] border-b-black">
       {columns.map((col) => (
@@ -103,33 +128,31 @@ export function NavMenu({ expanded = true }: { expanded?: boolean }) {
             to={col.to}
             data-nav-link
             data-nav-header
-            className="relative  flex items-start w-full h-fit col-span-2 md:col-span-1"
+            className={`relative  flex items-start w-full h-fit col-span-2 md:col-span-1 ${linkHover}`}
           >
-            {navHl}
+            <NavHl inverted={inverted} />
             <span className="relative z-10">{t(col.labelKey)}</span>
           </LocaleLink>
-          <div
-            className={`hidden md:grid w-full transition-[grid-template-rows,opacity] duration-300 ease-out ${
-              expanded
-                ? "grid-rows-[1fr] opacity-100"
-                : "grid-rows-[0fr] opacity-0"
-            }`}
-          >
+          <div className={collapse}>
             <div className="min-h-0 overflow-hidden flex flex-col w-full">
               {col.items.map((item) => (
-                <MenuItemLink key={item.label} item={item} />
+                <MenuItemLink
+                  key={item.label}
+                  item={item}
+                  inverted={inverted}
+                />
               ))}
             </div>
           </div>
         </div>
       ))}
-      <div className="col-span-2 flex flex-row justify-end items-start">
+      <div className="col-span-2 flex flex-col items-end">
         <LocaleLink
           to="/contact"
           data-nav-link
-          className="relative flex items-center justify-end w-full"
+          className={`relative flex items-center justify-end w-full ${linkHover}`}
         >
-          {navHl}
+          <NavHl inverted={inverted} />
           <span className="relative z-10 font-normal">
             <span className="md:hidden text-nowrap">
               {t("letsTalk")} <span className="text-[10px]">↗</span>
@@ -139,6 +162,17 @@ export function NavMenu({ expanded = true }: { expanded?: boolean }) {
             </span>
           </span>
         </LocaleLink>
+        {/* Language switcher: desktop only (mobile shows it in the footer),
+            spanning the column with the label right-aligned under the CTA, and
+            collapsing with the submenus. */}
+        <div className={collapse}>
+          <div className="min-h-0 overflow-hidden">
+            <LanguageSwitcher
+              inverted={inverted}
+              className="w-full justify-end"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

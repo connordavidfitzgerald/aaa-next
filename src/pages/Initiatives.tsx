@@ -18,7 +18,7 @@ export function InitiativesPage() {
       <div className="grid grid-cols-18 gap-2 flex-1 min-h-0">
         <aside
           data-sticky-info
-          className="md:col-span-4 col-span-18 self-start flex flex-col justify-start gap-2 pb-2 md:pb-0 bg-white sticky md:top-[calc(var(--nav-height)-0.5em)] top-0 z-40"
+          className="md:col-span-4 col-span-18 self-start flex flex-col justify-start gap-2 pb-2 md:pb-0 bg-white sticky md:top-[calc(var(--nav-height))] top-0 z-40"
         >
           <div className="flex md:hidden h-[calc(var(--nav-height))]"></div>
           <h1>{content?.initiatives.heading}</h1>

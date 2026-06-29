@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ViewTransition } from "@/components/ViewTransition";
 import { ProjectPreview } from "@/components/ProjectPreview";
-import { MuxAutoPlayer } from "@/components/MuxAutoPlayer";
+import { TeamVideoPlayer } from "@/components/TeamVideoPlayer";
 import { LocaleLink } from "@/components/LocaleLink";
 import { SanityImage } from "@/components/SanityImage";
 import { useLocale } from "@/lib/locale";
@@ -29,9 +29,12 @@ export interface MemberView {
   videoPlaybackId?: string;
   /** Caption shown beside the member video. */
   videoCaption?: string;
+  /** Video aspect ratio as a CSS value (e.g. "4 / 3"). */
+  videoAspect?: string;
   bio: string;
   instagram?: string;
   linkedin?: string;
+  email?: string;
   projects: MemberProject[];
 }
 
@@ -44,11 +47,16 @@ export function TeamView({
   sections,
   selected,
   work,
+  outro,
+  careersEmail,
   className = "",
 }: {
   sections?: Section[];
   selected?: MemberView;
   work?: Project[];
+  /** Closing invitation shown beneath the member sections (team list only). */
+  outro?: string;
+  careersEmail?: string;
   className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -361,7 +369,10 @@ export function TeamView({
               {selected.videoCaption}
             </div>
             <div className="md:col-span-7 md:col-start-3 col-span-9 w-full ">
-              <MuxAutoPlayer playbackId={selected.videoPlaybackId} />
+              <TeamVideoPlayer
+                playbackId={selected.videoPlaybackId}
+                aspectRatio={selected.videoAspect}
+              />
             </div>
           </div>
         )}
@@ -388,99 +399,131 @@ export function TeamView({
       ref={containerRef}
       className={`relative flex flex-col px-2 text-xs leading-[120%] pt-[calc(var(--nav-height))] md:pt-0 ${className}`}
     >
-      {/* The team image is fixed in the viewport centre and layered above the
+      {/* Sticky image + member lists share this wrapper, so the centred image
+          un-sticks at the end of the lists instead of overlaying the closing
+          section below it. */}
+      <div className="relative">
+        {/* The team image is fixed in the viewport centre and layered above the
           list. It defaults to the team photo; hovering a name swaps in that
           member's portrait (toggled in the hover effect above). It is
           pointer-events-none so the names underneath stay hoverable. */}
-      <div
-        data-team-sticky
-        className="sticky h-auto w-full aspect-square md:aspect-auto md:h-screen md:top-0 top-[calc(var(--nav-height))] w-full z-20 flex items-center justify-center px-2  pointer-events-none bg-white md:bg-transparent"
-      >
-        <div className="grid grid-cols-18 gap-2 w-full">
-          {/* The picture re-enables pointer events on mobile only (the sticky
+        <div
+          data-team-sticky
+          className="sticky h-auto w-full aspect-square md:aspect-auto md:h-screen md:top-0 top-[calc(var(--nav-height))] w-full z-20 flex items-center justify-center px-2  pointer-events-none bg-white md:bg-transparent"
+        >
+          <div className="grid grid-cols-18 gap-2 w-full">
+            {/* The picture re-enables pointer events on mobile only (the sticky
               wrapper is pointer-events-none so names stay tappable): tapping it
               jumps to whichever member the scroll-spy currently highlights. On
               desktop it stays click-through so hovering names drives the swap. */}
-          <div
-            onClick={() => {
-              if (activeSlugRef.current)
-                navigate(localizedPath(`/team/${activeSlugRef.current}`));
-            }}
-            className="col-start-5 col-span-10 md:col-start-8 md:col-span-4 aspect-square relative pointer-events-auto md:pointer-events-none cursor-pointer"
-          >
-            <ViewTransition name="team-hero">
-              <img
-                src={teamImg}
-                alt="team"
-                data-team-image="default"
-                className="absolute inset-0 w-full h-full object-cover block"
-              />
-            </ViewTransition>
-            {allMembers.map((member) =>
-              member.image ? (
-                <SanityImage
-                  key={member.key}
-                  src={member.image}
-                  alt={member.name}
-                  data-team-image={member.key}
-                  sizes="(max-width: 768px) 60vw, 25vw"
-                  className="absolute inset-0 w-full h-full object-cover block opacity-0"
+            <div
+              onClick={() => {
+                if (activeSlugRef.current)
+                  navigate(localizedPath(`/team/${activeSlugRef.current}`));
+              }}
+              className="col-start-5 col-span-10 md:col-start-8 md:col-span-4 aspect-square relative pointer-events-auto md:pointer-events-none cursor-pointer"
+            >
+              <ViewTransition name="team-hero">
+                <img
+                  src={teamImg}
+                  alt="team"
+                  data-team-image="default"
+                  className="absolute inset-0 w-full h-full object-cover block"
                 />
-              ) : null,
-            )}
+              </ViewTransition>
+              {allMembers.map((member) =>
+                member.image ? (
+                  <SanityImage
+                    key={member.key}
+                    src={member.image}
+                    alt={member.name}
+                    data-team-image={member.key}
+                    sizes="(max-width: 768px) 60vw, 25vw"
+                    className="absolute inset-0 w-full h-full object-cover block opacity-0"
+                  />
+                ) : null,
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* The team list. Each section's label sits above its rows. Rows are a
+        {/* The team list. Each section's label sits above its rows. Rows are a
           9-column grid: the name spans columns 1–6, with role and location
           sharing columns 7–9, justified to opposite edges. */}
-      <ViewTransition name="team-list">
-        <div className="md:-mt-40 relative z-10 flex flex-col tracking-[-0.01em] pb-2 gap-10">
-          {sections?.map((section) => (
-            <div key={section.label} className="flex flex-col pt-8">
-              <p className="opacity-70 md:pb-2 pb-0.5 border-b border-black/20">
-                {section.label}
-              </p>
-              {section.members.map((member) => {
-                const roles = member.role
-                  .split(",")
-                  .map((r) => r.trim())
-                  .filter(Boolean);
-                return (
-                  <LocaleLink
-                    key={member.key}
-                    to={`/team/${member.slug}`}
-                    data-team-row
-                    data-member={member.key}
-                    data-slug={member.slug}
-                    className="relative grid grid-cols-9 gap-x-2 items-center  border-b border-black/20 md:py-2 py-0.5"
-                  >
-                    <span
-                      data-team-hl
-                      className="absolute inset-0 bg-green scale-y-0 origin-top"
-                    />
-                    <p className="col-span-6 relative z-10 text-xs md:text-lg leading-none pt-1">
-                      {member.name}
-                    </p>
-                    <div className="col-span-3 relative z-10 flex justify-between items-center gap-x-2">
-                      <div className="flex flex-col">
-                        {roles.map((role) => (
-                          <span className="md:flex hidden" key={role}>
-                            {role}
-                          </span>
-                        ))}
+        <ViewTransition name="team-list">
+          <div className="md:-mt-40 relative z-10 flex flex-col tracking-[-0.01em] pb-2 gap-10">
+            {sections?.map((section) => (
+              <div key={section.label} className="flex flex-col pt-8">
+                <p className="opacity-70 md:pb-2 pb-0.5 border-b border-black/20">
+                  {section.label}
+                </p>
+                {section.members.map((member) => {
+                  const roles = member.role
+                    .split(",")
+                    .map((r) => r.trim())
+                    .filter(Boolean);
+                  return (
+                    <LocaleLink
+                      key={member.key}
+                      to={`/team/${member.slug}`}
+                      data-team-row
+                      data-member={member.key}
+                      data-slug={member.slug}
+                      className="relative grid grid-cols-9 gap-x-2 items-center  border-b border-black/20 md:py-2 py-0.5"
+                    >
+                      <span
+                        data-team-hl
+                        className="absolute inset-0 bg-green scale-y-0 origin-top"
+                      />
+                      <p className="col-span-6 relative z-10 text-xs md:text-lg leading-none pt-1">
+                        {member.name}
+                      </p>
+                      <div className="col-span-3 relative z-10 flex justify-between items-center gap-x-2">
+                        <div className="flex flex-col">
+                          {roles.map((role) => (
+                            <span className="md:flex hidden" key={role}>
+                              {role}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="pr-1">{member.location}</p>
                       </div>
-                      <p className="pr-1">{member.location}</p>
-                    </div>
-                  </LocaleLink>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-        <div className="h-20 flex md:h-[50vh] md:min-h-80"></div>
-      </ViewTransition>
+                    </LocaleLink>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </ViewTransition>
+
+        {/* Closing invitation lives INSIDE the sticky wrapper and is a full
+            viewport tall. Because it's the wrapper's last child, the centred
+            image stays fixed until it reaches the middle of this section, then
+            scrolls away together with it. The text sits in the lower half,
+            beneath where the image lands. */}
+        {outro && (
+          <section className="relative z-10 h-screen grid grid-cols-9 items-end gap-2 pb-2">
+            <p className="text-lg leading-[105%] tracking-[-0.02em] col-span-5">
+              {outro}
+            </p>
+            {careersEmail && (
+              <a
+                href={`mailto:${careersEmail}`}
+                data-nav-link
+                className="relative flex flex-row items-end w-full text-xs col-span-4 justify-end"
+              >
+                <span
+                  data-nav-hl
+                  className="absolute inset-0 bg-green scale-y-0 origin-top"
+                />
+                <span className="relative z-10">
+                  {careersEmail} <span className="text-[10px]">↗</span>
+                </span>
+              </a>
+            )}
+          </section>
+        )}
+      </div>
     </main>
   );
 }
@@ -566,8 +609,9 @@ function MemberDetail({ member }: { member: MemberView }) {
           ))}
         </div>
 
-        {/* Member's links, stacked in the last two columns and right-aligned. */}
-        {(member.instagram || member.linkedin) && (
+        {/* Member's links, stacked in the last two columns and right-aligned.
+            Each link only renders when its field is filled in. */}
+        {(member.instagram || member.linkedin || member.email) && (
           <div className="col-span-8 md:col-span-2 md:col-start-17 grid grid-cols-2 md:flex md:flex-col gap-2 md:gap-0 md:items-end items-start md:text-right text-left ">
             {member.instagram && (
               <a
@@ -587,6 +631,11 @@ function MemberDetail({ member }: { member: MemberView }) {
                 className="w-fit"
               >
                 LinkedIn <span className="text-[10px] align-baseline">↗</span>
+              </a>
+            )}
+            {member.email && (
+              <a href={`mailto:${member.email}`} className="w-fit">
+                Email <span className="text-[10px] align-baseline">↗</span>
               </a>
             )}
           </div>

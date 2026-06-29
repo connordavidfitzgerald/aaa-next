@@ -1,9 +1,9 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import { Layout } from "@/components/Layout";
 import { PageTransitionProvider } from "@/components/PageTransition";
 import { TeamProvider } from "@/lib/TeamContext";
-import { LocaleProvider, type Lang } from "@/lib/locale";
+import { LocaleProvider, useLocale, type Lang } from "@/lib/locale";
 import { SiteContentProvider } from "@/lib/SiteContentProvider";
 import { HomePage } from "@/pages/Home";
 import { ManifestoPage } from "@/pages/Manifesto";
@@ -32,12 +32,20 @@ function LocaleLayout({ lang }: { lang: Lang }) {
   );
 }
 
+// Redirects the legacy /manifesto slug to /about, preserving the active language.
+function RedirectToAbout() {
+  const { localizedPath } = useLocale();
+  return <Navigate to={localizedPath("/about")} replace />;
+}
+
 // The same page tree, mounted under both language roots (fresh elements each
 // call so the two trees never share element identity).
 const pageRoutes = () => (
   <>
     <Route index element={<HomePage />} />
-    <Route path="manifesto" element={<ManifestoPage />} />
+    <Route path="about" element={<ManifestoPage />} />
+    {/* Old slug → new slug, so existing /manifesto links keep working. */}
+    <Route path="manifesto" element={<RedirectToAbout />} />
     <Route path="initiatives" element={<InitiativesPage />} />
     <Route path="team" element={<TeamPage />} />
     <Route path="team/:member" element={<MemberPage />} />

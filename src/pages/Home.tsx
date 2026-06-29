@@ -75,7 +75,7 @@ export function HomePage() {
           </span>
         </h3>
         <LocaleLink
-          to="/manifesto"
+          to="/about"
           data-nav-link
           className="relative flex items-center w-fit cursor-pointer text-xs tracking-[-0.01em]"
         >

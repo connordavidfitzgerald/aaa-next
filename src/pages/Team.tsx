@@ -5,14 +5,15 @@ import { getProjects, type Project } from "@/lib/projects";
 import { useQuery } from "@/lib/useQuery";
 import { useTitle } from "@/lib/useTitle";
 import { useLocale } from "@/lib/locale";
-import { useT } from "@/lib/SiteContentProvider";
+import { useSiteContent, useT } from "@/lib/SiteContentProvider";
 
 export function TeamPage() {
   const { lang } = useLocale();
+  const { content } = useSiteContent();
   const t = useT();
   useTitle(`Applied Archive Atelier — ${t("titleTeam")}`);
 
-  const { core, collaborators } = useTeam();
+  const { core, collaborators, allies } = useTeam();
   const { data: projects } = useQuery(() => getProjects(lang), [lang]);
   const allProjects = projects ?? [];
 
@@ -41,7 +42,18 @@ export function TeamPage() {
       label: t("teamCollaborators"),
       members: [...collaborators].sort(byName).map(withProjects),
     },
-  ];
+    {
+      label: t("teamAllies"),
+      members: [...allies].sort(byName).map(withProjects),
+    },
+  ].filter((section) => section.members.length > 0);
 
-  return <TeamView sections={sections} className="min-h-200" />;
+  return (
+    <TeamView
+      sections={sections}
+      outro={content?.team.outro}
+      careersEmail={content?.team.careersEmail}
+      className="min-h-200"
+    />
+  );
 }

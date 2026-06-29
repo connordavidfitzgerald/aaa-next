@@ -1,35 +1,118 @@
-import { useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useLocation } from "react-router-dom";
 
 import { NavMenu } from "@/components/NavMenu";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { usePageTransition } from "@/components/PageTransition";
-import { useLocale, type Lang } from "@/lib/locale";
 import aSvg from "@/assets/svgs/A.svg";
 import periodSvg from "@/assets/svgs/period.svg";
 
-// EN / FR switch: links to the current page in the other language and saves the
-// choice so the auto-detect never overrides it.
-function LangToggle() {
-  const { lang, otherLang, otherLangPath, persist } = useLocale();
-  const render = (l: Lang) =>
-    l === lang ? (
-      <span className="font-bold">{l.toUpperCase()}</span>
-    ) : (
-      <Link
-        to={otherLangPath}
-        onClick={() => persist(otherLang)}
-        data-no-transition
-        className="opacity-50 hover:opacity-100"
-      >
-        {l.toUpperCase()}
-      </Link>
-    );
+// Newsletter sign-ups POST here. Placeholder: deploy a Google Apps Script Web App
+// bound to your sheet (doPost(e) → sheet.appendRow([e.parameter.email, new Date()]),
+// deployed as "Anyone"), then paste its /exec URL below. Until then submits no-op.
+const NEWSLETTER_ENDPOINT =
+  "https://script.google.com/macros/s/REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec";
+
+// Reusable hover bar (scaleY animated by NavInteractions). On the footer's green
+// ground it's inverted vs the navbar: a black bar with the label turning green.
+const NAV_HL = (
+  <span
+    data-nav-hl
+    className="absolute inset-0 bg-black scale-y-0 origin-top"
+  />
+);
+
+// A footer contact link that shows its full label above 1200px and a short label
+// at/below it (per design).
+function FooterLink({
+  href,
+  full,
+  short,
+  external = false,
+}: {
+  href: string;
+  full: string;
+  short: string;
+  external?: boolean;
+}) {
   return (
-    <div className="flex gap-1.5 text-xs" aria-label="Language">
-      {render("en")}
-      <span className="opacity-30">/</span>
-      {render("fr")}
-    </div>
+    <a
+      href={href}
+      data-nav-link
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      className="relative flex items-center w-fit md:w-full col-span-2 transition-colors hover:text-green"
+    >
+      {NAV_HL}
+      <span className="relative z-10">
+        <span className="hidden min-[1201px]:inline">{full}</span>
+        <span className="min-[1201px]:hidden">{short}</span>
+      </span>
+    </a>
+  );
+}
+
+// Newsletter form. Submits the email to NEWSLETTER_ENDPOINT (Google Sheet via
+// Apps Script). Uses no-cors, so the response is opaque — we treat a completed
+// request as success.
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">(
+    "idle",
+  );
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (status === "sending" || !email) return;
+    setStatus("sending");
+    try {
+      await fetch(NEWSLETTER_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ email }).toString(),
+      });
+      setStatus("done");
+      setEmail("");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  const label =
+    status === "sending"
+      ? "…"
+      : status === "done"
+        ? "Subscribed ✓"
+        : status === "error"
+          ? "Try again"
+          : "Subscribe";
+
+  return (
+    <form
+      onSubmit={onSubmit}
+      className="col-span-3 flex flex-row justify-between items-center gap-2 w-full pt-2 md:pt-0"
+    >
+      <input
+        type="email"
+        name="email"
+        required
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (status !== "idle") setStatus("idle");
+        }}
+        placeholder="Email"
+        className="flex grow bg-transparent focus:outline-none placeholder:text-black/50"
+      />
+      <button
+        type="submit"
+        data-nav-link
+        className="relative flex items-center w-fit shrink-0 transition-colors hover:text-green"
+      >
+        {NAV_HL}
+        <span className="relative z-10">{label}</span>
+      </button>
+    </form>
   );
 }
 
@@ -239,15 +322,36 @@ export function Footer() {
         className="fixed inset-x-0 bottom-0 z-0 flex flex-col justify-between h-[max(100vh,600px)] pb-2 px-2 bg-green"
       >
         <div className=" pt-2 tracking-[-0.01em]">
-          <NavMenu />
-          <div className="flex justify-end pt-4">
-            <LangToggle />
-          </div>
+          <NavMenu inverted />
         </div>
-
+        <div className="flex flex-col text-xs w-full md:grid md:grid-cols-9 md:gap-2">
+          {/* Instagram shares a row with the language switcher on mobile (the
+              switcher lives in the nav menu on desktop). md:contents drops the
+              link back into the grid on desktop, where the switcher is hidden. */}
+          <div className="flex flex-row justify-between items-center w-full md:contents">
+            <FooterLink
+              href="https://instagram.com/appliedarchiveatelier"
+              full="@appliedarchiveatelier"
+              short="Instagram"
+              external
+            />
+            <LanguageSwitcher inverted className="md:hidden w-fit" />
+          </div>
+          <FooterLink
+            href="mailto:info@appliedarchiveatelier.com"
+            full="info@appliedarchiveatelier.com"
+            short="Contact"
+          />
+          <FooterLink
+            href="mailto:careers@appliedarchiveatelier.com"
+            full="careers@appliedarchiveatelier.com"
+            short="Careers"
+          />
+          <NewsletterForm />
+        </div>
         <div
           ref={wordRef}
-          className="flex justify-between items-end w-full "
+          className="flex justify-between items-end w-full  "
           style={{ willChange: "font-size" }}
           role="img"
           aria-label="Applied Archive Atelier"

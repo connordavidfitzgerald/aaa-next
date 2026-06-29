@@ -41,9 +41,11 @@ function ScrollManager() {
 
 export function Layout() {
   const { pathname } = useLocation();
-  // No footer on the contact and team-list pages; the member view (/team/:slug)
-  // and every other page keep it.
-  const hideFooter = pathname === "/contact";
+  // No footer on the contact and about pages (in either language); the member
+  // view (/team/:slug) and every other page keep it. Strip the /fr locale prefix
+  // so both language trees match.
+  const bare = pathname.replace(/^\/fr(?=\/|$)/, "") || "/";
+  const hideFooter = bare === "/contact" || bare === "/about";
 
   return (
     <>

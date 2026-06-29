@@ -63,13 +63,9 @@ const PROJECT_FIELDS = /* groq */ `
   "links": links[]{"label": ${loc("label")}, href},
   "media": media[]{
     "items": items[]{
-      _type == "mediaImage" => {"kind": "image", "src": image.asset->url, "alt": ${loc("alt")}},
-      _type == "mediaVideo" => {"kind": "video", "muxPlaybackId": coalesce(video.asset->playbackId, muxPlaybackId)}
+      _type == "mediaImage" => {"kind": "image", "src": image.asset->url, "alt": ${loc("alt")}, featured, previewWidth, previewHideOnMobile},
+      _type == "mediaVideo" => {"kind": "video", "muxPlaybackId": coalesce(video.asset->playbackId, muxPlaybackId), featured, previewWidth, previewHideOnMobile}
     }
-  },
-  "previewMedia": previewMedia[]{
-    _type == "previewImage" => {"kind": "image", "src": image.asset->url, "alt": ${loc("alt")}, "width": width, "hideOnMobile": hideOnMobile},
-    _type == "previewVideo" => {"kind": "video", "muxPlaybackId": coalesce(video.asset->playbackId, muxPlaybackId), "width": width, "hideOnMobile": hideOnMobile}
   }
 `;
 
@@ -77,14 +73,19 @@ const PROJECT_FIELDS = /* groq */ `
 // playback ID rather than storing one.
 const muxThumb = (id: string) => `https://image.mux.com/${id}/thumbnail.jpg`;
 
-type RawItem =
-  | { kind: "image"; src: string | null; alt: string | null }
-  | { kind: "video"; muxPlaybackId: string };
-
-type RawPreviewItem = RawItem & {
-  width: number | null;
-  hideOnMobile: boolean | null;
+// Each media item carries optional homepage-preview controls (set via the
+// "Feature in homepage preview" toggle on the item in the Studio).
+type PreviewControls = {
+  featured: boolean | null;
+  previewWidth: number | null;
+  previewHideOnMobile: boolean | null;
 };
+
+type RawItem = PreviewControls &
+  (
+    | { kind: "image"; src: string | null; alt: string | null }
+    | { kind: "video"; muxPlaybackId: string }
+  );
 
 interface RawProject {
   id: string;
@@ -100,7 +101,6 @@ interface RawProject {
   credits: { name: string; role: string | null }[] | null;
   links: ProjectLink[] | null;
   media: { items: RawItem[] }[] | null;
-  previewMedia: RawPreviewItem[] | null;
 }
 
 const toItem = (raw: RawItem): MediaItem =>
@@ -108,15 +108,19 @@ const toItem = (raw: RawItem): MediaItem =>
     ? { kind: "image", src: raw.src ?? "", alt: raw.alt ?? undefined }
     : { kind: "video", muxPlaybackId: raw.muxPlaybackId };
 
-const normalizePreviewMedia = (
-  items: RawProject["previewMedia"],
+// Homepage preview = the media items flagged "featured", in media order, each
+// at its chosen width. No separate upload — the preview reuses the body media.
+const buildPreviewMedia = (
+  rows: RawProject["media"],
 ): PreviewItem[] | undefined => {
-  const out = (items ?? [])
+  const out = (rows ?? [])
+    .flatMap((row) => row.items)
+    .filter((raw) => raw.featured)
     .filter((raw) => (raw.kind === "image" ? raw.src : raw.muxPlaybackId))
     .map((raw) => ({
       ...toItem(raw),
-      width: raw.width ?? 2,
-      hideOnMobile: raw.hideOnMobile ?? false,
+      width: raw.previewWidth ?? 2,
+      hideOnMobile: raw.previewHideOnMobile ?? false,
     }));
   return out.length > 0 ? out : undefined;
 };
@@ -148,7 +152,7 @@ const normalizeProject = (raw: RawProject): Project => ({
     : undefined,
   links: raw.links ?? undefined,
   media: normalizeMedia(raw.media),
-  previewMedia: normalizePreviewMedia(raw.previewMedia),
+  previewMedia: buildPreviewMedia(raw.media),
 });
 
 export async function getProjects(lang: Lang): Promise<Project[]> {

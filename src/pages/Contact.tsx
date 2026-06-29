@@ -55,35 +55,65 @@ export function ContactPage() {
     return () => root.removeAttribute("data-contact");
   }, []);
 
-  // The type-on intro, replayed whenever the form is reset (runKey changes) or
-  // when the CMS copy arrives.
+  // The greeting prefix ("Hi there,") types once, then the example messages
+  // cycle (type → hold → delete → next) as the dimmed placeholder. Replayed on
+  // reset (runKey) and when the CMS copy arrives; pauses while the visitor types.
   const prefixText = c?.prefix ?? "";
-  const exampleText = c?.placeholder ?? "";
+  const placeholderKey = (c?.placeholders ?? []).join("\n");
+  const hasInputRef = useRef(false);
+  useEffect(() => {
+    hasInputRef.current = hasInput;
+  }, [hasInput]);
+
   useEffect(() => {
     setTypedPrefix("");
     setPlaceholder("");
-    if (!prefixText && !exampleText) return;
+    const messages = c?.placeholders ?? [];
+    if (!prefixText && messages.length === 0) return;
 
+    // Reduced motion: show the prefix and the first message, no animation.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setTypedPrefix(prefixText);
-      setPlaceholder(exampleText);
+      setPlaceholder(messages[0] ?? "");
       return;
     }
 
-    const full = prefixText + exampleText;
-    let i = 0;
+    const DELETE_SPEED = 28; // ms per character while deleting
+    const HOLD_FULL = 2400; // pause on a fully-typed message
+    const HOLD_EMPTY = 400; // pause before the next message
+    let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
-
-    const type = () => {
-      i += 1;
-      setTypedPrefix(full.slice(0, Math.min(i, prefixText.length)));
-      setPlaceholder(i > prefixText.length ? full.slice(prefixText.length, i) : "");
-      if (i < full.length) timer = setTimeout(type, TYPE_SPEED);
+    const next = (ms: number, fn: () => void) => {
+      timer = setTimeout(() => {
+        if (!cancelled) fn();
+      }, ms);
     };
 
-    timer = setTimeout(type, START_DELAY);
-    return () => clearTimeout(timer);
-  }, [runKey, prefixText, exampleText]);
+    const typePrefix = (i: number) => {
+      setTypedPrefix(prefixText.slice(0, i));
+      if (i < prefixText.length) next(TYPE_SPEED, () => typePrefix(i + 1));
+      else if (messages.length) next(START_DELAY, () => typeMsg(0, 0));
+    };
+    const typeMsg = (m: number, i: number) => {
+      // Hold position (don't re-render) while the visitor is typing.
+      if (hasInputRef.current) return next(250, () => typeMsg(m, i));
+      setPlaceholder(messages[m].slice(0, i));
+      if (i < messages[m].length) next(TYPE_SPEED, () => typeMsg(m, i + 1));
+      else next(HOLD_FULL, () => deleteMsg(m, messages[m].length));
+    };
+    const deleteMsg = (m: number, i: number) => {
+      if (hasInputRef.current) return next(250, () => deleteMsg(m, i));
+      setPlaceholder(messages[m].slice(0, i));
+      if (i > 0) next(DELETE_SPEED, () => deleteMsg(m, i - 1));
+      else next(HOLD_EMPTY, () => typeMsg((m + 1) % messages.length, 0));
+    };
+
+    next(START_DELAY, () => typePrefix(0));
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [runKey, prefixText, placeholderKey]);
 
   // After a reset, the fresh message + form are committed behind the covering
   // white disc; collapse both discs to reveal the pristine page underneath.

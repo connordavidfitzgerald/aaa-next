@@ -14,15 +14,20 @@ export interface TeamMember {
   videoPlaybackId?: string;
   /** Caption shown beside the member video. */
   videoCaption?: string;
+  /** Video aspect ratio as a CSS value (e.g. "4 / 3"), so the player reserves
+   *  the right box before metadata loads. */
+  videoAspect?: string;
   bio: string;
   instagram: string;
   linkedin: string;
-  memberType: "core" | "collaborator";
+  email: string;
+  memberType: "core" | "collaborator" | "ally";
   projectIds: string[];
 }
 
-interface RawTeamMember extends Omit<TeamMember, "services"> {
+interface RawTeamMember extends Omit<TeamMember, "services" | "videoAspect"> {
   services: string | null;
+  videoAspect: string | null;
 }
 
 // GROQ projection for a teamMember document. `image` resolves to a CDN URL and
@@ -39,9 +44,11 @@ const MEMBER_FIELDS = /* groq */ `
   "image": coalesce(image.asset->url, ""),
   "videoPlaybackId": video.asset->playbackId,
   "videoCaption": ${loc("videoCaption")},
+  "videoAspect": video.asset->data.aspect_ratio,
   "bio": coalesce(${loc("bio")}, ""),
   "instagram": coalesce(instagram, ""),
   "linkedin": coalesce(linkedin, ""),
+  "email": coalesce(email, ""),
   memberType,
   "projectIds": coalesce(projects[]->slug.current, [])
 `;
@@ -60,7 +67,12 @@ export async function getTeamMembers(lang: Lang): Promise<TeamMember[]> {
     `*[_type == "teamMember"] | order(_createdAt asc){${MEMBER_FIELDS}}`,
     { lang },
   );
-  return raw.map((m) => ({ ...m, services: splitServices(m.services) }));
+  return raw.map((m) => ({
+    ...m,
+    services: splitServices(m.services),
+    // Mux reports "W:H"; CSS aspect-ratio wants "W / H".
+    videoAspect: m.videoAspect ? m.videoAspect.replace(":", " / ") : undefined,
+  }));
 }
 
 // Pure lookups over an already-loaded member list. The TeamProvider binds these
