@@ -136,10 +136,7 @@ export function ManifestoPage() {
         {/* Structured reference panel. The poetic scroll above resolves into a
             plain editorial index of the three pillars, laid out on the site's
             18-column grid: Approach (4) · Manifesto (6) · Capabilities (8). */}
-        <section
-          id="capabilities"
-          className="w-full h-screen flex flex-col gap-0 justify-start"
-        >
+        <section className="w-full h-screen flex flex-col gap-0 justify-start">
           <div className="h-[calc(var(--nav-height))]"></div>
           <div className="grid grid-cols-18 gap-2 gap-y-6 text-xs leading-[1.2] tracking-[-0.01em] bg-green px-2 pt-2 grow">
             {/* Approach */}
@@ -197,6 +194,10 @@ export function ManifestoPage() {
                 ))}
               </div>
             </div>
+          </div>
+          <div className="flex absolute bottom-0">
+            <section id="capabilities" /> <section id="manifesto" />{" "}
+            <section id="approach" />
           </div>
         </section>
       </div>

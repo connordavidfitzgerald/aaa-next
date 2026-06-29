@@ -25,8 +25,8 @@ const columns: MenuColumn[] = [
     labelKey: "navManifesto",
     to: "/about",
     items: [
-      { label: "Manifesto", to: "/about#capabilities" },
-      { label: "Approach", to: "/about#capabilities" },
+      { label: "Manifesto", to: "/about#manifesto" },
+      { label: "Approach", to: "/about#approach" },
       { label: "Capabilities", to: "/about#capabilities" },
     ],
   },
