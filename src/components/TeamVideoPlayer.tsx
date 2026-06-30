@@ -39,7 +39,7 @@ export function TeamVideoPlayer({
   const scrubbing = useRef(false);
 
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -119,7 +119,10 @@ export function TeamVideoPlayer({
           "--media-object-fit": "contain",
         }}
         playsInline
-        preload="metadata"
+        autoPlay="muted"
+        muted
+        loop
+        preload="auto"
       />
 
       {/* Click anywhere on the frame to play/pause (sits below the controls). */}

@@ -35,14 +35,25 @@ export function ManifestoPage() {
     if (!manifesto) return [];
     const out: { text: string; id?: string }[] = [];
     manifesto.stanzas.forEach((stanza, si) => {
-      stanza.split("\n").forEach((l, li) =>
-        out.push({ text: l, id: si === 0 && li === 0 ? "manifesto" : undefined }),
+      const stanzaLines = stanza.split("\n");
+      stanzaLines.forEach((l, li) =>
+        out.push({
+          // #manifesto sits on the last line of the first stanza so jumping to it
+          // lands with the whole first stanza revealed (see the scroll-mt below).
+          text: l,
+          id:
+            si === 0 && li === stanzaLines.length - 1 ? "manifesto" : undefined,
+        }),
       );
       out.push({ text: "" });
     });
     out.push({ text: "" }, { text: "" }, { text: "" });
     if (manifesto.approachLabel)
-      out.push({ text: manifesto.approachLabel, id: "approach" }, { text: "" }, { text: "" });
+      out.push(
+        { text: manifesto.approachLabel, id: "approach" },
+        { text: "" },
+        { text: "" },
+      );
     manifesto.approach.forEach((a) => {
       out.push({ text: `${a.term}.` });
       toClauses(a.description).forEach((c) => out.push({ text: c }));
@@ -128,7 +139,17 @@ export function ManifestoPage() {
               <div
                 key={i}
                 id={line.id}
-                className={line.id ? "scroll-mt-[var(--nav-height)]" : undefined}
+                className={
+                  // #manifesto: land the first stanza's last line near the reveal
+                  // line (~78vh) so the first four lines are fully revealed.
+                  // #approach: land just below the navbar so the last manifesto
+                  // line sits under it / out of view.
+                  line.id === "manifesto"
+                    ? "scroll-mt-[78vh]"
+                    : line.id === "approach"
+                      ? "scroll-mt-[var(--nav-height)]"
+                      : undefined
+                }
               >
                 <span
                   data-line
@@ -148,22 +169,7 @@ export function ManifestoPage() {
             18-column grid: Approach (4) · Manifesto (6) · Capabilities (8). */}
         <section className="w-full min-h-[50vh] flex flex-col gap-0 justify-start">
           <div className="h-[calc(var(--nav-height))]"></div>
-          <div className="grid grid-cols-18 gap-2 gap-y-6 text-xs leading-[1.2] tracking-[-0.01em] bg-green px-2 pt-2 grow">
-            {/* Approach */}
-            <div className="col-span-18 md:col-span-4 flex flex-col gap-2">
-              <p className="pb-1  border-b border-black/20">
-                {manifesto?.approachLabel}
-              </p>
-              <div className="flex flex-col gap-2">
-                {manifesto?.approach.map(({ term, description }) => (
-                  <div key={term} className="flex flex-col">
-                    <p>{term}</p>
-                    <p className="">{description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
+          <div className="grid grid-cols-18 gap-2 gap-y-6 text-xs leading-[1.2] tracking-[-0.01em] bg-green px-2 pt-2 grow pb-2">
             {/* Manifesto */}
             <div className="col-span-18 md:col-span-8 flex flex-col gap-2">
               <p className="pb-0.5 md:pb-1 border-b border-black/20">
@@ -185,7 +191,20 @@ export function ManifestoPage() {
                 })}
               </div>
             </div>
-
+            {/* Approach */}
+            <div className="col-span-18 md:col-span-4 flex flex-col gap-2">
+              <p className="pb-1  border-b border-black/20">
+                {manifesto?.approachLabel}
+              </p>
+              <div className="flex flex-col gap-2">
+                {manifesto?.approach.map(({ term, description }) => (
+                  <div key={term} className="flex flex-col">
+                    <p>{term}</p>
+                    <p className="">{description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
             {/* Capabilities */}
             <div className="col-span-18 md:col-span-6 flex flex-col gap-2">
               <p className="pb-0.5 md:pb-1 border-b border-black/20">

@@ -27,7 +27,7 @@ function useIsMobile() {
 type Lenis = {
   scrollTo: (
     t: number | string | HTMLElement,
-    opts?: { immediate?: boolean },
+    opts?: { immediate?: boolean; offset?: number },
   ) => void;
 };
 
@@ -45,7 +45,12 @@ function ScrollManager() {
     if (hash) {
       const el = document.querySelector(hash);
       if (el) {
-        if (lenis) lenis.scrollTo(el as HTMLElement, { immediate: true });
+        // Lenis ignores CSS scroll-margin, so apply the element's
+        // scroll-margin-top as a negative offset (native scrollIntoView honors
+        // it already).
+        const smt =
+          parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        if (lenis) lenis.scrollTo(el as HTMLElement, { immediate: true, offset: -smt });
         else el.scrollIntoView();
         return;
       }
