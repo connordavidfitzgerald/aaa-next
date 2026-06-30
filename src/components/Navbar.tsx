@@ -188,11 +188,7 @@ export function Navbar() {
     >
       <LocaleLink
         to="/"
-        className="col-span-12 flex flex-row w-full justify-between items-start h-fit leading-[82%] tracking-[-0.04em]"
-        style={{
-          fontSize:
-            "calc(var(--text-header) * (1 - var(--nav-shrink)) + var(--text-sm) * var(--nav-shrink))",
-        }}
+        className="nav-wordmark col-span-12 flex flex-row w-full justify-between items-start h-fit leading-[82%] tracking-[-0.04em]"
       >
         <h1 className="font-bold text-left flex grow">APPLIED</h1>
         <h1 className="font-bold text-center flex grow">ARCHIVE</h1>

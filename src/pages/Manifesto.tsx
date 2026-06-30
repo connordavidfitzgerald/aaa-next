@@ -114,7 +114,7 @@ export function ManifestoPage() {
         className="relative z-10 -mt-[100vh] flex flex-col items-center gap-2 "
       >
         <div className="h-screen" aria-hidden></div>
-        <div className=" text-center text-lg uppercase font-bold tracking-[-0.022em] leading-[80%]">
+        <div className=" text-center text-lg uppercase font-bold tracking-[-0.022em] leading-[100%]">
           {lines.map((line, i) =>
             line === "" ? (
               <div key={i} aria-hidden className="h-[1.1em]" />
