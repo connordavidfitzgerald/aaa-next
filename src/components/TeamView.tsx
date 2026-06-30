@@ -160,8 +160,14 @@ export function TeamView({
             }
           });
 
-          activeSlugRef.current = closestSlug;
-          activateMember(closestMember);
+          // Once scrolled past the last name, clear the selection so the default
+          // team photo shows again instead of staying stuck on the last person.
+          const lastRow = rows[rows.length - 1];
+          const pastEnd =
+            !!lastRow && lastRow.getBoundingClientRect().bottom < detectionPoint;
+
+          activeSlugRef.current = pastEnd ? null : closestSlug;
+          activateMember(pastEnd ? null : closestMember);
         };
 
         updateClosest();
