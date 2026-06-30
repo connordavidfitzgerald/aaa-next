@@ -54,7 +54,7 @@ export function HomePage() {
     <main className="flex flex-col justify-start px-2 pb-2">
       <section
         id="video"
-        className="h-screen flex flex-col justify-end items-center pb-2 md:min-h-200"
+        className="h-dvh flex flex-col justify-end items-center pb-2 md:min-h-200"
       >
         <HomeHeroMux />
       </section>
