@@ -49,6 +49,7 @@ export function TeamView({
   work,
   outro,
   careersEmail,
+  ctaLabel,
   className = "",
 }: {
   sections?: Section[];
@@ -57,6 +58,8 @@ export function TeamView({
   /** Closing invitation shown beneath the member sections (team list only). */
   outro?: string;
   careersEmail?: string;
+  /** Label for the careers link (falls back to the email address). */
+  ctaLabel?: string;
   className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -496,34 +499,37 @@ export function TeamView({
           </div>
         </ViewTransition>
 
-        {/* Closing invitation lives INSIDE the sticky wrapper and is a full
-            viewport tall. Because it's the wrapper's last child, the centred
-            image stays fixed until it reaches the middle of this section, then
-            scrolls away together with it. The text sits in the lower half,
-            beneath where the image lands. */}
-        {outro && (
-          <section className="relative z-10 h-screen grid grid-cols-9 items-end gap-2 pb-2">
-            <p className="text-lg leading-[105%] tracking-[-0.02em] col-span-5">
-              {outro}
-            </p>
+        {/* Buffer (≈ half the viewport) so the fixed image stays centred until
+            it lines up with the last name, then releases and scrolls up with the
+            list rather than stopping early. */}
+        <div aria-hidden className="h-[50vh]" />
+      </div>
+
+      {/* Closing invitation, below the sticky range. Text + link centred in the
+          middle 5 of a 9-column grid. */}
+      {outro && (
+        <section className="grid grid-cols-9 items-center min-h-[70vh] -mt-[50vh] pb-2">
+          <div className="col-start-3 col-span-5 flex flex-col items-center gap-4 text-center">
+            <p className="text-lg leading-[105%] tracking-[-0.02em]">{outro}</p>
             {careersEmail && (
               <a
                 href={`mailto:${careersEmail}`}
                 data-nav-link
-                className="relative flex flex-row items-end w-full text-xs col-span-4 justify-end"
+                className="relative flex items-center w-fit text-xs"
               >
                 <span
                   data-nav-hl
                   className="absolute inset-0 bg-green scale-y-0 origin-top"
                 />
                 <span className="relative z-10">
-                  {careersEmail} <span className="text-[10px]">↗</span>
+                  {ctaLabel || careersEmail}{" "}
+                  <span className="text-[10px]">↗</span>
                 </span>
               </a>
             )}
-          </section>
-        )}
-      </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

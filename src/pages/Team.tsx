@@ -53,6 +53,7 @@ export function TeamPage() {
       sections={sections}
       outro={content?.team.outro}
       careersEmail={content?.team.careersEmail}
+      ctaLabel={content?.team.ctaLabel}
       className="min-h-200"
     />
   );

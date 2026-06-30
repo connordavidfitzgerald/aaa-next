@@ -59,7 +59,7 @@ export interface SiteContent {
     emailSubject: string;
   };
   initiatives: { heading: string; intro: string };
-  team: { outro: string; careersEmail: string };
+  team: { outro: string; careersEmail: string; ctaLabel: string };
 }
 
 const uiProjection = UI_KEYS.map((k) => `"${k}": ${loc(k)}`).join(",\n    ");
@@ -101,7 +101,8 @@ const QUERY = /* groq */ `{
   },
   "team": *[_id == "teamPage"][0]{
     "outro": ${loc("outro")},
-    careersEmail
+    careersEmail,
+    "ctaLabel": ${loc("ctaLabel")}
   }
 }`;
 
@@ -118,7 +119,11 @@ interface RawSiteContent {
   } | null;
   contact: Record<string, string | null> | null;
   initiatives: { heading: string | null; intro: string | null } | null;
-  team: { outro: string | null; careersEmail: string | null } | null;
+  team: {
+    outro: string | null;
+    careersEmail: string | null;
+    ctaLabel: string | null;
+  } | null;
 }
 
 const s = (v: string | null | undefined) => v ?? "";
@@ -175,6 +180,7 @@ export async function getSiteContent(lang: Lang): Promise<SiteContent> {
     team: {
       outro: s(raw.team?.outro),
       careersEmail: s(raw.team?.careersEmail),
+      ctaLabel: s(raw.team?.ctaLabel),
     },
   };
 }

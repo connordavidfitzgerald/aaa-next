@@ -29,18 +29,20 @@ function FooterLink({
   full,
   short,
   external = false,
+  className = "",
 }: {
   href: string;
   full: string;
   short: string;
   external?: boolean;
+  className?: string;
 }) {
   return (
     <a
       href={href}
       data-nav-link
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
-      className="relative flex items-center w-fit md:w-full col-span-2 transition-colors hover:text-green"
+      className={`relative flex items-center w-fit md:w-full col-span-1 md:col-span-2 transition-colors hover:text-green ${className}`}
     >
       {NAV_HL}
       <span className="relative z-10">
@@ -90,7 +92,7 @@ function NewsletterForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="col-span-3 flex flex-row justify-between items-center gap-2 w-full pt-2 md:pt-0"
+      className="col-span-2 md:col-span-3 flex flex-row justify-between items-center gap-2 w-full"
     >
       <input
         type="email"
@@ -324,19 +326,21 @@ export function Footer() {
         <div className=" pt-2 tracking-[-0.01em]">
           <NavMenu inverted />
         </div>
-        <div className="flex flex-col text-xs w-full md:grid md:grid-cols-9 md:gap-2">
-          {/* Instagram shares a row with the language switcher on mobile (the
-              switcher lives in the nav menu on desktop). md:contents drops the
-              link back into the grid on desktop, where the switcher is hidden. */}
-          <div className="flex flex-row justify-between items-center w-full md:contents">
-            <FooterLink
-              href="https://instagram.com/appliedarchiveatelier"
-              full="@appliedarchiveatelier"
-              short="Instagram"
-              external
-            />
-            <LanguageSwitcher inverted className="md:hidden w-fit" />
-          </div>
+        {/* Mobile: a paired 2-column grid (Instagram / Français, Contact /
+            Careers) with the newsletter spanning the full width — echoing the
+            site's justified rows. Desktop: the flat 9-column row, with the
+            language switcher hidden here (it lives in the nav menu). */}
+        <div className="grid grid-cols-2 gap-x-2 gap-y-5 text-xs w-full md:grid-cols-9 md:gap-2">
+          <FooterLink
+            href="https://instagram.com/appliedarchiveatelier"
+            full="@appliedarchiveatelier"
+            short="Instagram"
+            external
+          />
+          <LanguageSwitcher
+            inverted
+            className="md:hidden w-fit justify-self-end"
+          />
           <FooterLink
             href="mailto:info@appliedarchiveatelier.com"
             full="info@appliedarchiveatelier.com"
@@ -346,6 +350,7 @@ export function Footer() {
             href="mailto:careers@appliedarchiveatelier.com"
             full="careers@appliedarchiveatelier.com"
             short="Careers"
+            className="justify-self-end"
           />
           <NewsletterForm />
         </div>
