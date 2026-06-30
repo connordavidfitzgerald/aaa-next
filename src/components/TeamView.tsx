@@ -510,18 +510,23 @@ export function TeamView({
                         data-team-hl
                         className="absolute inset-0 bg-green scale-y-0 origin-top"
                       />
-                      <p className="col-span-6 relative z-10 text-xs md:text-lg leading-none pt-1">
+                      <p className="col-span-5 md:col-span-6 relative z-10 text-xs md:text-lg leading-none pt-1 truncate">
                         {member.name}
                       </p>
-                      <div className="col-span-3 relative z-10 flex justify-between items-center gap-x-2">
-                        <div className="flex flex-col">
+                      <div className="col-span-4 md:col-span-3 relative z-10 flex justify-end md:justify-between items-center gap-x-2">
+                        {/* Desktop: each role on its own line. */}
+                        <div className="hidden md:flex flex-col">
                           {roles.map((role) => (
-                            <span className="md:flex hidden" key={role}>
-                              {role}
-                            </span>
+                            <span key={role}>{role}</span>
                           ))}
                         </div>
-                        <p className="pr-1 text-right md:text-left">
+                        {/* Mobile: the role on a single, truncated line in place
+                            of the location. */}
+                        <p className="md:hidden w-full truncate text-right">
+                          {member.role}
+                        </p>
+                        {/* Desktop: location on the right. */}
+                        <p className="hidden md:block pr-1">
                           {member.location}
                         </p>
                       </div>
