@@ -25,6 +25,9 @@ export function ContactPage() {
   const [typedPrefix, setTypedPrefix] = useState("");
   const [placeholder, setPlaceholder] = useState("");
   const [hasInput, setHasInput] = useState(false);
+  // Whether the message field is focused. Mobile blocks the on-load programmatic
+  // focus, so we show a blinking fake caret when the empty field isn't focused.
+  const [focused, setFocused] = useState(false);
   const [sent, setSent] = useState(false);
   // In-flight + failure states for the Web3Forms submission. The success path
   // is the existing colour-drop sequence; only failures surface inline text.
@@ -297,6 +300,8 @@ export function ContactPage() {
                 aria-label="Your message"
                 contentEditable
                 suppressContentEditableWarning
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
                 onKeyDown={(e) => {
                   // Keep Enter as a plain line break instead of letting the
                   // browser split the flow into block elements.
@@ -314,6 +319,15 @@ export function ContactPage() {
                 }}
                 className="whitespace-pre-wrap outline-none"
               />
+              {/* Blinking caret cue, shown while the empty field isn't focused
+                  (notably on mobile, where it can't auto-focus). The real caret
+                  takes over once focused/typing. */}
+              {!hasInput && !focused && (
+                <span
+                  aria-hidden
+                  className="caret-blink inline-block w-[2px] h-[0.85em] align-text-bottom bg-black"
+                />
+              )}
               {!hasInput && (
                 <span
                   key="placeholder"
