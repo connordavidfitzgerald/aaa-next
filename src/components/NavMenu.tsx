@@ -147,7 +147,7 @@ export function NavMenu({
           </div>
         </div>
       ))}
-      <div className="col-span-2 flex flex-col items-end gap-2">
+      <div className="col-span-2 flex flex-col items-end justify-between h-full">
         <LocaleLink
           to="/contact"
           data-nav-link
@@ -155,10 +155,10 @@ export function NavMenu({
         >
           <NavHl inverted={inverted} />
           <span className="relative z-10 font-normal">
-            <span className="md:hidden text-nowrap">
+            <span className="min-[1315px]:hidden text-nowrap">
               {t("letsTalk")} <span className="text-[10px]">↗</span>
             </span>
-            <span className="hidden md:inline">
+            <span className="hidden min-[1315px]:inline">
               {t("startConversation")} <span className="text-[10px]">↗</span>
             </span>
           </span>
