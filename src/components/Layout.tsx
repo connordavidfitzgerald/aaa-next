@@ -1,10 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { Footer, MobileFooterBar } from "@/components/Footer";
 import { LenisInit } from "@/components/LenisInit";
 import { NavInteractions } from "@/components/NavInteractions";
+
+// Tracks the mobile breakpoint so we can mount the small mobile footer bar
+// instead of the full footer (rather than just hiding it with CSS — the full
+// footer's scroll logic shouldn't run on mobile).
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 767px)").matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const onChange = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return isMobile;
+}
 
 type Lenis = {
   scrollTo: (
@@ -41,9 +59,9 @@ function ScrollManager() {
 
 export function Layout() {
   const { pathname } = useLocation();
-  // No footer on the contact and about pages (in either language); the member
-  // view (/team/:slug) and every other page keep it. Strip the /fr locale prefix
-  // so both language trees match.
+  const isMobile = useIsMobile();
+  // Desktop only: no full footer on the contact and about pages (in either
+  // language). Strip the /fr locale prefix so both language trees match.
   const bare = pathname.replace(/^\/fr(?=\/|$)/, "") || "/";
   const hideFooter = bare === "/contact" || bare === "/about";
 
@@ -56,7 +74,9 @@ export function Layout() {
       <div className="relative z-10 min-h-screen bg-white">
         <Outlet />
       </div>
-      {!hideFooter && <Footer />}
+      {/* Mobile gets a small green bar (newsletter + language) on every page in
+          place of the full footer. */}
+      {isMobile ? <MobileFooterBar /> : !hideFooter && <Footer />}
       <LenisInit />
       <NavInteractions />
       <ScrollManager />

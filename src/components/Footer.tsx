@@ -58,7 +58,7 @@ function FooterLink({
 // Newsletter form. Submits the email to NEWSLETTER_ENDPOINT (Google Sheet via
 // Apps Script). Uses no-cors, so the response is opaque — we treat a completed
 // request as success.
-function NewsletterForm() {
+function NewsletterForm({ className = "" }: { className?: string }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">(
     "idle",
@@ -94,7 +94,7 @@ function NewsletterForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="col-span-2 md:col-span-3 flex flex-row justify-between items-center gap-2 w-full"
+      className={`flex flex-row justify-between items-center gap-2 ${className}`}
     >
       <input
         type="email"
@@ -117,6 +117,17 @@ function NewsletterForm() {
         <span className="relative z-10">{label}</span>
       </button>
     </form>
+  );
+}
+
+// Mobile-only replacement for the full footer: a small green bar holding the
+// newsletter form and the language switcher on a single row.
+export function MobileFooterBar() {
+  return (
+    <footer className="relative z-10 bg-green text-xs px-2 py-3 flex flex-row items-center gap-3">
+      <NewsletterForm className="flex-1 min-w-0" />
+      <LanguageSwitcher inverted className="w-fit shrink-0" />
+    </footer>
   );
 }
 
@@ -354,7 +365,7 @@ export function Footer() {
             short="Careers"
             className="justify-self-end"
           />
-          <NewsletterForm />
+          <NewsletterForm className="col-span-2 md:col-span-3 w-full" />
         </div>
         <div
           ref={wordRef}
