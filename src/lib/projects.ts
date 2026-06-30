@@ -4,7 +4,15 @@ import type { Lang } from "@/lib/locale";
 
 export type MediaItem =
   | { kind: "image"; src: string; alt?: string }
-  | { kind: "video"; muxPlaybackId: string; thumbnail?: string };
+  | {
+      kind: "video";
+      muxPlaybackId: string;
+      thumbnail?: string;
+      /** Show custom play/scrub/mute/fullscreen controls (else silent autoplay). */
+      controls?: boolean;
+      /** CSS aspect-ratio (e.g. "319 / 180") for the controlled player's box. */
+      aspect?: string;
+    };
 
 export type MediaRow = MediaItem | [MediaItem, MediaItem];
 
@@ -64,7 +72,7 @@ const PROJECT_FIELDS = /* groq */ `
   "media": media[]{
     "items": items[]{
       _type == "mediaImage" => {"kind": "image", "src": image.asset->url, "alt": ${loc("alt")}, featured, previewWidth, previewHideOnMobile},
-      _type == "mediaVideo" => {"kind": "video", "muxPlaybackId": coalesce(video.asset->playbackId, muxPlaybackId), featured, previewWidth, previewHideOnMobile}
+      _type == "mediaVideo" => {"kind": "video", "muxPlaybackId": coalesce(video.asset->playbackId, muxPlaybackId), controls, "aspect": video.asset->data.aspect_ratio, featured, previewWidth, previewHideOnMobile}
     }
   }
 `;
@@ -84,7 +92,12 @@ type PreviewControls = {
 type RawItem = PreviewControls &
   (
     | { kind: "image"; src: string | null; alt: string | null }
-    | { kind: "video"; muxPlaybackId: string }
+    | {
+        kind: "video";
+        muxPlaybackId: string;
+        controls: boolean | null;
+        aspect: string | null;
+      }
   );
 
 interface RawProject {
@@ -106,7 +119,13 @@ interface RawProject {
 const toItem = (raw: RawItem): MediaItem =>
   raw.kind === "image"
     ? { kind: "image", src: raw.src ?? "", alt: raw.alt ?? undefined }
-    : { kind: "video", muxPlaybackId: raw.muxPlaybackId };
+    : {
+        kind: "video",
+        muxPlaybackId: raw.muxPlaybackId,
+        controls: raw.controls ?? undefined,
+        // Mux reports "W:H"; CSS aspect-ratio wants "W / H".
+        aspect: raw.aspect ? raw.aspect.replace(":", " / ") : undefined,
+      };
 
 // Homepage preview = the media items flagged "featured", in media order, each
 // at its chosen width. No separate upload — the preview reuses the body media.
