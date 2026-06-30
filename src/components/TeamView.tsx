@@ -311,7 +311,7 @@ export function TeamView({
     return (
       <main
         ref={containerRef}
-        className={`flex flex-col px-2 text-xs leading-[120%] ${className}`}
+        className={`flex flex-col px-2 text-xs leading-[120%] ${className} pb-2`}
       >
         {/* Image and member info share the first viewport. The image is an
             absolutely-centred layer so it sits in the middle of the viewport
