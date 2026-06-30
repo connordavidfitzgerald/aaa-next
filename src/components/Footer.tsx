@@ -11,7 +11,7 @@ import periodSvg from "@/assets/svgs/period.svg";
 // bound to your sheet (doPost(e) → sheet.appendRow([e.parameter.email, new Date()]),
 // deployed as "Anyone"), then paste its /exec URL below. Until then submits no-op.
 const NEWSLETTER_ENDPOINT =
-  "https://script.google.com/macros/s/REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec";
+  "https://script.google.com/macros/s/AKfycbyXBHSi9cW7M4DVK1Y4YLy5MokZxRPQ8ENAyOs88U6jjjj8JQeXZjW2v09ZuLvFIZo6PQ/exec";
 
 // Reusable hover bar (scaleY animated by NavInteractions). On the footer's green
 // ground it's inverted vs the navbar: a black bar with the label turning green.
