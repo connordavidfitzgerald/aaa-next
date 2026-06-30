@@ -260,7 +260,7 @@ export function ContactPage() {
   return (
     <main
       ref={mainRef}
-      className="relative flex flex-col px-2 text-xs leading-[120%] min-h-screen"
+      className="relative flex flex-col px-2 text-xs leading-[120%] h-[100dvh] md:h-auto md:min-h-screen"
     >
       <div
         key={`hero-${runKey}`}
