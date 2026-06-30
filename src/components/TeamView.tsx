@@ -248,6 +248,32 @@ export function TeamView({
           row.removeEventListener("click", handleClick);
         });
       });
+
+      // Hovering the closing CTA section hides the team image, which overlaps
+      // that zone as it scrolls up — so the invitation reads on its own.
+      const ctaSection = root.querySelector<HTMLElement>("[data-team-cta]");
+      if (ctaSection && stickyEl) {
+        const hideImg = () =>
+          gsap.to(stickyEl, {
+            opacity: 0,
+            duration: 0.25,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        const showImg = () =>
+          gsap.to(stickyEl, {
+            opacity: 1,
+            duration: 0.25,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        ctaSection.addEventListener("mouseenter", hideImg);
+        ctaSection.addEventListener("mouseleave", showImg);
+        cleanups.push(() => {
+          ctaSection.removeEventListener("mouseenter", hideImg);
+          ctaSection.removeEventListener("mouseleave", showImg);
+        });
+      }
     })();
 
     return () => {
@@ -507,16 +533,19 @@ export function TeamView({
           </div>
         </ViewTransition>
 
-        {/* Buffer (≈ half the viewport) so the fixed image stays centred until
-            it lines up with the last name, then releases and scrolls up with the
-            list rather than stopping early. */}
-        <div aria-hidden className="h-[50vh]" />
+        {/* Buffer sized so the fixed image releases when its BOTTOM lines up
+            with the bottom of the name list: half the viewport minus half the
+            image height (the image is a col-span-4 square ≈ 22vw, so ≈ 11vw). */}
+        <div aria-hidden className="h-[calc(50vh-11vw)]" />
       </div>
 
       {/* Closing invitation, below the sticky range. Text + link centred in the
           middle 5 of a 9-column grid. */}
       {outro && (
-        <section className="grid grid-cols-9 items-center min-h-[70vh] -mt-[50vh] pb-2">
+        <section
+          data-team-cta
+          className="grid grid-cols-9 items-center min-h-[70vh] -mt-[calc(50vh-11vw)] pb-2"
+        >
           <div className="col-start-3 col-span-5 flex flex-col items-center gap-4 text-center">
             <p className="text-lg leading-[105%] tracking-[-0.02em]">{outro}</p>
             {careersEmail && (

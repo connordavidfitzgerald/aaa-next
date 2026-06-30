@@ -9,11 +9,12 @@ import { useT } from "@/lib/SiteContentProvider";
 const HIDDEN = "inset(-1% 100% -1% 0%)";
 const SHOWN = "inset(-1% 0% -1% 0%)";
 
-// Split a sentence-y string into separate display lines (after each period) so
-// the poetic scroll reveals one clause at a time.
+// Split into separate display lines for the poetic scroll: on any manual line
+// break typed in the CMS, and after each period (so it reveals one clause/line
+// at a time).
 const toClauses = (text: string) =>
   text
-    .split(/(?<=\.)\s+/)
+    .split(/\n|(?<=\.)\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
@@ -28,19 +29,24 @@ export function ManifestoPage() {
   // The poetic scroll at the top is derived from the manifesto stanzas (a blank
   // line between each), then the approach section, so the copy is only authored
   // once in the CMS.
-  const lines = useMemo<string[]>(() => {
+  // Each entry is a line of the poetic scroll; `id` marks the anchor the navbar
+  // links jump to (the start of the manifesto text and the start of the approach).
+  const lines = useMemo<{ text: string; id?: string }[]>(() => {
     if (!manifesto) return [];
-    const out: string[] = [];
-    manifesto.stanzas.forEach((stanza) => {
-      stanza.split("\n").forEach((l) => out.push(l));
-      out.push("");
+    const out: { text: string; id?: string }[] = [];
+    manifesto.stanzas.forEach((stanza, si) => {
+      stanza.split("\n").forEach((l, li) =>
+        out.push({ text: l, id: si === 0 && li === 0 ? "manifesto" : undefined }),
+      );
+      out.push({ text: "" });
     });
-    out.push("", "", "");
-    if (manifesto.approachLabel) out.push(manifesto.approachLabel, "", "");
+    out.push({ text: "" }, { text: "" }, { text: "" });
+    if (manifesto.approachLabel)
+      out.push({ text: manifesto.approachLabel, id: "approach" }, { text: "" }, { text: "" });
     manifesto.approach.forEach((a) => {
-      out.push(`${a.term}.`);
-      toClauses(a.description).forEach((c) => out.push(c));
-      out.push("");
+      out.push({ text: `${a.term}.` });
+      toClauses(a.description).forEach((c) => out.push({ text: c }));
+      out.push({ text: "" });
     });
     return out;
   }, [manifesto]);
@@ -116,16 +122,20 @@ export function ManifestoPage() {
         <div className="h-screen" aria-hidden></div>
         <div className=" text-center text-lg uppercase font-bold tracking-[-0.022em] leading-[100%]">
           {lines.map((line, i) =>
-            line === "" ? (
+            line.text === "" ? (
               <div key={i} aria-hidden className="h-[1.1em]" />
             ) : (
-              <div key={i}>
+              <div
+                key={i}
+                id={line.id}
+                className={line.id ? "scroll-mt-[var(--nav-height)]" : undefined}
+              >
                 <span
                   data-line
                   className="inline-block bg-green px-0.5 pt-1 text-black"
                   style={{ clipPath: HIDDEN }}
                 >
-                  {line}
+                  {line.text}
                 </span>
               </div>
             ),
@@ -136,7 +146,7 @@ export function ManifestoPage() {
         {/* Structured reference panel. The poetic scroll above resolves into a
             plain editorial index of the three pillars, laid out on the site's
             18-column grid: Approach (4) · Manifesto (6) · Capabilities (8). */}
-        <section className="w-full h-screen flex flex-col gap-0 justify-start">
+        <section className="w-full min-h-[50vh] flex flex-col gap-0 justify-start">
           <div className="h-[calc(var(--nav-height))]"></div>
           <div className="grid grid-cols-18 gap-2 gap-y-6 text-xs leading-[1.2] tracking-[-0.01em] bg-green px-2 pt-2 grow">
             {/* Approach */}
@@ -196,8 +206,7 @@ export function ManifestoPage() {
             </div>
           </div>
           <div className="flex absolute bottom-0">
-            <section id="capabilities" /> <section id="manifesto" />{" "}
-            <section id="approach" />
+            <section id="capabilities" />
           </div>
         </section>
       </div>

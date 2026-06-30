@@ -48,8 +48,9 @@ function FooterLink({
       <span className="relative z-10">
         <span className="hidden min-[1201px]:inline">{full}</span>
         <span className="min-[1201px]:hidden">{short}</span>
-        {/* Action arrow, mobile footer only. */}
-        <span className="md:hidden text-[10px]"> ↗</span>
+        {/* Action arrow — shown with the short label, hidden once the full
+            email address is shown (>1200px). */}
+        <span className="min-[1201px]:hidden text-[10px]"> ↗</span>
       </span>
     </a>
   );
@@ -114,7 +115,10 @@ function NewsletterForm({ className = "" }: { className?: string }) {
         className="relative flex items-center w-fit shrink-0 transition-colors hover:text-green"
       >
         {NAV_HL}
-        <span className="relative z-10">{label}</span>
+        <span className="relative z-10">
+          {label}
+          {status === "idle" && <span className="text-[10px]"> ↗</span>}
+        </span>
       </button>
     </form>
   );
@@ -360,9 +364,9 @@ export function Footer() {
             short="Contact"
           />
           <FooterLink
-            href="mailto:careers@appliedarchiveatelier.com"
-            full="careers@appliedarchiveatelier.com"
-            short="Careers"
+            href="mailto:team@appliedarchiveatelier.com"
+            full="team@appliedarchiveatelier.com"
+            short="Join Us"
             className="justify-self-end"
           />
           <NewsletterForm className="col-span-2 md:col-span-3 w-full" />
