@@ -229,7 +229,10 @@ export function ContactPage() {
     const payload = new FormData(form);
     payload.set("message", message);
     payload.set("access_key", WEB3FORMS_ACCESS_KEY);
-    payload.set("subject", c?.emailSubject ?? "New enquiry — Applied Archive Atelier");
+    payload.set(
+      "subject",
+      c?.emailSubject ?? "New enquiry — Applied Archive Atelier",
+    );
     // Show a readable budget in the email rather than the raw slider number.
     const budget = payload.get("budget");
     if (budget !== null) payload.set("budget", formatBudget(Number(budget)));
@@ -447,7 +450,7 @@ export function ContactPage() {
               onPointerDown={(e) => {
                 clickPos.current = { x: e.clientX, y: e.clientY };
               }}
-              className="relative flex h-full min-h-32 w-full md:items-start md:justify-end items-center justify-center overflow-hidden border border-black/20 p-2 cursor-pointer"
+              className="relative flex w-full items-center justify-center md:items-start md:justify-end overflow-hidden border border-black/20 cursor-pointer leading-[115%] h-10 px-2 md:p-2 text-xs md:leading-[120%] md:h-full md:min-h-32"
             >
               <span
                 data-nav-hl
