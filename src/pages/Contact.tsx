@@ -25,9 +25,6 @@ export function ContactPage() {
   const [typedPrefix, setTypedPrefix] = useState("");
   const [placeholder, setPlaceholder] = useState("");
   const [hasInput, setHasInput] = useState(false);
-  // Whether the message field is focused. Mobile blocks the on-load programmatic
-  // focus, so we show a blinking fake caret when the empty field isn't focused.
-  const [focused, setFocused] = useState(false);
   const [sent, setSent] = useState(false);
   // In-flight + failure states for the Web3Forms submission. The success path
   // is the existing colour-drop sequence; only failures surface inline text.
@@ -269,7 +266,9 @@ export function ContactPage() {
         key={`hero-${runKey}`}
         className="relative z-10 flex flex-1 items-center justify-center pt-[calc(var(--nav-height)*1.2)] md:pt-[var(--nav-height)] md:pb-6"
       >
-        <div className="relative w-full">
+        <div className="grid grid-cols-9 w-full">
+          {/* Message area: the middle 7 of a 9-column grid. */}
+          <div className="relative col-start-2 col-span-7">
           {/* The prompt; wipes down out of its mask on success. The prefix,
               dimmed example, and the editable region are all inline text in one
               centred flow, so "Hi there," and the message wrap together and
@@ -300,8 +299,6 @@ export function ContactPage() {
                 aria-label="Your message"
                 contentEditable
                 suppressContentEditableWarning
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
                 onKeyDown={(e) => {
                   // Keep Enter as a plain line break instead of letting the
                   // browser split the flow into block elements.
@@ -319,15 +316,6 @@ export function ContactPage() {
                 }}
                 className="whitespace-pre-wrap outline-none"
               />
-              {/* Blinking caret cue, shown while the empty field isn't focused
-                  (notably on mobile, where it can't auto-focus). The real caret
-                  takes over once focused/typing. */}
-              {!hasInput && !focused && (
-                <span
-                  aria-hidden
-                  className="caret-blink inline-block w-[2px] h-[0.85em] align-text-bottom bg-black"
-                />
-              )}
               {!hasInput && (
                 <span
                   key="placeholder"
@@ -366,6 +354,7 @@ export function ContactPage() {
                 {c?.successMessage}
               </p>
             </div>
+          </div>
           </div>
         </div>
       </div>
