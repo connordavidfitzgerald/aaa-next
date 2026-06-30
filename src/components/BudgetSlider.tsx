@@ -20,7 +20,7 @@ export function BudgetSlider({ className = "" }: { className?: string }) {
         step={5000}
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
-        className="budget-slider w-full mt-[6px] -mb-[6px]"
+        className="budget-slider w-full md:mt-[6px] md:-mb-[6px]"
       />
       <span className="flex justify-between">
         <span className="pt-0.5">Budget</span>

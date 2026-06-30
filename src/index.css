@@ -139,6 +139,8 @@ html[data-contact] {
     height: 12px;
     background: transparent;
     cursor: pointer;
+    /* Let the slider own the drag gesture instead of the page scrolling. */
+    touch-action: none;
 }
 .budget-slider::-webkit-slider-runnable-track {
     height: 1px;
@@ -167,6 +169,22 @@ html[data-contact] {
 }
 .budget-slider:focus {
     outline: none;
+}
+
+/* Mobile: a much bigger touch target and thumb so it's easy to grab and drag. */
+@media (max-width: 767px) {
+    .budget-slider {
+        height: 36px;
+    }
+    .budget-slider::-webkit-slider-thumb {
+        height: 22px;
+        width: 22px;
+        margin-top: -10.5px; /* centre the 22px thumb on the 1px track */
+    }
+    .budget-slider::-moz-range-thumb {
+        height: 22px;
+        width: 22px;
+    }
 }
 
 mux-player {
