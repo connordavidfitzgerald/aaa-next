@@ -367,7 +367,7 @@ export function TeamView({
         {/* Optional member video: full width within the page gutter, sitting
             just below the member info. */}
         {selected.videoPlaybackId && (
-          <div className="grid grid-cols-9 gap-2 border-t border-black/20 md:border-none py-2 md:py-0">
+          <div className="grid grid-cols-9 gap-2 border-t border-black/20 md:border-none pb-4 pt-2 md:py-0">
             <div className="md:col-span-2 col-span-9">
               {selected.videoCaption}
             </div>
@@ -457,7 +457,7 @@ export function TeamView({
           <div className="md:-mt-40 relative z-10 flex flex-col tracking-[-0.01em] pb-2 gap-10">
             {sections?.map((section) => (
               <div key={section.label} className="flex flex-col pt-8">
-                <p className="opacity-70 md:pb-2 pb-0.5 border-b border-black/20">
+                <p className="opacity-70 md:pb-2 pb-2 border-b border-black/20">
                   {section.label}
                 </p>
                 {section.members.map((member) => {
@@ -472,7 +472,7 @@ export function TeamView({
                       data-team-row
                       data-member={member.key}
                       data-slug={member.slug}
-                      className="relative grid grid-cols-9 gap-x-2 items-center  border-b border-black/20 md:py-2 py-0.5"
+                      className="relative grid grid-cols-9 gap-x-2 items-center  border-b border-black/20 md:py-2 py-0.5 h-8 md:h-auto"
                     >
                       <span
                         data-team-hl
@@ -489,7 +489,9 @@ export function TeamView({
                             </span>
                           ))}
                         </div>
-                        <p className="pr-1">{member.location}</p>
+                        <p className="pr-1 text-right md:text-left">
+                          {member.location}
+                        </p>
                       </div>
                     </LocaleLink>
                   );
@@ -618,7 +620,7 @@ function MemberDetail({ member }: { member: MemberView }) {
         {/* Member's links, stacked in the last two columns and right-aligned.
             Each link only renders when its field is filled in. */}
         {(member.instagram || member.linkedin || member.email) && (
-          <div className="col-span-8 md:col-span-2 md:col-start-17 grid grid-cols-2 md:flex md:flex-col gap-2 md:gap-0 md:items-end items-start md:text-right text-left ">
+          <div className="col-span-8 md:col-span-2 md:col-start-17 grid grid-cols-2 md:flex md:flex-col gap-2 md:gap-0 md:items-end items-start md:text-right text-left pt-2 ">
             {member.instagram && (
               <a
                 href={member.instagram}

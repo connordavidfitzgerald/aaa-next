@@ -86,6 +86,20 @@ html::-webkit-scrollbar {
     }
 }
 
+/* The wordmark interpolates between its large and shrunk size on scroll (driven
+   by --nav-shrink). On mobile we drop the shrink and keep it at the large size. */
+.nav-wordmark {
+    font-size: calc(
+        var(--text-header) * (1 - var(--nav-shrink)) + var(--text-sm) *
+            var(--nav-shrink)
+    );
+}
+@media (max-width: 767px) {
+    .nav-wordmark {
+        font-size: var(--text-header);
+    }
+}
+
 /* Footer navigation. The footer sits on green, so flip the shared menu's hover
    treatment: a black highlight bar with the label turning green on hover. The
    navbar keeps the default green bar on white. */

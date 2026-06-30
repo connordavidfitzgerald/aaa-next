@@ -129,7 +129,7 @@ export function NavMenu({
             to={col.to}
             data-nav-link
             data-nav-header
-            className={`relative  flex items-start w-full h-fit col-span-2 md:col-span-1 ${linkHover}`}
+            className={`relative  flex items-start w-fit md:w-full h-fit col-span-2 md:col-span-1 ${linkHover}`}
           >
             <NavHl inverted={inverted} />
             <span className="relative z-10">{t(col.labelKey)}</span>
@@ -147,11 +147,11 @@ export function NavMenu({
           </div>
         </div>
       ))}
-      <div className="col-span-2 flex flex-col items-end">
+      <div className="col-span-2 flex flex-col items-end gap-2">
         <LocaleLink
           to="/contact"
           data-nav-link
-          className={`relative flex items-center justify-end w-full ${linkHover}`}
+          className={`relative flex items-center justify-end w-fit md:w-full ${linkHover}`}
         >
           <NavHl inverted={inverted} />
           <span className="relative z-10 font-normal">

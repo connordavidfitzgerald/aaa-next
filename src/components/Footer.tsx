@@ -48,6 +48,8 @@ function FooterLink({
       <span className="relative z-10">
         <span className="hidden min-[1201px]:inline">{full}</span>
         <span className="min-[1201px]:hidden">{short}</span>
+        {/* Action arrow, mobile footer only. */}
+        <span className="md:hidden text-[10px]"> ↗</span>
       </span>
     </a>
   );
@@ -330,7 +332,7 @@ export function Footer() {
             Careers) with the newsletter spanning the full width — echoing the
             site's justified rows. Desktop: the flat 9-column row, with the
             language switcher hidden here (it lives in the nav menu). */}
-        <div className="grid grid-cols-2 gap-x-2 gap-y-5 text-xs w-full md:grid-cols-9 md:gap-2">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs w-full md:grid-cols-9 md:gap-2">
           <FooterLink
             href="https://instagram.com/appliedarchiveatelier"
             full="@appliedarchiveatelier"
