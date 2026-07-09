@@ -128,7 +128,7 @@ function NewsletterForm({ className = "" }: { className?: string }) {
 // newsletter form and the language switcher on a single row.
 export function MobileFooterBar() {
   return (
-    <footer className="relative z-10 bg-green text-xs px-2 py-3 flex flex-row items-center gap-3">
+    <footer className="relative z-10 bg-green text-xs px-2 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] flex flex-row items-center gap-3">
       <NewsletterForm className="flex-1 min-w-0" />
       <LanguageSwitcher inverted className="w-fit shrink-0" />
     </footer>
@@ -347,7 +347,7 @@ export function Footer() {
             Careers) with the newsletter spanning the full width — echoing the
             site's justified rows. Desktop: the flat 9-column row, with the
             language switcher hidden here (it lives in the nav menu). */}
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs w-full md:grid-cols-9 md:gap-2">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs w-full h-fit md:grid-cols-9 md:gap-2">
           <FooterLink
             href="https://instagram.com/appliedarchiveatelier"
             full="@appliedarchiveatelier"

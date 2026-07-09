@@ -1,5 +1,6 @@
 import MuxPlayer from "@mux/mux-player-react";
 import { useEffect, useRef, useState } from "react";
+import { useVideoQuality } from "@/lib/useVideoQuality";
 
 // Minimal slice of the mux-player element API we drive.
 type PlayerEl = HTMLElement & {
@@ -34,9 +35,11 @@ export function TeamVideoPlayer({
   aspectRatio?: string;
   className?: string;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<PlayerEl | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const scrubbing = useRef(false);
+  const quality = useVideoQuality();
 
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -64,6 +67,25 @@ export function TeamVideoPlayer({
     events.forEach((e) => el.addEventListener(e, sync));
     sync();
     return () => events.forEach((e) => el.removeEventListener(e, sync));
+  }, [playbackId]);
+
+  // Autoplay only while on-screen: start when the frame scrolls into view, pause
+  // when it leaves. This replaces the always-on `autoPlay` so the video isn't
+  // decoding off-screen, and mirrors the grid previews' viewport-gated playback.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const el = playerRef.current;
+        if (!el) return;
+        if (entry.isIntersecting) el.play().catch(() => {});
+        else el.pause();
+      },
+      { threshold: 0.25 },
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
   }, [playbackId]);
 
   const pct =
@@ -104,6 +126,7 @@ export function TeamVideoPlayer({
 
   return (
     <div
+      ref={containerRef}
       className={`group relative w-full ${className}`}
       style={{ aspectRatio: aspectRatio ?? "16 / 9" }}
     >
@@ -119,10 +142,11 @@ export function TeamVideoPlayer({
           "--media-object-fit": "contain",
         }}
         playsInline
-        autoPlay="muted"
         muted
         loop
-        preload="auto"
+        maxResolution={quality.maxResolution}
+        minResolution={quality.minResolution}
+        preload="metadata"
       />
 
       {/* Click anywhere on the frame to play/pause (sits below the controls). */}
