@@ -1,6 +1,7 @@
 import { LocaleLink } from "@/components/LocaleLink";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useT } from "@/lib/SiteContentProvider";
+import { useLocale } from "@/lib/locale";
 import type { UiKey } from "@/lib/siteContent";
 
 type MenuItem = { label: string; to?: string; href?: string };
@@ -118,6 +119,7 @@ export function NavMenu({
   inverted?: boolean;
 }) {
   const t = useT();
+  const { lang } = useLocale();
   const linkHover = inverted ? "transition-colors hover:text-green" : "";
   const collapse = `hidden md:grid w-full transition-[grid-template-rows,opacity] duration-300 ease-out ${
     expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
@@ -133,7 +135,18 @@ export function NavMenu({
             className={`relative  flex items-start w-fit md:w-full h-fit col-span-2 md:col-span-1 ${linkHover}`}
           >
             <NavHl inverted={inverted} />
-            <span className="relative z-10">{t(col.labelKey)}</span>
+            {/* The projects header shortens to just "Projects" on mobile; the
+                full "Selected Projects" label returns at md+. */}
+            {col.labelKey === "navProjects" ? (
+              <span className="relative z-10">
+                <span className="md:hidden">
+                  {lang === "fr" ? "Projets" : "Projects"}
+                </span>
+                <span className="hidden md:inline">{t(col.labelKey)}</span>
+              </span>
+            ) : (
+              <span className="relative z-10">{t(col.labelKey)}</span>
+            )}
           </LocaleLink>
           <div className={collapse}>
             <div className="min-h-0 overflow-hidden flex flex-col w-full">
