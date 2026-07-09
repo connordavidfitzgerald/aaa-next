@@ -61,10 +61,10 @@ export function HomePage() {
       <CursorImageTrail
         id="tagline"
         images={trailImages}
-        className="w-full h-screen"
+        className="w-full h-[80dvh] md:h-screen"
       >
-        <h3 className="text-lg uppercase font-bold tracking-[-0.02em] leading-[95%]  grid grid-cols-9 ">
-          <span className="col-span-5 col-start-3 text-center">
+        <h3 className="text-lg uppercase font-bold tracking-[-0.02em] leading-[95%]  grid grid-cols-9 gap-2">
+          <span className="col-span-7 col-start-2 md:col-span-5 md:col-start-3 text-center">
             <span
               className="box-decoration-clone w-fit px-0.5 text-black
               bg-[linear-gradient(var(--color-green),var(--color-green))]
