@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 export type VideoQuality = {
   maxResolution: "1080p" | "2160p";
   minResolution?: "1080p";
+  isMobile: boolean;
 };
 
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -33,6 +34,6 @@ export function useVideoQuality(): VideoQuality {
   }, []);
 
   return isMobile
-    ? { maxResolution: "1080p" }
-    : { maxResolution: "2160p", minResolution: "1080p" };
+    ? { maxResolution: "1080p", isMobile }
+    : { maxResolution: "2160p", minResolution: "1080p", isMobile };
 }

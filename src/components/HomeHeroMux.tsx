@@ -5,14 +5,18 @@ export function HomeHeroMux() {
   const quality = useVideoQuality();
   return (
     <MuxPlayer
-      playbackId="PSOFY00GHCtgIt3glmKPtT5rV0200Zbz2j5Tko0202Q2G4TU"
+      playbackId={
+        quality.isMobile
+          ? "pTCeAfCZnyQkQCn700cosk02v2R42w4ibSAyPNWZ8JVxQ"
+          : "DvqTExvLnOyguwQ94gecuWx02Qocm00tP02hQFUFWkw5yk"
+      }
       autoPlay="muted"
       muted
       maxResolution={quality.maxResolution}
       minResolution={quality.minResolution}
       loop
       playsInline
-      className="object-cover w-full md:h-auto h-auto md:aspect-[935/332] aspect-4/3 flex "
+      className="object-cover w-full md:h-auto h-auto md:aspect-[935/332] aspect-square flex "
       style={{
         width: "100%",
         // Fill (and crop) the reserved box rather than letterboxing — so mobile
