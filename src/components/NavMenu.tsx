@@ -20,8 +20,9 @@ const columns: MenuColumn[] = [
       { label: "CTRL+ALT", to: "/projects/ctrl" },
       { label: "Ecozoic", to: "/projects/ecozoic" },
       { label: "Ellipse Magazine", to: "/projects/ellipse" },
-      { label: "Routes to Rootz", to: "/projects/routes-to-rootz" },
       { label: "MAPP_MTL", to: "/projects/mapp" },
+      { label: "Routes to Rootz", to: "/projects/routes-to-rootz" },
+
     ],
   },
   {
