@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type MouseEvent } from "react";
 
 import { useTitle } from "@/lib/useTitle";
 import {
@@ -32,6 +32,85 @@ function Blocks({ blocks }: { blocks: Block[] }) {
   );
 }
 
+type LenisOpts = { immediate?: boolean; duration?: number };
+type LenisLike = { scrollTo: (t: number, o?: LenisOpts) => void };
+
+// Jumping to a section is a moving target. A section's scroll-margin is tied to
+// --nav-height, but the jump itself is what changes that: scrolling past 50px
+// collapses the navbar's submenus (a 300ms transition, see Navbar.tsx) and
+// shrinks the wordmark. So the offset measured at click time is stale by the
+// time you land — which is why a second click, made with the navbar already
+// settled, used to be the one that landed correctly.
+//
+// So: jump, wait for the navbar to actually stop resizing, then ease out
+// whatever difference that resize introduced.
+function jumpToSection(e: MouseEvent<HTMLAnchorElement>, id: string) {
+  e.preventDefault();
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Prefer the shared Lenis instance so the smooth-scroll engine stays in sync
+  // (the same handling ScrollManager uses for hash navigation).
+  const lenis = (window as unknown as { lenis?: LenisLike }).lenis;
+  const nav = document.querySelector<HTMLElement>("[data-navbar]");
+
+  // Lenis ignores CSS scroll-margin, so read it and apply it ourselves; the
+  // stylesheet stays the single source of truth for the offset.
+  const targetFor = () => {
+    const smt = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+    return Math.max(0, el.getBoundingClientRect().top + window.scrollY - smt);
+  };
+
+  const go = (to: number, smooth: boolean) => {
+    if (lenis) lenis.scrollTo(to, smooth ? { duration: 0.4 } : { immediate: true });
+    else window.scrollTo({ top: to, behavior: smooth ? "smooth" : "auto" });
+  };
+
+  // First pass — gets you there, and puts the navbar into its scrolled state.
+  go(targetFor(), false);
+
+  // Second pass — correct once the navbar has settled. Bail out if the reader
+  // takes over scrolling in the meantime; their input wins over our correction.
+  let done = false;
+  const abort = () => {
+    done = true;
+  };
+  const events = ["wheel", "touchstart", "keydown"] as const;
+  events.forEach((ev) =>
+    window.addEventListener(ev, abort, { once: true, passive: true }),
+  );
+  const finish = () => {
+    events.forEach((ev) => window.removeEventListener(ev, abort));
+    // Record the section in the URL without going through the router, so
+    // ScrollManager doesn't run its own jump on top of this one.
+    history.replaceState(null, "", `#${id}`);
+  };
+
+  // Measure the navbar directly rather than reading --nav-height: that variable
+  // is deliberately frozen while the navbar is hovered, and it lags the element
+  // by a frame besides.
+  let lastHeight = -1;
+  let steady = 0;
+  const startedAt = performance.now();
+  const settle = () => {
+    if (done) return finish();
+    const h = nav?.getBoundingClientRect().height ?? 0;
+    steady = h === lastHeight ? steady + 1 : 0;
+    lastHeight = h;
+    // Five identical frames, or a cap comfortably past the 300ms submenu
+    // transition, means the navbar has stopped moving.
+    if (steady < 5 && performance.now() - startedAt < 800) {
+      requestAnimationFrame(settle);
+      return;
+    }
+    const to = targetFor();
+    // Ease the leftover distance so the correction reads as a settle rather
+    // than a second jump.
+    if (Math.abs(to - window.scrollY) > 1) go(to, true);
+    finish();
+  };
+  requestAnimationFrame(settle);
+}
+
 export function TermsPage() {
   useTitle("Applied Archive Atelier — Service Terms");
 
@@ -62,6 +141,7 @@ export function TermsPage() {
               <a
                 key={section.id}
                 href={`#${section.id}`}
+                onClick={(e) => jumpToSection(e, section.id)}
                 data-nav-link
                 className="relative flex items-center w-fit"
               >
