@@ -12,6 +12,7 @@ import { TeamPage } from "@/pages/Team";
 import { MemberPage } from "@/pages/Member";
 import { ContactPage } from "@/pages/Contact";
 import { ProjectPage } from "@/pages/Project";
+import { TermsPage } from "@/pages/Terms";
 import { NotFound } from "@/pages/NotFound";
 
 // The locale-aware shell: everything below reads the active language from the
@@ -51,6 +52,7 @@ const pageRoutes = () => (
     <Route path="team/:member" element={<MemberPage />} />
     <Route path="contact" element={<ContactPage />} />
     <Route path="projects/:project" element={<ProjectPage />} />
+    <Route path="terms" element={<TermsPage />} />
     <Route path="*" element={<NotFound />} />
   </>
 );

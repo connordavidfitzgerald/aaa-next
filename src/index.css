@@ -125,6 +125,27 @@ html[data-manifesto] [data-nav-link]:hover {
     color: var(--color-green);
 }
 
+/* Terms page sits on green from the top, so the navbar rides the same ground
+   and takes the footer's inverted hover treatment. */
+html[data-terms] {
+    --nav-bg: var(--color-green);
+}
+html[data-terms] [data-nav-hl] {
+    background: black;
+}
+html[data-terms] [data-nav-link] {
+    transition: color 0.2s ease;
+}
+html[data-terms] [data-nav-link]:hover {
+    color: var(--color-green);
+}
+/* Selection inverts with it: the site-wide green highlight would be invisible
+   on this page's green ground, and the terms are meant to be copied. */
+html[data-terms] ::selection {
+    background-color: black;
+    color: var(--color-green);
+}
+
 /* Contact page: the success colour drop is painted behind the page content, so
    drop the navbar's opaque background to let the green flood through it too. */
 html[data-contact] {
